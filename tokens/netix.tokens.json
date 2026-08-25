@@ -1,0 +1,416 @@
+{
+  "$meta": {
+    "version": 1,
+    "encoding": "css-color",
+    "brand": "#196796",
+    "note": "Hand-edited source of truth. Run `pnpm gen:tokens` after every change."
+  },
+  "font": {
+    "family": "Archivo",
+    "dir": "../fonts",
+    "faces": [
+      { "file": "archivo-400.woff2", "weight": "400", "style": "normal" },
+      { "file": "archivo-500.woff2", "weight": "500", "style": "normal" },
+      { "file": "archivo-600.woff2", "weight": "600", "style": "normal" },
+      { "file": "archivo-700.woff2", "weight": "700", "style": "normal" },
+      { "file": "archivo-400-italic.woff2", "weight": "400", "style": "italic" }
+    ]
+  },
+  "groups": [
+    {
+      "name": "Brand — re-anchored on the netix-ai.svg mark (#196796)",
+      "tokens": {
+        "brand-700": { "light": "#10557c", "dark": "#2985bc" },
+        "brand-600": { "light": "#196796", "dark": "#4ba3d8" },
+        "brand-500": { "light": "#2a8ac0", "dark": "#7bc0ea" },
+        "brand-100": { "light": "#e1edf4", "dark": "#112b3b" },
+        "brand-on": { "light": "#ffffff", "dark": "#07141d" },
+        "ml-accent": { "light": "#a8437f", "dark": "#d980b3" },
+        "ml-accent-tint": { "light": "#f7e9f1", "dark": "#2c1622" }
+      }
+    },
+    {
+      "name": "Surface / text / border primitives",
+      "tokens": {
+        "surface-app": { "light": "#f5f5f5", "dark": "#0f0f0f" },
+        "surface-1": { "light": "#ffffff", "dark": "#18181b" },
+        "surface-2": { "light": "#f1f5f9", "dark": "#1e293b" },
+        "surface-3": { "light": "#eaecf1", "dark": "#29364c" },
+        "surface-dark-mimic": "#0e1626",
+        "border-subtle": { "light": "#e2e8f0", "dark": "#1e293b" },
+        "border-strong": { "light": "#cbd5e1", "dark": "#3a496b" },
+        "text-primary": { "light": "#2d2e2f", "dark": "#f8fafc" },
+        "text-secondary": { "light": "#4b5d68", "dark": "#a6b6bf" },
+        "text-tertiary": { "light": "#8096a3", "dark": "#607885" },
+        "text-muted": { "light": "#64748b", "dark": "#94a3b8" },
+        "text-inverse": { "light": "#ffffff", "dark": "#0f0f0f" }
+      }
+    },
+    {
+      "name": "Status ladder — base / fill / on / tint / on-tint",
+      "tokens": {
+        "status-ok": { "light": "#16a34a", "dark": "#22c55e" },
+        "status-ok-fill": { "light": "#15803d", "dark": "#22c55e" },
+        "status-ok-on": { "light": "#ffffff", "dark": "#06210f" },
+        "status-ok-tint": { "light": "#e7f6ec", "dark": "#103324" },
+        "status-ok-on-tint": { "light": "#0f5a2e", "dark": "#6ee7a6" },
+        "status-warning": { "light": "#d97706", "dark": "#f59e0b" },
+        "status-warning-fill": { "light": "#b45309", "dark": "#f59e0b" },
+        "status-warning-on": { "light": "#ffffff", "dark": "#2a1a03" },
+        "status-warning-tint": { "light": "#fbf0dd", "dark": "#3a2a0a" },
+        "status-warning-on-tint": { "light": "#7a3d06", "dark": "#fcd58a" },
+        "status-critical": { "light": "#dc2626", "dark": "#f0533f" },
+        "status-critical-fill": { "light": "#dc2626", "dark": "#f0533f" },
+        "status-critical-on": { "light": "#ffffff", "dark": "#2a0a06" },
+        "status-critical-tint": { "light": "#fce9e9", "dark": "#3a1512" },
+        "status-critical-on-tint": { "light": "#7f1414", "dark": "#fca99b" },
+        "status-info": { "light": "#2563eb", "dark": "#5c9dff" },
+        "status-info-fill": { "light": "#2563eb", "dark": "#5c9dff" },
+        "status-info-on": { "light": "#ffffff", "dark": "#06142a" },
+        "status-info-tint": { "light": "#e6eefd", "dark": "#16294d" },
+        "status-info-on-tint": { "light": "#1e3a8a", "dark": "#afcbff" },
+        "status-neutral": { "light": "#64748b", "dark": "#94a3b8" },
+        "status-neutral-fill": { "light": "#64748b", "dark": "#475569" },
+        "status-neutral-on": { "light": "#ffffff", "dark": "#f1f5f9" },
+        "status-neutral-tint": { "light": "#eef2f7", "dark": "#1f2a3c" },
+        "status-neutral-on-tint": { "light": "#334155", "dark": "#aab6c9" },
+        "status-offline": { "light": "#7a5af8", "dark": "#9b87ff" },
+        "status-offline-fill": { "light": "#7a5af8", "dark": "#9b87ff" },
+        "status-offline-on": { "light": "#ffffff", "dark": "#0a0620" },
+        "status-offline-tint": { "light": "#ece8fe", "dark": "#211a4d" },
+        "status-offline-on-tint": { "light": "#3b2a86", "dark": "#cfc4ff" },
+        "status-stale": { "light": "#0e7490", "dark": "#22b8cf" },
+        "status-stale-fill": { "light": "#0e7490", "dark": "#22b8cf" },
+        "status-stale-on": { "light": "#ffffff", "dark": "#04181c" },
+        "status-stale-tint": { "light": "#e0f2f6", "dark": "#0c2e36" },
+        "status-stale-on-tint": { "light": "#0a3f4a", "dark": "#9de3ee" },
+        "status-nodata": { "light": "#94a3b8", "dark": "#64748b" },
+        "status-nodata-fill": { "light": "#e2e8f0", "dark": "#2a3650" },
+        "status-nodata-on": { "light": "#334155", "dark": "#aab6c9" },
+        "status-nodata-tint": { "light": "#f1f5f9", "dark": "#18202f" },
+        "status-nodata-on-tint": { "light": "#475569", "dark": "#7e8da4" },
+        "sev-critical": "var(--status-critical)",
+        "sev-warning": "var(--status-warning)",
+        "sev-info": "var(--status-info)"
+      }
+    },
+    {
+      "name": "Billing-notice severity ladder — ink / surface / border",
+      "tokens": {
+        "notice-advisory": { "light": "#235f9e", "dark": "#86b8ea" },
+        "notice-advisory-surface": { "light": "#eaf2fb", "dark": "#14212f" },
+        "notice-advisory-border": { "light": "#c5dcf3", "dark": "#23394f" },
+        "notice-attention": { "light": "#9c6408", "dark": "#dfae60" },
+        "notice-attention-surface": { "light": "#fbf3e3", "dark": "#271f13" },
+        "notice-attention-border": { "light": "#efdcb4", "dark": "#43351f" },
+        "notice-critical": { "light": "#a82c27", "dark": "#e9847d" },
+        "notice-critical-surface": { "light": "#fbedec", "dark": "#2b1716" },
+        "notice-critical-border": { "light": "#f2cfcd", "dark": "#4a2523" }
+      }
+    },
+    {
+      "name": "Categorical (Okabe–Ito, colour-blind safe) — use in order, never for status",
+      "tokens": {
+        "cat-1": "#0072b2",
+        "cat-2": "#e69f00",
+        "cat-3": "#009e73",
+        "cat-4": "#cc79a7",
+        "cat-5": "#56b4e9",
+        "cat-6": "#d55e00",
+        "cat-7": "#f0e442",
+        "cat-8": "#6a4c93",
+        "cat-9": "#999999",
+        "cat-10": "#117733"
+      }
+    },
+    {
+      "name": "Electrical phase identity — reserved, always label R/Y/B",
+      "tokens": {
+        "phase-r": "#c8322b",
+        "phase-y": "#e0a21a",
+        "phase-b": "#2563eb",
+        "phase-n": "#94a3b8"
+      }
+    },
+    {
+      "name": "Charting conventions",
+      "tokens": {
+        "chart-axis": { "light": "#5e6b7b", "dark": "#7e8da4" },
+        "chart-grid": { "light": "#eaeef4", "dark": "#1f2a3c" },
+        "chart-threshold": { "light": "#dc2626", "dark": "#f0533f" },
+        "chart-setpoint": { "light": "#2563eb", "dark": "#5c9dff" },
+        "chart-deadband": { "light": "rgba(37, 99, 235, 0.1)", "dark": "rgba(92, 157, 255, 0.14)" },
+        "chart-anomaly": { "light": "#dc2626", "dark": "#f0533f" },
+        "chart-annotation": { "light": "#b45309", "dark": "#f59e0b" },
+        "chart-cursor": { "light": "#0f172a", "dark": "#f1f5f9" },
+        "chart-area-opacity": { "light": "0.14", "dark": "0.2" }
+      }
+    },
+    {
+      "name": "Skeleton shimmer",
+      "tokens": {
+        "skeleton-base": { "light": "#e1e6ea", "dark": "#2c333f" },
+        "skeleton-highlight": {
+          "light": "hsl(0 0% 100% / 0.7)",
+          "dark": "hsl(210 40% 98% / 0.14)"
+        }
+      }
+    },
+    {
+      "name": "Typography",
+      "tokens": {
+        "font-sans": "'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        "font-mono": "'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+        "font-arabic": "'IBM Plex Sans Arabic', 'Noto Sans Arabic', sans-serif",
+        "font-family": "var(--font-sans)",
+        "numeric-tabular": "tabular-nums slashed-zero",
+        "type-display": "700 48px/52px var(--font-sans)",
+        "type-metric-xl": "700 34px/38px var(--font-sans)",
+        "type-metric-l": "700 26px/30px var(--font-sans)",
+        "type-page-title": "700 24px/30px var(--font-sans)",
+        "type-h1": "650 22px/28px var(--font-sans)",
+        "type-h2": "600 18px/24px var(--font-sans)",
+        "type-h3": "600 15px/20px var(--font-sans)",
+        "type-body": "400 14px/20px var(--font-sans)",
+        "type-small": "400 13px/18px var(--font-sans)",
+        "type-caption": "400 12px/16px var(--font-sans)",
+        "type-overline": "600 11px/14px var(--font-sans)",
+        "overline-tracking": "0.06em",
+        "type-nav-group": "700 12px/16px var(--font-sans)",
+        "nav-group-tracking": "0.08em"
+      }
+    },
+    {
+      "name": "Spacing (4px base)",
+      "tokens": {
+        "space-0": "0",
+        "space-1": "4px",
+        "space-2": "8px",
+        "space-3": "12px",
+        "space-4": "16px",
+        "space-5": "20px",
+        "space-6": "24px",
+        "space-8": "32px",
+        "space-10": "40px",
+        "space-12": "48px",
+        "space-16": "64px"
+      }
+    },
+    {
+      "name": "Elevation — shadows in light, borders + glow in dark",
+      "tokens": {
+        "elev-0": { "light": "none", "dark": "inset 0 0 0 1px #26314a" },
+        "elev-1": {
+          "light": "0 1px 2px rgba(16, 24, 40, 0.06)",
+          "dark": "inset 0 0 0 1px #26314a"
+        },
+        "elev-2": {
+          "light": "0 4px 12px rgba(16, 24, 40, 0.08)",
+          "dark": "inset 0 0 0 1px #2c3a57, 0 0 0 1px #0b0f17"
+        },
+        "elev-3": {
+          "light": "0 12px 32px rgba(16, 24, 40, 0.16)",
+          "dark": "0 12px 32px rgba(0, 0, 0, 0.6), inset 0 0 0 1px #36456a"
+        },
+        "focus-ring": {
+          "light": "0 0 0 3px rgba(25, 103, 150, 0.45)",
+          "dark": "0 0 0 3px rgba(75, 163, 216, 0.55)"
+        }
+      }
+    },
+    {
+      "name": "Motion",
+      "tokens": {
+        "motion-fast": "120ms ease-out",
+        "motion-base": "220ms cubic-bezier(0.2, 0.7, 0.2, 1)",
+        "motion-slow": "420ms cubic-bezier(0.2, 0.7, 0.2, 1)",
+        "motion-live-flash": "600ms ease-out",
+        "motion-alarm": "1000ms ease-out",
+        "shimmer-duration": "1.5s"
+      }
+    },
+    {
+      "name": "Density-swappable component tokens",
+      "tokens": {
+        "space-card": "var(--space-5)",
+        "type-metric": "var(--type-metric-xl)",
+        "kpi-radius": "var(--radius-lg)",
+        "chip-radius": "var(--radius-pill)",
+        "grid-gutter": "var(--space-4)",
+        "widget-min-h": "160px"
+      }
+    },
+    {
+      "name": "shadcn aliases",
+      "tokens": {
+        "radius": "0.625rem",
+        "card-radius": "20px",
+        "border-form-input": "3px",
+        "background": "var(--surface-app)",
+        "foreground": "var(--text-primary)",
+        "foreground-light": "var(--text-tertiary)",
+        "foreground-dark": "var(--text-secondary)",
+        "card": "var(--surface-1)",
+        "card-foreground": { "light": "#020817", "dark": "var(--text-primary)" },
+        "popover": { "light": "var(--surface-1)", "dark": "#020817" },
+        "popover-foreground": { "light": "#020817", "dark": "var(--text-primary)" },
+        "primary": "var(--brand-600)",
+        "primary-foreground": "var(--brand-on)",
+        "primary-light": "var(--brand-100)",
+        "secondary": "var(--surface-3)",
+        "secondary-foreground": { "light": "#5c727f", "dark": "var(--text-secondary)" },
+        "muted": "var(--surface-2)",
+        "muted-foreground": "var(--text-muted)",
+        "accent": "var(--surface-2)",
+        "accent-foreground": { "light": "#0f172a", "dark": "var(--text-primary)" },
+        "destructive": "var(--status-critical)",
+        "destructive-foreground": "var(--status-critical-on)",
+        "border": "var(--border-subtle)",
+        "input": "var(--border-subtle)",
+        "ring": "var(--brand-500)",
+        "icon": { "light": "#5c727f", "dark": "#cdd5db" },
+        "status-warn": "var(--status-warning)",
+        "status-success": "var(--status-ok)",
+        "status-muted": "var(--status-neutral)",
+        "status-error": "var(--status-critical)",
+        "sidebar": "var(--surface-1)",
+        "sidebar-foreground": { "light": "#3f3f46", "dark": "#f4f4f5" },
+        "sidebar-primary": "var(--brand-600)",
+        "sidebar-primary-foreground": "var(--brand-on)",
+        "sidebar-accent": "var(--surface-2)",
+        "sidebar-accent-foreground": "var(--text-primary)",
+        "sidebar-border": "var(--border-subtle)",
+        "sidebar-ring": "var(--brand-500)",
+        "chart-1": "var(--cat-1)",
+        "chart-2": "var(--cat-2)",
+        "chart-3": "var(--cat-3)",
+        "chart-4": "var(--cat-4)",
+        "chart-5": "var(--cat-5)"
+      }
+    }
+  ],
+  "radiusScale": {
+    "radius-sm": "6px",
+    "radius-md": "8px",
+    "radius-lg": "10px",
+    "radius-xl": "14px",
+    "radius-card": "20px",
+    "radius-pill": "999px"
+  },
+  "density": {
+    "compact": {
+      "space-card": "var(--space-3)",
+      "type-metric": "var(--type-metric-l)",
+      "grid-gutter": "var(--space-3)",
+      "widget-min-h": "128px"
+    }
+  },
+  "tailwind": {
+    "colors": {
+      "background": "background",
+      "foreground": "foreground",
+      "foreground-light": "foreground-light",
+      "foreground-dark": "foreground-dark",
+      "card": "card",
+      "card-foreground": "card-foreground",
+      "popover": "popover",
+      "popover-foreground": "popover-foreground",
+      "primary": "primary",
+      "primary-foreground": "primary-foreground",
+      "primary-light": "primary-light",
+      "secondary": "secondary",
+      "secondary-foreground": "secondary-foreground",
+      "muted": "muted",
+      "muted-foreground": "muted-foreground",
+      "accent": "accent",
+      "accent-foreground": "accent-foreground",
+      "destructive": "destructive",
+      "destructive-foreground": "destructive-foreground",
+      "border": "border",
+      "input": "input",
+      "ring": "ring",
+      "icon": "icon",
+      "brand-100": "brand-100",
+      "brand-500": "brand-500",
+      "brand-600": "brand-600",
+      "brand-700": "brand-700",
+      "ml-accent": "ml-accent",
+      "status-warn": "status-warn",
+      "status-success": "status-success",
+      "status-muted": "status-muted",
+      "status-error": "status-error",
+      "status-ok": "status-ok",
+      "status-warning": "status-warning",
+      "status-critical": "status-critical",
+      "status-info": "status-info",
+      "status-neutral": "status-neutral",
+      "status-offline": "status-offline",
+      "status-stale": "status-stale",
+      "status-nodata": "status-nodata",
+      "notice-advisory": "notice-advisory",
+      "notice-advisory-surface": "notice-advisory-surface",
+      "notice-advisory-border": "notice-advisory-border",
+      "notice-attention": "notice-attention",
+      "notice-attention-surface": "notice-attention-surface",
+      "notice-attention-border": "notice-attention-border",
+      "notice-critical": "notice-critical",
+      "notice-critical-surface": "notice-critical-surface",
+      "notice-critical-border": "notice-critical-border",
+      "skeleton-base": "skeleton-base",
+      "skeleton-highlight": "skeleton-highlight",
+      "chart-1": "chart-1",
+      "chart-2": "chart-2",
+      "chart-3": "chart-3",
+      "chart-4": "chart-4",
+      "chart-5": "chart-5",
+      "sidebar": "sidebar",
+      "sidebar-foreground": "sidebar-foreground",
+      "sidebar-primary": "sidebar-primary",
+      "sidebar-primary-foreground": "sidebar-primary-foreground",
+      "sidebar-accent": "sidebar-accent",
+      "sidebar-accent-foreground": "sidebar-accent-foreground",
+      "sidebar-border": "sidebar-border",
+      "sidebar-ring": "sidebar-ring"
+    },
+    "fontFamily": {
+      "sans": "var(--font-sans)",
+      "mono": "var(--font-mono)",
+      "arabic": "var(--font-arabic)",
+      "archivo": "var(--font-family)"
+    },
+    "borderRadius": {
+      "sm": "var(--radius-sm)",
+      "md": "var(--radius-md)",
+      "lg": "var(--radius-lg)",
+      "xl": "var(--radius-xl)",
+      "card": "var(--radius-card)",
+      "pill": "var(--radius-pill)"
+    },
+    "borderWidth": { "form-input": "var(--border-form-input)" },
+    "boxShadow": {
+      "elev-1": "elev-1",
+      "elev-2": "elev-2",
+      "elev-3": "elev-3",
+      "focus": "focus-ring"
+    },
+    "keyframes": {
+      "accordion-down": {
+        "from": { "height": "0" },
+        "to": { "height": "var(--radix-accordion-content-height)" }
+      },
+      "accordion-up": {
+        "from": { "height": "var(--radix-accordion-content-height)" },
+        "to": { "height": "0" }
+      },
+      "shimmer": {
+        "0%": { "background-position": "200% 0" },
+        "100%": { "background-position": "-200% 0" }
+      }
+    },
+    "animation": {
+      "accordion-down": "accordion-down 0.2s ease-out",
+      "accordion-up": "accordion-up 0.2s ease-out",
+      "shimmer": "shimmer var(--shimmer-duration, 1.5s) linear infinite"
+    }
+  }
+}
