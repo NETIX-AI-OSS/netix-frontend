@@ -122,7 +122,7 @@
     "gen:tokens:check": "node scripts/gen-tokens.mjs --check",
     "build:js": "tsup",
     "build:css": "tailwindcss -i src/ui/styles.css -o dist/ui/styles.css --minify",
-    "build": "pnpm gen:tokens && pnpm build:js && pnpm build:css",
+    "build": "rm -rf dist && pnpm gen:tokens && pnpm build:js && pnpm build:css",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
