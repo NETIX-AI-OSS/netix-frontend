@@ -2,7 +2,7 @@ import type { AxiosError, AxiosResponse } from 'axios'
 
 import { parseEnvelope } from './envelope'
 import { ApiError } from './errors'
-import { isRecord, isTransientNetworkError } from './predicates'
+import { isCanceledRequest, isRecord, isTransientNetworkError } from './predicates'
 import { readRetryAfterMs } from './retry-after'
 import { shouldCaptureHttpStatus } from './sentry'
 
@@ -40,6 +40,8 @@ export function createErrorInterceptor(config: ErrorInterceptorConfig = {}) {
   } = config
 
   const onError = (error: AxiosError): never => {
+    // A caller-aborted request keeps its raw shape so retry predicates can recognise it.
+    if (isCanceledRequest(error)) throw error
     const response = error.response
     const statusCode = response?.status ?? 0
     const messages =

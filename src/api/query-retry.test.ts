@@ -57,3 +57,10 @@ describe('createQueryRetryPolicy', () => {
     expect(retry(3, new ApiError(503, ['Down']))).toBe(true)
   })
 })
+
+it('the policy never retries a canceled request', () => {
+  const policy = createQueryRetryPolicy()
+
+  expect(policy.retry(0, { code: 'ERR_CANCELED' })).toBe(false)
+  expect(policy.retry(0, { name: 'AbortError' })).toBe(false)
+})

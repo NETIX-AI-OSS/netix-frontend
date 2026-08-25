@@ -46,6 +46,8 @@ export function createSwrOnErrorRetry(options: SwrRetryOptions = {}): SwrOnError
   } = options
 
   return (error, _key, _config, revalidate, revalidateOptions) => {
+    // Cancellation is never retryable, even under a custom predicate.
+    if (isCanceledRequest(error)) return
     const attempt = Math.max(0, (revalidateOptions.retryCount ?? 1) - 1)
     if (attempt >= maxRetries) return
     if (!isRetryable(error)) return

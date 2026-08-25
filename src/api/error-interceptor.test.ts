@@ -172,3 +172,24 @@ describe('createErrorInterceptor', () => {
     expect(onDisplayError).toHaveBeenCalledWith(thrown)
   })
 })
+
+describe('request cancellation', () => {
+  it('re-throws a canceled request untouched, bypassing every sink', () => {
+    const captureException = vi.fn()
+    const onDisplayError = vi.fn()
+    const error = axiosError(undefined, { code: 'ERR_CANCELED' } as Partial<AxiosError>)
+
+    const thrown = capture(error, { captureException, onDisplayError })
+
+    expect(thrown).toBe(error)
+    expect(isApiError(thrown)).toBe(false)
+    expect(captureException).not.toHaveBeenCalled()
+    expect(onDisplayError).not.toHaveBeenCalled()
+  })
+
+  it('recognises an abort by error name too', () => {
+    const error = axiosError(undefined, { name: 'CanceledError' } as Partial<AxiosError>)
+
+    expect(capture(error)).toBe(error)
+  })
+})

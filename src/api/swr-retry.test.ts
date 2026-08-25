@@ -137,6 +137,7 @@ describe('isRetryableSwrError', () => {
     expect(isRetryableSwrError(new ApiError(404, ['Gone']))).toBe(false)
     expect(isRetryableSwrError({ isAxiosError: true, response: { status: 502 } })).toBe(true)
     expect(isRetryableSwrError(new Error('boom'))).toBe(false)
+    expect(isRetryableSwrError({ code: 'ERR_CANCELED' })).toBe(false)
   })
 })
 
@@ -147,5 +148,19 @@ describe('computeSwrBackoffDelayMs', () => {
     expect(computeSwrBackoffDelayMs(-1)).toBeLessThanOrEqual(500)
     expect(computeSwrBackoffDelayMs(20)).toBeGreaterThanOrEqual(2000)
     expect(computeSwrBackoffDelayMs(20)).toBeLessThanOrEqual(4000)
+  })
+})
+
+describe('cancellation', () => {
+  it('never retries a canceled request, even under a permissive custom predicate', () => {
+    const revalidate = vi.fn()
+    const handler = createSwrOnErrorRetry({
+      isRetryable: () => true,
+      scheduleRetry: (callback) => callback(),
+    })
+
+    handler({ code: 'ERR_CANCELED' }, '/things', {}, revalidate, { retryCount: 1 })
+
+    expect(revalidate).not.toHaveBeenCalled()
   })
 })
