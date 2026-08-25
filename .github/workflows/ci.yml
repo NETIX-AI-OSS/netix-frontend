@@ -22,4 +22,4 @@ jobs:
       - run: pnpm test:coverage
       - run: pnpm build
       # The committed dist and generated tokens must match the source exactly.
-      - run: git diff --exit-code -- dist src/tokens/tokens.ts
+      - run: git diff --exit-code -- dist src/tokens/tokens.ts src/tokens/theme-init-snippet.ts

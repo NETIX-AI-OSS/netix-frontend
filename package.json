@@ -1,6 +1,6 @@
 {
   "name": "netix-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NETIX shared frontend library: API client, hooks, utils, i18n, UI components and design tokens",
   "license": "AGPL-3.0-only",
   "author": "NETIX.AI OSS",
@@ -96,7 +96,15 @@
       }
     },
     "./ui/styles.css": "./dist/ui/styles.css",
+    "./ui/styles-notokens.css": "./dist/ui/styles-notokens.css",
+    "./ui/*": {
+      "import": {
+        "types": "./dist/ui/*.d.ts",
+        "default": "./dist/ui/*.js"
+      }
+    },
     "./tokens/tokens.css": "./dist/tokens/tokens.css",
+    "./tokens/theme-only.css": "./dist/tokens/theme-only.css",
     "./tokens/vars.css": "./dist/tokens/vars.css",
     "./tokens/preset": "./dist/tokens/preset.cjs",
     "./tokens/theme-init.js": "./dist/tokens/theme-init.js",
@@ -121,7 +129,7 @@
     "gen:tokens": "node scripts/gen-tokens.mjs",
     "gen:tokens:check": "node scripts/gen-tokens.mjs --check",
     "build:js": "tsup",
-    "build:css": "tailwindcss -i src/ui/styles.css -o dist/ui/styles.css --minify",
+    "build:css": "tailwindcss -i src/ui/styles.css -o dist/ui/styles.css --minify && tailwindcss -i src/ui/styles-notokens.css -o dist/ui/styles-notokens.css --minify",
     "build": "rm -rf dist && pnpm gen:tokens && pnpm build:js && pnpm build:css",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

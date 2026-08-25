@@ -1,4 +1,19 @@
+import { readdirSync } from 'node:fs'
+
 import { defineConfig } from 'tsup'
+
+// Per-component entries so an app importing one component never resolves another's peers.
+const uiEntries = () => {
+  const entries: Record<string, string> = {}
+  for (const dir of ['primitives', 'composites'])
+    for (const file of readdirSync(`src/ui/${dir}`)) {
+      if (!file.endsWith('.tsx') || file.includes('.test.')) continue
+      const name = file.replace(/\.tsx$/, '')
+      if (entries[`ui/${name}`]) throw new Error(`ui module name collision: ${name}`)
+      entries[`ui/${name}`] = `src/ui/${dir}/${file}`
+    }
+  return entries
+}
 
 // Peers stay external; tiny class utilities are bundled so cn() behaves identically everywhere.
 const external = [
@@ -41,8 +56,10 @@ export default defineConfig([
       'utils/dom': 'src/utils/dom/index.ts',
       'hooks/router': 'src/hooks/router.ts',
       ui: 'src/ui/index.ts',
+      ...uiEntries(),
     },
     format: ['esm'],
+    splitting: true,
     ...shared,
   },
 ])
