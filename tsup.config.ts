@@ -11,6 +11,7 @@ const external = [
   'envoy-ts-auth',
   '@tanstack/react-query',
   '@tanstack/react-table',
+  '@tanstack/react-table/legacy',
   'swr',
   'react-router',
   'react-hook-form',
@@ -36,7 +37,11 @@ export default defineConfig([
     ...shared,
   },
   {
-    entry: { 'utils/dom': 'src/utils/dom/index.ts', ui: 'src/ui/index.ts' },
+    entry: {
+      'utils/dom': 'src/utils/dom/index.ts',
+      'hooks/router': 'src/hooks/router.ts',
+      ui: 'src/ui/index.ts',
+    },
     format: ['esm'],
     ...shared,
   },

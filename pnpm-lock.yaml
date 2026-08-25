@@ -128,6 +128,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.1.1
         version: 7.1.1(eslint@10.9.1(jiti@2.7.0))
+      eslint-plugin-react-refresh:
+        specifier: ^0.5.4
+        version: 0.5.4(eslint@10.9.1(jiti@2.7.0))
       eslint-plugin-simple-import-sort:
         specifier: ^14.0.0
         version: 14.0.0(eslint@10.9.1(jiti@2.7.0))
@@ -2207,6 +2210,11 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0 || ^10.0.0
+
+  eslint-plugin-react-refresh@0.5.4:
+    resolution: {integrity: sha512-7bqTKz7T0r+HKWFarNXByDE9/5+73wI2ru+M3zuqGbR7s/b/5/pQJXZoufWlrngqGqoZto73ZkGumCdLxk+4rw==}
+    peerDependencies:
+      eslint: ^9 || ^10
 
   eslint-plugin-simple-import-sort@14.0.0:
     resolution: {integrity: sha512-NUJO0+XFCkk+o5EsAJruTgnfMEpeWrPWeJS15UVF60GgXmqz1BJ9/3hzlvG7lkL8Bubzos5cCLptThbFfPnSMQ==}
@@ -5297,6 +5305,10 @@ snapshots:
       zod-validation-error: 4.0.2(zod@4.4.3)
     transitivePeerDependencies:
       - supports-color
+
+  eslint-plugin-react-refresh@0.5.4(eslint@10.9.1(jiti@2.7.0)):
+    dependencies:
+      eslint: 10.9.1(jiti@2.7.0)
 
   eslint-plugin-simple-import-sort@14.0.0(eslint@10.9.1(jiti@2.7.0)):
     dependencies:
