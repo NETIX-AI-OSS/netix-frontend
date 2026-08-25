@@ -57,9 +57,15 @@ type Setup = {
   initial?: Record<string, string>
   runtime?: ReturnType<typeof makeRuntime>
   apiBaseUrl?: string | null
+  healthGate?: boolean
 }
 
-const setup = ({ initial, runtime = makeRuntime(), apiBaseUrl = 'https://um/' }: Setup = {}) => {
+const setup = ({
+  initial,
+  runtime = makeRuntime(),
+  apiBaseUrl = 'https://um/',
+  healthGate,
+}: Setup = {}) => {
   const { storage, store } = makeStorage(initial)
   const { i18n, instance } = makeI18n()
   const createRuntime = vi.fn(() => runtime as LocaleRuntimeLike)
@@ -69,6 +75,7 @@ const setup = ({ initial, runtime = makeRuntime(), apiBaseUrl = 'https://um/' }:
     storage,
     createRuntime,
     getApiBaseUrl: () => baseUrl,
+    healthGate,
   })
   return {
     locale,
@@ -382,5 +389,60 @@ describe('configuration overrides', () => {
     await locale.refreshOrganizationLocale({ user_id: 'a/b', organization_id: 'c d' }, 'ar')
     await locale.changeOrganizationLanguage('es')
     expect([...store.keys()]).toContain('organization-locale:pending-language:v1:a%2Fb:c%20d')
+  })
+})
+
+describe('healthGate', () => {
+  it('skips the refresh when checkHealth reports unhealthy', async () => {
+    const runtime = makeRuntime({ checkHealth: vi.fn(() => Promise.resolve(false)) })
+    const { locale } = setup({ runtime, healthGate: true })
+
+    expect(await locale.refreshOrganizationLocale(user)).toBeNull()
+    expect(runtime.hydrate).not.toHaveBeenCalled()
+    expect(runtime.refreshEffective).not.toHaveBeenCalled()
+  })
+
+  it('treats a throwing checkHealth as unhealthy', async () => {
+    const runtime = makeRuntime({ checkHealth: vi.fn(() => Promise.reject(new Error('down'))) })
+    const { locale } = setup({ runtime, healthGate: true })
+
+    expect(await locale.refreshOrganizationLocale(user)).toBeNull()
+    expect(runtime.refreshEffective).not.toHaveBeenCalled()
+  })
+
+  it('proceeds when healthy, when the runtime has no checkHealth, or when the gate is off', async () => {
+    const healthy = makeRuntime({ checkHealth: vi.fn(() => Promise.resolve(true)) })
+    expect(
+      await setup({ runtime: healthy, healthGate: true }).locale.refreshOrganizationLocale(user),
+    ).not.toBeNull()
+
+    expect(await setup({ healthGate: true }).locale.refreshOrganizationLocale(user)).not.toBeNull()
+
+    const unhealthy = makeRuntime({ checkHealth: vi.fn(() => Promise.resolve(false)) })
+    expect(
+      await setup({ runtime: unhealthy }).locale.refreshOrganizationLocale(user),
+    ).not.toBeNull()
+    expect(unhealthy.checkHealth).not.toHaveBeenCalled()
+  })
+})
+
+describe('organization_default_language', () => {
+  it('sits after preferred_language and before the stored language', async () => {
+    const { locale, runtime } = setup({ initial: { language: 'ar' } })
+    await locale.refreshOrganizationLocale({
+      user_id: 7,
+      organization_id: 9,
+      organization_default_language: 'es',
+    })
+    expect(runtime.refreshEffective).toHaveBeenCalledWith(expect.anything(), 'es')
+
+    const preferred = setup()
+    await preferred.locale.refreshOrganizationLocale({
+      user_id: 7,
+      organization_id: 9,
+      preferred_language: 'en',
+      organization_default_language: 'es',
+    })
+    expect(preferred.runtime.refreshEffective).toHaveBeenCalledWith(expect.anything(), 'en')
   })
 })

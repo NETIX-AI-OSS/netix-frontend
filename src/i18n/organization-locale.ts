@@ -19,6 +19,7 @@ export type LocaleUser = {
   organization_id?: string | number
   organization?: string | number
   preferred_language?: string
+  organization_default_language?: string
 }
 
 /** The subset of envoy-ts-auth's `LocaleRuntime` this module drives. */
@@ -28,6 +29,7 @@ export interface LocaleRuntimeLike {
   refreshEffective(identity: LocaleIdentity, language: string): Promise<{ locale: EffectiveLocale }>
   setPreferredLanguage(identity: LocaleIdentity, language: string): Promise<boolean>
   reconcilePendingLanguage(identity: LocaleIdentity): Promise<boolean>
+  checkHealth?(): Promise<boolean>
 }
 
 /** Asynchronous storage contract shared by `createBrowserLocaleStorage` and AsyncStorage. */
@@ -47,6 +49,8 @@ export type OrganizationLocaleConfig = {
   namespace?: string
   pendingKeyPrefix?: string
   defaultLanguage?: string
+  /** When true and the runtime exposes checkHealth, an unhealthy locale API skips the refresh. */
+  healthGate?: boolean
 }
 
 export type OrganizationLocale = {
@@ -89,6 +93,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     namespace = 'translation',
     pendingKeyPrefix = PENDING_LANGUAGE_KEY,
     defaultLanguage = 'en',
+    healthGate = false,
   } = config
 
   let runtime: LocaleRuntimeLike | null = null
@@ -140,9 +145,19 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     return (
       (await storage.getItem(pendingLanguageKey(identity))) ||
       user.preferred_language ||
+      user.organization_default_language ||
       (await storage.getItem(languageKey)) ||
       defaultLanguage
     )
+  }
+
+  async function isHealthy(locales: LocaleRuntimeLike): Promise<boolean> {
+    if (!healthGate || !locales.checkHealth) return true
+    try {
+      return await locales.checkHealth()
+    } catch {
+      return false
+    }
   }
 
   async function refreshOrganizationLocale(
@@ -152,8 +167,10 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     const identity = localeIdentity(user)
     const locales = getLocaleRuntime()
     if (!identity || !locales) return null
+    // The identity claim must stay synchronous so clearActiveIdentity can race it.
     activeIdentity = identity
     locales.setActiveIdentity(identity)
+    if (!(await isHealthy(locales))) return null
     const language = requestedLanguage || (await initialLanguage(identity, user))
     const cached = await locales.hydrate(identity, language)
     if (cached && sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(cached.locale)
