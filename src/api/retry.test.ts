@@ -38,10 +38,15 @@ function adapterFor(attempts: Attempt[]) {
   return { adapter, calls: () => call }
 }
 
-function clientFor(attempts: Attempt[], scheduleRetry: ScheduleRetry, maxRetries?: number) {
+function clientFor(
+  attempts: Attempt[],
+  scheduleRetry: ScheduleRetry,
+  maxRetries?: number,
+  retryServerErrors?: boolean,
+) {
   const { adapter, calls } = adapterFor(attempts)
   const instance = Axios.create({ adapter })
-  attachRetryInterceptor(instance, { scheduleRetry, maxRetries })
+  attachRetryInterceptor(instance, { scheduleRetry, maxRetries, retryServerErrors })
   return { instance, calls }
 }
 
@@ -61,11 +66,12 @@ describe('retry predicates', () => {
     expect(isIdempotentMethod({ method: 'post' })).toBe(false)
   })
 
-  it('retries network failures, 5xx, 408 and 429 only', () => {
+  it('retries network failures, 408 and 429; 5xx only when opted in', () => {
     const withStatus = (status: number) => ({ response: { status } }) as AxiosError
 
     expect(isRetryableAxiosError({} as AxiosError)).toBe(true)
-    expect(isRetryableAxiosError(withStatus(500))).toBe(true)
+    expect(isRetryableAxiosError(withStatus(500))).toBe(false)
+    expect(isRetryableAxiosError(withStatus(500), true)).toBe(true)
     expect(isRetryableAxiosError(withStatus(408))).toBe(true)
     expect(isRetryableAxiosError(withStatus(429))).toBe(true)
     expect(isRetryableAxiosError(withStatus(400))).toBe(false)
@@ -84,24 +90,31 @@ describe('computeBackoffDelayMs', () => {
 })
 
 describe('attachRetryInterceptor', () => {
-  it('re-dispatches an idempotent 5xx until it succeeds', async () => {
-    const { instance, calls } = clientFor([{ status: 500 }, { status: 200 }], immediate)
+  it('never retries a 5xx by default — no donor family did', async () => {
+    const { instance, calls } = clientFor([{ status: 500 }], immediate)
+
+    await expect(instance.get('/things')).rejects.toThrow('status code 500')
+    expect(calls()).toBe(1)
+  })
+
+  it('re-dispatches an idempotent 5xx until it succeeds when opted in', async () => {
+    const { instance, calls } = clientFor([{ status: 500 }, { status: 200 }], immediate, undefined, true)
 
     await expect(instance.get('/things')).resolves.toMatchObject({ status: 200 })
     expect(calls()).toBe(2)
   })
 
   it('gives up after MAX_RETRIES', async () => {
-    const { instance, calls } = clientFor([{ status: 500 }], immediate)
+    const { instance, calls } = clientFor([{ status: 408 }], immediate)
 
-    await expect(instance.get('/things')).rejects.toThrow('status code 500')
+    await expect(instance.get('/things')).rejects.toThrow('status code 408')
     expect(calls()).toBe(MAX_RETRIES + 1)
   })
 
   it('honors a configured retry budget', async () => {
-    const { instance, calls } = clientFor([{ status: 503 }], immediate, 1)
+    const { instance, calls } = clientFor([{ status: 429 }], immediate, 1)
 
-    await expect(instance.get('/things')).rejects.toThrow('status code 503')
+    await expect(instance.get('/things')).rejects.toThrow('status code 429')
     expect(calls()).toBe(2)
   })
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.2 — 2026-08-26
+
+Fleet-wave feedback patch (viz-ui adoption).
+
+- api: transport retry no longer retries 5xx by default — no donor app family did, and it flipped
+  one-shot-error test mocks into false successes. Opt back in with `retry: { retryServerErrors: true }`.
+- ui: `netix-frontend/ui/theme` deep entry so ThemeProvider/useTheme are reachable without the
+  barrel (which forces every optional peer to resolve).
+
 ## v1.0.1 — 2026-08-25
 
 Pilot-feedback patch (frontend-template + value-nano-ui adoptions).

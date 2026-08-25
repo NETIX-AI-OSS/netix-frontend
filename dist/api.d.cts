@@ -94,10 +94,11 @@ type ScheduleRetry = (callback: () => void, delayMs: number) => void;
 type RetryOptions = {
     maxRetries?: number;
     scheduleRetry?: ScheduleRetry;
+    retryServerErrors?: boolean;
 };
 declare const scheduleWithTimeout: ScheduleRetry;
 declare function isIdempotentMethod(config: AxiosRequestConfig): boolean;
-declare function isRetryableAxiosError(error: AxiosError): boolean;
+declare function isRetryableAxiosError(error: AxiosError, retryServerErrors?: boolean): boolean;
 /** Capped exponential backoff with equal jitter. */
 declare function computeBackoffDelayMs(attempt: number): number;
 /**

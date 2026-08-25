@@ -56,6 +56,7 @@ export default defineConfig([
       'utils/dom': 'src/utils/dom/index.ts',
       'hooks/router': 'src/hooks/router.ts',
       ui: 'src/ui/index.ts',
+      'ui/theme': 'src/ui/theme/index.ts',
       ...uiEntries(),
     },
     format: ['esm'],

@@ -13,4 +13,4 @@ type FiltersOptions = {
     inclusiveEndDate?: boolean;
 };
 
-export type { FiltersOptions as F, SearchParamsBinding as S, Updater as U, FilterValues as a };
+export type { FilterValues as F, SearchParamsBinding as S, Updater as U, FiltersOptions as a };

@@ -382,19 +382,24 @@ var scheduleWithTimeout = (callback, delayMs) => {
 function isIdempotentMethod(config) {
   return IDEMPOTENT_METHODS.has((config.method || "get").toLowerCase());
 }
-function isRetryableAxiosError(error) {
+function isRetryableAxiosError(error, retryServerErrors = false) {
   if (!error.response) return true;
-  return error.response.status >= 500 || RETRYABLE_STATUSES.has(error.response.status);
+  const status = error.response.status;
+  return RETRYABLE_STATUSES.has(status) || retryServerErrors && status >= 500;
 }
 function computeBackoffDelayMs(attempt) {
   const exponential = Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_BACKOFF_DELAY_MS);
   return exponential + Math.random() * exponential * 0.5;
 }
 function attachRetryInterceptor(instance, options = {}) {
-  const { maxRetries = MAX_RETRIES, scheduleRetry = scheduleWithTimeout } = options;
+  const {
+    maxRetries = MAX_RETRIES,
+    scheduleRetry = scheduleWithTimeout,
+    retryServerErrors = false
+  } = options;
   instance.interceptors.response.use(void 0, (error) => {
     const config = error.config;
-    if (!config || isCanceledRequest(error) || !isIdempotentMethod(config) || !isRetryableAxiosError(error)) {
+    if (!config || isCanceledRequest(error) || !isIdempotentMethod(config) || !isRetryableAxiosError(error, retryServerErrors)) {
       return Promise.reject(error);
     }
     const attempt = config.__retryCount ?? 0;

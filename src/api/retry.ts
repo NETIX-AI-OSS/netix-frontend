@@ -11,7 +11,12 @@ const IDEMPOTENT_METHODS = new Set(['get', 'head', 'options'])
 const RETRYABLE_STATUSES = new Set([408, 429])
 
 export type ScheduleRetry = (callback: () => void, delayMs: number) => void
-export type RetryOptions = { maxRetries?: number; scheduleRetry?: ScheduleRetry }
+export type RetryOptions = {
+  maxRetries?: number
+  scheduleRetry?: ScheduleRetry
+  // Off by default: no donor app family retried 5xx, and one-shot error mocks rely on that.
+  retryServerErrors?: boolean
+}
 
 type RetryableConfig = AxiosRequestConfig & { __retryCount?: number }
 
@@ -23,10 +28,11 @@ export function isIdempotentMethod(config: AxiosRequestConfig): boolean {
   return IDEMPOTENT_METHODS.has((config.method || 'get').toLowerCase())
 }
 
-export function isRetryableAxiosError(error: AxiosError): boolean {
+export function isRetryableAxiosError(error: AxiosError, retryServerErrors = false): boolean {
   // No HTTP response at all — network error or timeout.
   if (!error.response) return true
-  return error.response.status >= 500 || RETRYABLE_STATUSES.has(error.response.status)
+  const status = error.response.status
+  return RETRYABLE_STATUSES.has(status) || (retryServerErrors && status >= 500)
 }
 
 /** Capped exponential backoff with equal jitter. */
@@ -41,7 +47,11 @@ export function computeBackoffDelayMs(attempt: number): number {
  * still sees a raw AxiosError.
  */
 export function attachRetryInterceptor(instance: AxiosInstance, options: RetryOptions = {}): void {
-  const { maxRetries = MAX_RETRIES, scheduleRetry = scheduleWithTimeout } = options
+  const {
+    maxRetries = MAX_RETRIES,
+    scheduleRetry = scheduleWithTimeout,
+    retryServerErrors = false,
+  } = options
 
   instance.interceptors.response.use(undefined, (error: AxiosError) => {
     const config = error.config as RetryableConfig | undefined
@@ -50,7 +60,7 @@ export function attachRetryInterceptor(instance: AxiosInstance, options: RetryOp
       !config ||
       isCanceledRequest(error) ||
       !isIdempotentMethod(config) ||
-      !isRetryableAxiosError(error)
+      !isRetryableAxiosError(error, retryServerErrors)
     ) {
       return Promise.reject(error)
     }

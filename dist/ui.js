@@ -1,20 +1,22 @@
+export { Toaster } from './chunk-ADUXRGXL.js';
 export { TreeView } from './chunk-Z6SORHMY.js';
-export { FancyCombobox } from './chunk-T7RTALXO.js';
+export { DataTable } from './chunk-ZSQDJTZZ.js';
+export { EmptyState } from './chunk-AHXMDN26.js';
+export { FancyCombobox } from './chunk-TBLSABYH.js';
 export { FormModal } from './chunk-KMEOWSPI.js';
 export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField } from './chunk-Q2UVQ44B.js';
 export { PaginationControls } from './chunk-4WH3D3TR.js';
-export { Toaster } from './chunk-ADUXRGXL.js';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './chunk-PBMIVSMP.js';
 export { Textarea } from './chunk-X52OHI4A.js';
 export { Toggle, toggleVariants } from './chunk-KUUJAIGP.js';
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './chunk-F2M4AJJC.js';
 export { Typography, TypographyH1, TypographyH2, TypographyH3, TypographyH4, TypographyMuted, TypographyP, typographyVariants } from './chunk-O6LR2U5B.js';
-export { Combobox } from './chunk-CJUE3EEW.js';
-export { ConfirmModal } from './chunk-WVMZHT2W.js';
-export { DataTable } from './chunk-ZSQDJTZZ.js';
-export { EmptyState } from './chunk-AHXMDN26.js';
 export { ColumnFilter, DEBOUNCE_DELAY_MS, DEFAULT_COLUMN_FILTER_LABELS } from './chunk-UVB47YIA.js';
+export { Combobox } from './chunk-CJUE3EEW.js';
 export { OptionList } from './chunk-CA3OYJWW.js';
+export { ConfirmModal } from './chunk-WVMZHT2W.js';
 export { LoadingState, inferVariant } from './chunk-6DAOUNLS.js';
+export { ScrollArea, ScrollBar } from './chunk-TTBBRVS3.js';
 export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from './chunk-6ODRIWA7.js';
 export { Separator } from './chunk-6XRNMP7W.js';
 export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from './chunk-WW65J55H.js';
@@ -22,7 +24,7 @@ export { Skeleton } from './chunk-RZV64JII.js';
 export { Slider } from './chunk-2NCMCXIJ.js';
 export { Switch } from './chunk-AGBFNW44.js';
 export { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from './chunk-ST7XWDYV.js';
-export { Tabs, TabsContent, TabsList, TabsTrigger } from './chunk-PBMIVSMP.js';
+export { HoverCard, HoverCardContent, HoverCardTrigger } from './chunk-D3OFIAAZ.js';
 export { Input } from './chunk-5QTHF62K.js';
 export { Label } from './chunk-JNWHHYFI.js';
 export { NavigationMenu, NavigationMenuContent, NavigationMenuIndicator, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuViewport, navigationMenuTriggerStyle } from './chunk-GOX3ZYIN.js';
@@ -30,77 +32,18 @@ export { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './chunk-QAEXWTQK.js';
 export { Progress } from './chunk-UJMXCY7E.js';
 export { RadioGroup, RadioGroupItem } from './chunk-WNO26MNB.js';
-export { ScrollArea, ScrollBar } from './chunk-TTBBRVS3.js';
+export { Badge, badgeVariants } from './chunk-2NHH6FFY.js';
 export { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from './chunk-JRXDKPV2.js';
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './chunk-24LFCP32.js';
 export { Checkbox } from './chunk-UA6IPTYL.js';
 export { Collapsible, CollapsibleContent, CollapsibleTrigger } from './chunk-WNQDVQ3X.js';
 export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from './chunk-3WXRFRHM.js';
 export { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './chunk-ESKTU2IC.js';
-export { HoverCard, HoverCardContent, HoverCardTrigger } from './chunk-D3OFIAAZ.js';
+export { THEME_STORAGE_KEY, ThemeProvider, useTheme } from './chunk-LOVXZSEU.js';
 export { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './chunk-QLQS7JQK.js';
 export { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, AlertDialogPortal, AlertDialogTitle, AlertDialogTrigger } from './chunk-XRSFU6JP.js';
 export { Button, buttonVariants } from './chunk-BYN4QE7U.js';
 export { Alert, AlertDescription, AlertTitle, alertVariants } from './chunk-UZK4TC3H.js';
-export { Avatar, AvatarFallback, AvatarImage } from './chunk-WMWV6GQZ.js';
-export { Badge, badgeVariants } from './chunk-2NHH6FFY.js';
 import './chunk-Y4S6UTW2.js';
+export { Avatar, AvatarFallback, AvatarImage } from './chunk-WMWV6GQZ.js';
 import './chunk-UIWDNVTY.js';
-import { createContext, useState, useEffect, useMemo, useContext } from 'react';
-import { jsx } from 'react/jsx-runtime';
-
-var MEDIA_QUERY = "(prefers-color-scheme: dark)";
-var THEME_STORAGE_KEY = "netix-theme";
-var canMatchMedia = () => typeof window !== "undefined" && typeof window.matchMedia === "function";
-var prefersDark = () => canMatchMedia() && window.matchMedia(MEDIA_QUERY).matches;
-var ThemeProviderContext = createContext({
-  theme: "system",
-  resolvedTheme: "light",
-  setTheme: () => null
-});
-function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = THEME_STORAGE_KEY
-}) {
-  const [theme, setThemeState] = useState(() => {
-    try {
-      return localStorage.getItem(storageKey) || defaultTheme;
-    } catch {
-      return defaultTheme;
-    }
-  });
-  const [osTheme, setOsTheme] = useState(() => prefersDark() ? "dark" : "light");
-  useEffect(() => {
-    if (!canMatchMedia()) return;
-    const media = window.matchMedia(MEDIA_QUERY);
-    const onChange = (event) => setOsTheme(event.matches ? "dark" : "light");
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, []);
-  const resolvedTheme = theme === "system" ? osTheme : theme;
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(resolvedTheme);
-    root.style.colorScheme = resolvedTheme;
-  }, [resolvedTheme]);
-  const value = useMemo(
-    () => ({
-      theme,
-      resolvedTheme,
-      setTheme: (next) => {
-        try {
-          localStorage.setItem(storageKey, next);
-        } catch {
-        }
-        setThemeState(next);
-      }
-    }),
-    [theme, resolvedTheme, storageKey]
-  );
-  return /* @__PURE__ */ jsx(ThemeProviderContext.Provider, { value, children });
-}
-var useTheme = () => useContext(ThemeProviderContext);
-
-export { THEME_STORAGE_KEY, ThemeProvider, useTheme };
