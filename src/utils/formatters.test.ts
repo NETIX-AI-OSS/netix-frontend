@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatFileSize, getFullUserName, getUserNameInitials } from './formatters'
+import { formatCurrency, formatFileSize, getFullUserName, getUserNameInitials } from './formatters'
 
 describe('getFullUserName', () => {
   it('trims when only one name is present', () => {
@@ -29,5 +29,18 @@ describe('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('')
     expect(formatFileSize(2048)).toBe('2 KB')
     expect(formatFileSize(1024 * 1024 * 3.25)).toBe('3.3 MB')
+  })
+})
+
+describe('formatCurrency', () => {
+  it('formats with the given currency and locale', () => {
+    expect(formatCurrency(1234.5, { currency: 'USD', locale: 'en-US' })).toBe('$1,234.50')
+    expect(formatCurrency(1234.5, { currency: 'SAR', locale: 'en-US' })).toMatch(/1,234\.50/)
+  })
+
+  it('honours maximumFractionDigits', () => {
+    expect(
+      formatCurrency(1234.567, { currency: 'USD', locale: 'en-US', maximumFractionDigits: 0 }),
+    ).toBe('$1,235')
   })
 })

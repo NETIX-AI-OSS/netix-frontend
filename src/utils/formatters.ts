@@ -21,3 +21,18 @@ export function formatFileSize(bytes: number): string {
   const kb = bytes / 1024
   return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`
 }
+
+export type FormatCurrencyOptions = {
+  currency: string
+  locale?: string
+  maximumFractionDigits?: number
+}
+
+export function formatCurrency(value: number, options: FormatCurrencyOptions): string {
+  const { currency, locale, maximumFractionDigits } = options
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    maximumFractionDigits,
+  }).format(value)
+}
