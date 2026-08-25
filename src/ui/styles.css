@@ -1,1 +1,142 @@
-/* Compiled component classes land here in the ui build stage. */
+/* Tailwind v4 entry for the precompiled /ui stylesheet: theme + utilities only, never preflight. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import '../../dist/tokens/tokens.css';
+
+@source './primitives/**/*.tsx';
+@source not './primitives/**/*.test.tsx';
+@source './composites/**/*.tsx';
+@source not './composites/**/*.test.tsx';
+@source './theme/**/*.tsx';
+@source not './theme/**/*.test.tsx';
+
+@theme {
+  --animate-shimmer: shimmer var(--shimmer-duration, 1.5s) linear infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes enter {
+    from {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+        scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+    }
+  }
+  @keyframes exit {
+    to {
+      opacity: var(--tw-exit-opacity, 1);
+      transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+        scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1));
+    }
+  }
+}
+
+/* Enter/exit utilities the primitives rely on; vendored so the package pulls no animation plugin. */
+@utility animate-in {
+  animation: enter var(--tw-duration, 150ms) var(--tw-ease, ease);
+  --tw-enter-opacity: initial;
+  --tw-enter-scale: initial;
+  --tw-enter-translate-x: initial;
+  --tw-enter-translate-y: initial;
+}
+@utility animate-out {
+  animation: exit var(--tw-duration, 150ms) var(--tw-ease, ease);
+  --tw-exit-opacity: initial;
+  --tw-exit-scale: initial;
+  --tw-exit-translate-x: initial;
+  --tw-exit-translate-y: initial;
+}
+@utility fade-in {
+  --tw-enter-opacity: 0;
+}
+@utility fade-in-0 {
+  --tw-enter-opacity: 0;
+}
+@utility fade-out {
+  --tw-exit-opacity: 0;
+}
+@utility fade-out-0 {
+  --tw-exit-opacity: 0;
+}
+@utility zoom-in-90 {
+  --tw-enter-scale: 0.9;
+}
+@utility zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+@utility zoom-out-95 {
+  --tw-exit-scale: 0.95;
+}
+@utility slide-in-from-top {
+  --tw-enter-translate-y: -100%;
+}
+@utility slide-in-from-bottom {
+  --tw-enter-translate-y: 100%;
+}
+@utility slide-in-from-left {
+  --tw-enter-translate-x: -100%;
+}
+@utility slide-in-from-right {
+  --tw-enter-translate-x: 100%;
+}
+@utility slide-out-to-top {
+  --tw-exit-translate-y: -100%;
+}
+@utility slide-out-to-bottom {
+  --tw-exit-translate-y: 100%;
+}
+@utility slide-out-to-left {
+  --tw-exit-translate-x: -100%;
+}
+@utility slide-out-to-right {
+  --tw-exit-translate-x: 100%;
+}
+@utility slide-in-from-top-2 {
+  --tw-enter-translate-y: -0.5rem;
+}
+@utility slide-in-from-bottom-2 {
+  --tw-enter-translate-y: 0.5rem;
+}
+@utility slide-in-from-left-2 {
+  --tw-enter-translate-x: -0.5rem;
+}
+@utility slide-in-from-right-2 {
+  --tw-enter-translate-x: 0.5rem;
+}
+@utility slide-in-from-left-52 {
+  --tw-enter-translate-x: -13rem;
+}
+@utility slide-in-from-right-52 {
+  --tw-enter-translate-x: 13rem;
+}
+@utility slide-out-to-left-52 {
+  --tw-exit-translate-x: -13rem;
+}
+@utility slide-out-to-right-52 {
+  --tw-exit-translate-x: 13rem;
+}
