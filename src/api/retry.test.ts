@@ -98,7 +98,12 @@ describe('attachRetryInterceptor', () => {
   })
 
   it('re-dispatches an idempotent 5xx until it succeeds when opted in', async () => {
-    const { instance, calls } = clientFor([{ status: 500 }, { status: 200 }], immediate, undefined, true)
+    const { instance, calls } = clientFor(
+      [{ status: 500 }, { status: 200 }],
+      immediate,
+      undefined,
+      true,
+    )
 
     await expect(instance.get('/things')).resolves.toMatchObject({ status: 200 })
     expect(calls()).toBe(2)
@@ -181,7 +186,7 @@ describe('attachRetryInterceptor', () => {
 
   it('defaults to a setTimeout scheduler', async () => {
     vi.useFakeTimers()
-    const { adapter } = adapterFor([{ status: 500 }, { status: 200 }])
+    const { adapter } = adapterFor([{ status: 429 }, { status: 200 }])
     const instance = Axios.create({ adapter })
     attachRetryInterceptor(instance)
 

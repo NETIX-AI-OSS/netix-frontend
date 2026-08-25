@@ -153,10 +153,10 @@ describe('createHttpClient', () => {
     const failing: AxiosAdapter = (config) => {
       attempts()
       return Promise.reject(
-        Object.assign(new Error('Request failed with status code 500'), {
+        Object.assign(new Error('Request failed with status code 429'), {
           isAxiosError: true,
           config,
-          response: { status: 500, statusText: '', data: {}, headers: {}, config },
+          response: { status: 429, statusText: '', data: {}, headers: {}, config },
         }),
       )
     }
