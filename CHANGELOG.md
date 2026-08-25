@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.1 — 2026-08-25
+
+Pilot-feedback patch (frontend-template + value-nano-ui adoptions).
+
+- ui: every primitive and composite is also its own entry point (`netix-frontend/ui/<name>`), so apps without an optional peer never resolve it.
+- ui: `ui/styles-notokens.css` — component classes only, for v4 apps that already import `tokens/tokens.css`.
+- api: canceled requests pass through `createErrorInterceptor` untouched and are never retried by the SWR/react-query policies.
+- tokens: `theme-init.js` honours `data-theme-key` / `data-default-theme` on `<html>`; `themeInitSnippet` export for single-file builds; `tokens/theme-only.css` compile-time contract.
+- i18n: optional `LocaleRuntimeLike.checkHealth` + `healthGate`; `organization_default_language` joins the boot precedence.
+- utils: `formatCurrency`.
+
 ## v1.0.0 — 2026-08-25
 
 First release: the fleet's shared code coalesced into one AGPL package with committed `dist/`.

@@ -76,6 +76,10 @@ import 'netix-frontend/ui/styles.css'
 import { Button, DataTable, ThemeProvider } from 'netix-frontend/ui'
 ```
 
+Every component is also its own entry — `import { Button } from 'netix-frontend/ui/button'`.
+Prefer the subpaths when an app lacks some optional peer (the `./ui` barrel resolves every peer
+it mentions, e.g. @tanstack/react-table, even if tree-shaking later drops it).
+
 `styles.css` is precompiled by the lib's own Tailwind v4 (no preflight) and embeds the token layer,
 so it works unchanged in v3 apps and apps with no Tailwind. Composites: `DataTable` (+ skeleton
 loading, `ColumnFilter`, `PaginationControls`; @tanstack/react-table v9), `Combobox`/`FancyCombobox`
@@ -89,7 +93,11 @@ persist under the single `netix-theme` key (`THEME_STORAGE_KEY`).
 Tailwind v4 apps: `@import 'tailwindcss'` then `@import 'netix-frontend/tokens/tokens.css'` —
 tokens.css carries an `@layer base` block, so it must come after tailwind or layer order is
 undefined. Tailwind v3 apps: `presets: [require('netix-frontend/tokens/preset')]`. No Tailwind:
-`netix-frontend/tokens/vars.css`. Pre-paint theme: `<script src=".../tokens/theme-init.js">`.
+`netix-frontend/tokens/vars.css`. Pre-paint theme: `<script src=".../tokens/theme-init.js">`
+(copy to `public/`), or inline the exported `themeInitSnippet` string for single-file builds; the
+script honours `data-theme-key` / `data-default-theme` on `<html>` (defaults `netix-theme` /
+`system`). v4 apps that import tokens.css should use `netix-frontend/ui/styles-notokens.css`
+instead of `ui/styles.css` to avoid duplicating the token layer and fonts.
 JS access: `token(name, mode)`, `cssVar`, `statusColor`, `noticeColor`, `chartPalette` (Okabe–Ito).
 Font faces load from `netix-frontend/fonts/*` (declared in tokens.css/vars.css).
 
