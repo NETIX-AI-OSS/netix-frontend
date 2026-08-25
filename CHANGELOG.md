@@ -4,8 +4,10 @@
 
 Fleet-wave feedback patch (viz-ui adoption).
 
-- api: transport retry no longer retries 5xx by default — no donor app family did, and it flipped
-  one-shot-error test mocks into false successes. Opt back in with `retry: { retryServerErrors: true }`.
+- api: transport retry no longer retries 5xx by default. Several donors did retry 5xx (viz, cafm,
+  asset, template, prism, technician) — those apps pass `retry: { retryServerErrors: true }` to keep
+  their behavior; the conservative default protects the apps whose transports never retried 5xx and
+  keeps one-shot-error test mocks honest.
 - ui: `netix-frontend/ui/theme` deep entry so ThemeProvider/useTheme are reachable without the
   barrel (which forces every optional peer to resolve).
 
