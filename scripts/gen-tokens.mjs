@@ -118,7 +118,8 @@ const keyframesCss = (src) =>
     })
     .join('\n\n')
 
-export function buildTokensCss(src) {
+/** The @custom-variant + @theme contract Tailwind needs at compile time. */
+const themeBlocks = (src) => {
   const theme = [
     '  --font-sans: var(--font-sans);',
     '  --font-mono: var(--font-mono);',
@@ -136,9 +137,29 @@ export function buildTokensCss(src) {
     indent(keyframesCss(src)),
   ]
   return [
+    '@custom-variant dark (&:is(.dark *));',
+    '',
+    block('@theme inline', theme),
+    '',
+    '/* Non-inline @theme: declares the radius vars and wires rounded-* to them. */',
+    block(
+      '@theme',
+      Object.entries(src.radiusScale).map(([name, value]) => decl(name, value)),
+    ),
+  ]
+}
+
+/** Compile-time-only variant for styles-notokens.css: no runtime CSS, no fonts. */
+export function buildThemeOnlyCss(src) {
+  return [`/* ${BANNER} */`, '', ...themeBlocks(src), ''].join('\n')
+}
+
+export function buildTokensCss(src) {
+  const [customVariant, , ...themeRest] = themeBlocks(src)
+  return [
     `/* ${BANNER} */`,
     '',
-    '@custom-variant dark (&:is(.dark *));',
+    customVariant,
     '',
     fontFaces(src),
     '',
@@ -148,13 +169,7 @@ export function buildTokensCss(src) {
     '',
     ...densityBlocks(src),
     '',
-    block('@theme inline', theme),
-    '',
-    '/* Non-inline @theme: declares the radius vars and wires rounded-* to them. */',
-    block(
-      '@theme',
-      Object.entries(src.radiusScale).map(([name, value]) => decl(name, value)),
-    ),
+    ...themeRest,
     '',
     block('@layer base', [
       indent(
@@ -265,14 +280,23 @@ export function buildTokensTs(src) {
   return `// ${BANNER}\n\nexport const tokens = {\n${modes.join('\n')}\n} as const\n`
 }
 
+/** Single-file apps inline this instead of copying theme-init.js into public/. */
+export function buildThemeInitSnippet(root = ROOT) {
+  const source = readFileSync(join(root, 'src/tokens/theme-init.js'), 'utf8')
+  const escaped = source.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
+  return `// ${BANNER}\n\nexport const themeInitSnippet = \`${escaped}\`\n`
+}
+
 /** Every generated text artifact, keyed by repo-relative path. */
 export function buildAll(src, root = ROOT) {
   return {
     'dist/tokens/tokens.css': buildTokensCss(src),
+    'dist/tokens/theme-only.css': buildThemeOnlyCss(src),
     'dist/tokens/vars.css': buildVarsCss(src),
     'dist/tokens/preset.cjs': buildPresetCjs(src),
     'dist/tokens/theme-init.js': readFileSync(join(root, 'src/tokens/theme-init.js'), 'utf8'),
     'src/tokens/tokens.ts': buildTokensTs(src),
+    'src/tokens/theme-init-snippet.ts': buildThemeInitSnippet(root),
   }
 }
 

@@ -1,5 +1,6 @@
 import { tokens } from './tokens'
 
+export { themeInitSnippet } from './theme-init-snippet'
 export { tokens }
 
 export type ThemeMode = keyof typeof tokens
