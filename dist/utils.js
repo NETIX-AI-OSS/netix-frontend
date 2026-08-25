@@ -3361,5 +3361,13 @@ function formatFileSize(bytes) {
   const kb = bytes / 1024;
   return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`;
 }
+function formatCurrency(value, options) {
+  const { currency, locale, maximumFractionDigits } = options;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits
+  }).format(value);
+}
 
-export { DEFAULT_EMAIL_ERROR, STATUS_COLORS, arrayToCommaSeparated, cn, commaSeparatedToArray, emailValidator, filterIntersection, formatFileSize, getEnumOptions, getFileMetadata, getFullUserName, getUserNameInitials, removeDuplicates, removeEmptyAttributes };
+export { DEFAULT_EMAIL_ERROR, STATUS_COLORS, arrayToCommaSeparated, cn, commaSeparatedToArray, emailValidator, filterIntersection, formatCurrency, formatFileSize, getEnumOptions, getFileMetadata, getFullUserName, getUserNameInitials, removeDuplicates, removeEmptyAttributes };

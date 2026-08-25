@@ -3668,6 +3668,14 @@ function formatFileSize(bytes) {
   const kb = bytes / 1024;
   return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`;
 }
+function formatCurrency(value, options) {
+  const { currency, locale, maximumFractionDigits } = options;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits
+  }).format(value);
+}
 
 exports.DATE_FORMAT = DATE_FORMAT;
 exports.DEFAULT_EMAIL_ERROR = DEFAULT_EMAIL_ERROR;
@@ -3695,6 +3703,7 @@ exports.configureDates = configureDates;
 exports.emailValidator = emailValidator;
 exports.filterIntersection = filterIntersection;
 exports.format = format;
+exports.formatCurrency = formatCurrency;
 exports.formatDateAsEndOfDayUpperCase = formatDateAsEndOfDayUpperCase;
 exports.formatDurationHMS = formatDurationHMS;
 exports.formatFileSize = formatFileSize;

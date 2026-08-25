@@ -215,7 +215,8 @@ function createOrganizationLocale(config) {
     languageKey = "language",
     namespace = "translation",
     pendingKeyPrefix = PENDING_LANGUAGE_KEY,
-    defaultLanguage = "en"
+    defaultLanguage = "en",
+    healthGate = false
   } = config;
   let runtime = null;
   let runtimeOrigin = "";
@@ -253,7 +254,15 @@ function createOrganizationLocale(config) {
     await renderLanguage(language, false);
   }
   async function initialLanguage(identity, user) {
-    return await storage.getItem(pendingLanguageKey(identity)) || user.preferred_language || await storage.getItem(languageKey) || defaultLanguage;
+    return await storage.getItem(pendingLanguageKey(identity)) || user.preferred_language || user.organization_default_language || await storage.getItem(languageKey) || defaultLanguage;
+  }
+  async function isHealthy(locales) {
+    if (!healthGate || !locales.checkHealth) return true;
+    try {
+      return await locales.checkHealth();
+    } catch {
+      return false;
+    }
   }
   async function refreshOrganizationLocale(user, requestedLanguage) {
     const identity = localeIdentity(user);
@@ -261,6 +270,7 @@ function createOrganizationLocale(config) {
     if (!identity || !locales) return null;
     activeIdentity = identity;
     locales.setActiveIdentity(identity);
+    if (!await isHealthy(locales)) return null;
     const language = requestedLanguage || await initialLanguage(identity, user);
     const cached = await locales.hydrate(identity, language);
     if (cached && sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(cached.locale);

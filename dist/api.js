@@ -308,6 +308,7 @@ function createErrorInterceptor(config = {}) {
     networkErrorMessage = "Network error occurred"
   } = config;
   const onError = (error) => {
+    if (isCanceledRequest(error)) throw error;
     const response = error.response;
     const statusCode = response?.status ?? 0;
     const messages = statusCode === 0 ? [networkErrorMessage] : parseEnvelope(
@@ -478,6 +479,7 @@ function createSwrOnErrorRetry(options = {}) {
     isRetryable = isRetryableSwrError
   } = options;
   return (error, _key, _config, revalidate, revalidateOptions) => {
+    if (isCanceledRequest(error)) return;
     const attempt = Math.max(0, (revalidateOptions.retryCount ?? 1) - 1);
     if (attempt >= maxRetries) return;
     if (!isRetryable(error)) return;

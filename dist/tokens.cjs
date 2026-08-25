@@ -392,6 +392,25 @@ var tokens = {
   }
 };
 
+// src/tokens/theme-init-snippet.ts
+var themeInitSnippet = `// Applies the stored theme before first paint; keep in sync with ThemeProvider.
+;(function () {
+  try {
+    var root = document.documentElement
+    var key = root.dataset.themeKey || 'netix-theme'
+    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'
+    var dark =
+      stored === 'dark' ||
+      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    var resolved = dark ? 'dark' : 'light'
+    root.classList.add(resolved)
+    root.style.colorScheme = resolved
+  } catch {
+    // localStorage/matchMedia unavailable \u2014 fall back to the light default
+  }
+})()
+`;
+
 // src/tokens/index.ts
 var STATUS_NAMES = [
   "ok",
@@ -416,5 +435,6 @@ exports.chartPalette = chartPalette;
 exports.cssVar = cssVar;
 exports.noticeColor = noticeColor;
 exports.statusColor = statusColor;
+exports.themeInitSnippet = themeInitSnippet;
 exports.token = token;
 exports.tokens = tokens;

@@ -389,6 +389,8 @@ declare const tokens: {
     };
 };
 
+declare const themeInitSnippet = "// Applies the stored theme before first paint; keep in sync with ThemeProvider.\n;(function () {\n  try {\n    var root = document.documentElement\n    var key = root.dataset.themeKey || 'netix-theme'\n    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'\n    var dark =\n      stored === 'dark' ||\n      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)\n    var resolved = dark ? 'dark' : 'light'\n    root.classList.add(resolved)\n    root.style.colorScheme = resolved\n  } catch {\n    // localStorage/matchMedia unavailable \u2014 fall back to the light default\n  }\n})()\n";
+
 type ThemeMode = keyof typeof tokens;
 type TokenName = keyof (typeof tokens)['light'];
 declare const STATUS_NAMES: readonly ["ok", "warning", "critical", "info", "neutral", "offline", "stale", "nodata"];
@@ -406,4 +408,4 @@ declare const noticeColor: (severity: NoticeSeverity, mode?: ThemeMode, slot?: "
 /** Okabe–Ito categorical ramp, in order — never use it to encode status. */
 declare const chartPalette: (mode?: ThemeMode) => string[];
 
-export { NOTICE_SEVERITIES, type NoticeSeverity, STATUS_NAMES, type StatusName, type StatusSlot, type ThemeMode, type TokenName, chartPalette, cssVar, noticeColor, statusColor, token, tokens };
+export { NOTICE_SEVERITIES, type NoticeSeverity, STATUS_NAMES, type StatusName, type StatusSlot, type ThemeMode, type TokenName, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };

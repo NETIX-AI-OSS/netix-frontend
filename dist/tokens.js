@@ -390,6 +390,25 @@ var tokens = {
   }
 };
 
+// src/tokens/theme-init-snippet.ts
+var themeInitSnippet = `// Applies the stored theme before first paint; keep in sync with ThemeProvider.
+;(function () {
+  try {
+    var root = document.documentElement
+    var key = root.dataset.themeKey || 'netix-theme'
+    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'
+    var dark =
+      stored === 'dark' ||
+      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    var resolved = dark ? 'dark' : 'light'
+    root.classList.add(resolved)
+    root.style.colorScheme = resolved
+  } catch {
+    // localStorage/matchMedia unavailable \u2014 fall back to the light default
+  }
+})()
+`;
+
 // src/tokens/index.ts
 var STATUS_NAMES = [
   "ok",
@@ -408,4 +427,4 @@ var statusColor = (status, mode = "light", slot = "base") => token(slot === "bas
 var noticeColor = (severity, mode = "light", slot = "ink") => token(slot === "ink" ? `notice-${severity}` : `notice-${severity}-${slot}`, mode);
 var chartPalette = (mode = "light") => Array.from({ length: 10 }, (_, index) => token(`cat-${index + 1}`, mode));
 
-export { NOTICE_SEVERITIES, STATUS_NAMES, chartPalette, cssVar, noticeColor, statusColor, token, tokens };
+export { NOTICE_SEVERITIES, STATUS_NAMES, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };

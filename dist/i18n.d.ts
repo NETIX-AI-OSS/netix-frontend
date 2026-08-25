@@ -350,6 +350,7 @@ type LocaleUser = {
     organization_id?: string | number;
     organization?: string | number;
     preferred_language?: string;
+    organization_default_language?: string;
 };
 /** The subset of envoy-ts-auth's `LocaleRuntime` this module drives. */
 interface LocaleRuntimeLike {
@@ -362,6 +363,7 @@ interface LocaleRuntimeLike {
     }>;
     setPreferredLanguage(identity: LocaleIdentity, language: string): Promise<boolean>;
     reconcilePendingLanguage(identity: LocaleIdentity): Promise<boolean>;
+    checkHealth?(): Promise<boolean>;
 }
 /** Asynchronous storage contract shared by `createBrowserLocaleStorage` and AsyncStorage. */
 type LocaleAsyncStorage = {
@@ -379,6 +381,8 @@ type OrganizationLocaleConfig = {
     namespace?: string;
     pendingKeyPrefix?: string;
     defaultLanguage?: string;
+    /** When true and the runtime exposes checkHealth, an unhealthy locale API skips the refresh. */
+    healthGate?: boolean;
 };
 type OrganizationLocale = {
     getLocaleRuntime: () => LocaleRuntimeLike | null;
