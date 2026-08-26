@@ -80,8 +80,12 @@ Every component is also its own entry — `import { Button } from 'netix-fronten
 Prefer the subpaths when an app lacks some optional peer (the `./ui` barrel resolves every peer
 it mentions, e.g. @tanstack/react-table, even if tree-shaking later drops it).
 
-`styles.css` is precompiled by the lib's own Tailwind v4 (no preflight) and embeds the token layer,
-so it works unchanged in v3 apps and apps with no Tailwind. Composites: `DataTable` (+ skeleton
+`styles.css` is precompiled by the lib's own Tailwind v4 (no preflight) and embeds the token layer.
+CAUTION for Tailwind v3 apps: v3's PostCSS hoists the file's `@layer utilities` block and purges any
+class not found in `content` — silently, and only visible at runtime (an off-screen dialog cost viz-ui
+an hour of e2e debugging). Every v3 consumer MUST add `'./node_modules/netix-frontend/dist/**/*.js'`
+to its `content` globs (the class strings live in the `dist/chunk-*.js` files, so the glob must cover
+all of dist). Apps with no Tailwind processing can import it unchanged. Composites: `DataTable` (+ skeleton
 loading, `ColumnFilter`, `PaginationControls`; @tanstack/react-table v9), `Combobox`/`FancyCombobox`
 (RTL-aware), `TreeView`, `Form*` (react-hook-form glue), `FormModal`/`ConfirmModal`,
 `LoadingState`/`EmptyState`, `Toaster` (sonner), `OptionList`. Theming: `ThemeProvider` + `useTheme`
