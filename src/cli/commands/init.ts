@@ -8,7 +8,7 @@ import { run, type Runner } from '../exec'
 import { LIB_REF, REGISTRY_URL, TEMPLATE_REF } from '../refs'
 import { applyScaffoldTransforms } from '../scaffold'
 import { loadManifest } from '../services'
-import { acquireTemplate } from '../template'
+import { acquireTemplate, checkTemplateAvailable } from '../template'
 import type { ScaffoldOptions } from '../transforms'
 import { schemaPull } from './schema-pull'
 
@@ -29,6 +29,7 @@ export type InitFlags = {
 }
 
 const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/
+const DEFAULT_BASE_DOMAIN = 'netixai.dev'
 
 const bail = (value: unknown): never => {
   p.cancel('init cancelled')
@@ -43,6 +44,14 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   const serviceKeys = Object.keys(manifest.services)
 
   p.intro(pc.inverse(' netix init '))
+
+  // Fail before the questions, not after them: one API call beats six wasted answers.
+  const unreachable = await checkTemplateAvailable({
+    ref: flags.templateRef ?? TEMPLATE_REF,
+    templatePath: flags.templatePath,
+    runner,
+  })
+  if (unreachable) return fail(unreachable)
 
   const dir =
     flags.dir ??
@@ -68,8 +77,9 @@ export async function init(flags: InitFlags, runner: Runner = run) {
       : answer(
           await p.text({
             message: 'App name (kebab-case; also the deploy identity)',
-            initialValue: defaultName,
-            validate: (value) => (KEBAB.test(value ?? '') ? undefined : 'use kebab-case'),
+            placeholder: defaultName,
+            defaultValue: defaultName,
+            validate: (value) => (!value || KEBAB.test(value) ? undefined : 'use kebab-case'),
           }),
         ))
   if (!KEBAB.test(name)) return fail(`app name must be kebab-case, got "${name}"`)
@@ -78,13 +88,25 @@ export async function init(flags: InitFlags, runner: Runner = run) {
     flags.title ??
     (flags.yes
       ? titleCase(name)
-      : answer(await p.text({ message: 'Display title', initialValue: titleCase(name) })))
+      : answer(
+          await p.text({
+            message: 'Display title',
+            placeholder: titleCase(name),
+            defaultValue: titleCase(name),
+          }),
+        ))
 
   const baseDomain =
     flags.baseDomain ??
     (flags.yes
-      ? 'netixai.dev'
-      : answer(await p.text({ message: 'Base domain', initialValue: 'netixai.dev' })))
+      ? DEFAULT_BASE_DOMAIN
+      : answer(
+          await p.text({
+            message: 'Base domain',
+            placeholder: DEFAULT_BASE_DOMAIN,
+            defaultValue: DEFAULT_BASE_DOMAIN,
+          }),
+        ))
 
   const services = flags.services
     ? flags.services
@@ -216,8 +238,10 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   }
 }
 
+/** billing-console-ui -> "Billing Console": the -ui/-app suffix is plumbing, not a title. */
 const titleCase = (kebab: string) =>
   kebab
+    .replace(/-(ui|app|frontend)$/, '')
     .split('-')
     .map((part) => part[0]?.toUpperCase() + part.slice(1))
     .join(' ')

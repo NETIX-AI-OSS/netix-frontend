@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import type { ExecResult, Runner } from './exec'
-import { acquireTemplate } from './template'
+import { acquireTemplate, checkTemplateAvailable } from './template'
 
 const ok = (stdout = ''): ExecResult => ({ code: 0, stdout, stderr: '' })
 const fail = (stderr = 'nope'): ExecResult => ({ code: 1, stdout: '', stderr })
@@ -74,5 +74,46 @@ describe('github tarball path', () => {
     const runner: Runner = async (_, args) =>
       args.join(' ').includes('tarball') ? fail('404') : ok('ok')
     await expect(acquireTemplate({ dest, ref: 'v1', runner })).rejects.toThrow('404')
+  })
+})
+
+describe('checkTemplateAvailable (preflight, before any prompt)', () => {
+  it('passes for an existing local template path', async () => {
+    const source = mkdtempSync(join(tmpdir(), 'netix-src-'))
+    await expect(acquireTemplate({ dest, ref: 'x', templatePath: source })).resolves.toBeTruthy()
+    await expect(
+      checkTemplateAvailable({ ref: 'x', templatePath: source }),
+    ).resolves.toBeUndefined()
+    rmSync(source, { recursive: true, force: true })
+  })
+
+  it('reports a missing local template path', async () => {
+    await expect(checkTemplateAvailable({ ref: 'x', templatePath: '/nope' })).resolves.toContain(
+      'template path not found',
+    )
+  })
+
+  it('reports missing gh, missing auth, and an unreachable ref', async () => {
+    const only =
+      (pattern: string): Runner =>
+      async (_, args) =>
+        args.join(' ').includes(pattern) ? fail() : ok('ok')
+
+    await expect(
+      checkTemplateAvailable({ ref: 'v1', runner: only('command -v gh') }),
+    ).resolves.toContain('GitHub CLI (gh) is required')
+    await expect(
+      checkTemplateAvailable({ ref: 'v1', runner: only('auth status') }),
+    ).resolves.toContain('not authenticated')
+    await expect(
+      checkTemplateAvailable({ ref: 'v1', runner: only('commits/') }),
+    ).resolves.toContain('is not reachable')
+  })
+
+  it('passes when gh can see the ref', async () => {
+    const runner: Runner = async () => ok('ok')
+    await expect(
+      checkTemplateAvailable({ ref: 'template-v2.0.0', runner }),
+    ).resolves.toBeUndefined()
   })
 })

@@ -100,11 +100,16 @@ it('collects answers from prompts when flags are missing', async () => {
       expect(opts.validate?.(dest)).toBeUndefined()
       return dest // directory
     })
-    .mockImplementationOnce(async (opts: { validate?: (v?: string) => string | undefined }) => {
-      expect(opts.validate?.('Bad Name')).toBeTruthy()
-      expect(opts.validate?.('asked-ui')).toBeUndefined()
-      return 'asked-ui' // name
-    })
+    .mockImplementationOnce(
+      async (opts: { validate?: (v?: string) => string | undefined; defaultValue?: string }) => {
+        expect(opts.validate?.('Bad Name')).toBeTruthy()
+        expect(opts.validate?.('asked-ui')).toBeUndefined()
+        // empty is allowed: clack substitutes defaultValue, so validate must not reject it
+        expect(opts.validate?.('')).toBeUndefined()
+        expect(opts.defaultValue).toBe('asked-ui')
+        return 'asked-ui' // name
+      },
+    )
     .mockResolvedValueOnce('Asked UI') // title
     .mockResolvedValueOnce('acme.dev') // base domain
   clack.multiselect.mockResolvedValueOnce(['data'])
@@ -114,6 +119,22 @@ it('collects answers from prompts when flags are missing', async () => {
   await expect(init({ templatePath: FIXTURE }, runner)).resolves.toBe(0)
   expect(existsSync(join(dest, 'app/pages/profile.tsx'))).toBe(false)
   expect(readFileSync(join(dest, 'index.html'), 'utf8')).toContain('<title>Asked UI</title>')
+})
+
+it('suggests a title without the -ui plumbing suffix', async () => {
+  const dest = join(parent, 'billing-console-ui')
+  const seen: string[] = []
+  clack.text.mockImplementation(async (opts: { message: string; defaultValue?: string }) => {
+    seen.push(`${opts.message}=${opts.defaultValue ?? ''}`)
+    return opts.defaultValue ?? dest
+  })
+  clack.multiselect.mockResolvedValueOnce(['data'])
+  clack.confirm.mockResolvedValueOnce(false)
+
+  await expect(init({ dir: dest, templatePath: FIXTURE }, makeRunner().runner)).resolves.toBe(0)
+  expect(seen.some((s) => s === 'Display title=Billing Console')).toBe(true)
+  expect(seen.some((s) => s.includes('Billing Console Ui'))).toBe(false)
+  expect(readFileSync(join(dest, 'index.html'), 'utf8')).toContain('<title>Billing Console</title>')
 })
 
 it('cancels cleanly when the user aborts a prompt', async () => {

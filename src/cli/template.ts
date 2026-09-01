@@ -46,3 +46,30 @@ export async function acquireTemplate({ dest, ref, templatePath, runner = run }:
     throw new Error(`downloading ${TEMPLATE_REPO}@${ref} failed:\n${tarball.stderr}`)
   return { source: `${TEMPLATE_REPO}@${ref}` }
 }
+
+/**
+ * Cheap reachability check for the template source, run BEFORE the prompts so a missing
+ * gh / bad ref costs one API call instead of six answered questions.
+ */
+export async function checkTemplateAvailable({
+  ref,
+  templatePath,
+  runner = run,
+}: Omit<AcquireOptions, 'dest'>): Promise<string | undefined> {
+  if (templatePath)
+    return existsSync(templatePath) ? undefined : `template path not found: ${templatePath}`
+
+  if ((await runner('/bin/sh', ['-c', 'command -v gh'])).code !== 0)
+    return (
+      `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).\n` +
+      'Install it and run `gh auth login`, or pass --template-path <local checkout>.'
+    )
+  if ((await runner('gh', ['auth', 'status'])).code !== 0)
+    return 'gh is installed but not authenticated — run `gh auth login` first.'
+  if ((await runner('gh', ['api', `repos/${TEMPLATE_REPO}/commits/${ref}`, '--silent'])).code !== 0)
+    return (
+      `${TEMPLATE_REPO}@${ref} is not reachable — the ref may not exist yet, or you may not have access.\n` +
+      'Pass --template-ref <existing ref> or --template-path <local checkout>.'
+    )
+  return undefined
+}

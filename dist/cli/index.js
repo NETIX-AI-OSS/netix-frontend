@@ -1656,6 +1656,23 @@ Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`
 ${tarball.stderr}`);
   return { source: `${TEMPLATE_REPO}@${ref}` };
 }
+async function checkTemplateAvailable({
+  ref,
+  templatePath,
+  runner = run
+}) {
+  if (templatePath)
+    return existsSync(templatePath) ? void 0 : `template path not found: ${templatePath}`;
+  if ((await runner("/bin/sh", ["-c", "command -v gh"])).code !== 0)
+    return `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).
+Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`;
+  if ((await runner("gh", ["auth", "status"])).code !== 0)
+    return "gh is installed but not authenticated \u2014 run `gh auth login` first.";
+  if ((await runner("gh", ["api", `repos/${TEMPLATE_REPO}/commits/${ref}`, "--silent"])).code !== 0)
+    return `${TEMPLATE_REPO}@${ref} is not reachable \u2014 the ref may not exist yet, or you may not have access.
+Pass --template-ref <existing ref> or --template-path <local checkout>.`;
+  return void 0;
+}
 var STALE_AFTER_DAYS = 90;
 var DAY_MS = 24 * 60 * 60 * 1e3;
 function detectServices(cwd, manifest) {
@@ -1726,6 +1743,7 @@ async function schemaPull({
 
 // src/cli/commands/init.ts
 var KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+var DEFAULT_BASE_DOMAIN = "netixai.dev";
 var bail = (value) => {
   cancel("init cancelled");
   process.exit(1);
@@ -1736,6 +1754,12 @@ async function init(flags, runner = run) {
   const manifest = loadManifest();
   const serviceKeys = Object.keys(manifest.services);
   intro(import_picocolors.default.inverse(" netix init "));
+  const unreachable = await checkTemplateAvailable({
+    ref: flags.templateRef ?? TEMPLATE_REF,
+    templatePath: flags.templatePath,
+    runner
+  });
+  if (unreachable) return fail(unreachable);
   const dir = flags.dir ?? (flags.yes ? void 0 : answer(
     await text({
       message: "Where should the app be created?",
@@ -1751,13 +1775,26 @@ async function init(flags, runner = run) {
   const name = flags.name ?? (flags.yes ? defaultName : answer(
     await text({
       message: "App name (kebab-case; also the deploy identity)",
-      initialValue: defaultName,
-      validate: (value) => KEBAB.test(value ?? "") ? void 0 : "use kebab-case"
+      placeholder: defaultName,
+      defaultValue: defaultName,
+      validate: (value) => !value || KEBAB.test(value) ? void 0 : "use kebab-case"
     })
   ));
   if (!KEBAB.test(name)) return fail(`app name must be kebab-case, got "${name}"`);
-  const title = flags.title ?? (flags.yes ? titleCase(name) : answer(await text({ message: "Display title", initialValue: titleCase(name) })));
-  const baseDomain = flags.baseDomain ?? (flags.yes ? "netixai.dev" : answer(await text({ message: "Base domain", initialValue: "netixai.dev" })));
+  const title = flags.title ?? (flags.yes ? titleCase(name) : answer(
+    await text({
+      message: "Display title",
+      placeholder: titleCase(name),
+      defaultValue: titleCase(name)
+    })
+  ));
+  const baseDomain = flags.baseDomain ?? (flags.yes ? DEFAULT_BASE_DOMAIN : answer(
+    await text({
+      message: "Base domain",
+      placeholder: DEFAULT_BASE_DOMAIN,
+      defaultValue: DEFAULT_BASE_DOMAIN
+    })
+  ));
   const services = flags.services ? flags.services.split(",").map((s) => s.trim()).filter(Boolean) : flags.yes ? ["data"] : answer(
     await multiselect({
       message: "Which services should this app talk to?",
@@ -1864,7 +1901,7 @@ async function init(flags, runner = run) {
     return 1;
   }
 }
-var titleCase = (kebab) => kebab.split("-").map((part) => part[0]?.toUpperCase() + part.slice(1)).join(" ");
+var titleCase = (kebab) => kebab.replace(/-(ui|app|frontend)$/, "").split("-").map((part) => part[0]?.toUpperCase() + part.slice(1)).join(" ");
 
 // src/cli/index.ts
 var HELP = `${import_picocolors2.default.bold("netix")} \u2014 scaffold and maintain NETIX frontend apps
