@@ -32,8 +32,8 @@ export default defineConfig({
       exclude: ['src/tokens/tokens.ts', 'registry/netix/blocks/**'],
       // vitest 4 always folds glob-matched files back into the global gate, so both gates are globs.
       thresholds: {
-        'src/!(ui|theme|cli)/**': { statements: 100, branches: 100, functions: 100, lines: 100 },
-        'src/@(ui|theme|cli)/**': { statements: 90, branches: 90, functions: 90, lines: 90 },
+        'src/!(theme|cli)/**': { statements: 100, branches: 100, functions: 100, lines: 100 },
+        'src/@(theme|cli)/**': { statements: 90, branches: 90, functions: 90, lines: 90 },
         'registry/netix/**': { statements: 90, branches: 90, functions: 90, lines: 90 },
       },
     },

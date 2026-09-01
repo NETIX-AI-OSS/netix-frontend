@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as react from 'react';
 import { ReactNode } from 'react';
 
 type Theme = 'dark' | 'light' | 'system';
@@ -19,7 +19,7 @@ type ThemeProviderState = {
 };
 /** One key across the fleet so a user's choice follows them between NETIX apps. */
 declare const THEME_STORAGE_KEY = "netix-theme";
-declare function ThemeProvider({ children, defaultTheme, storageKey }: ThemeProviderProps): React.JSX.Element;
+declare function ThemeProvider({ children, defaultTheme, storageKey }: ThemeProviderProps): react.JSX.Element;
 declare const useTheme: () => ThemeProviderState;
 
 export { type ResolvedTheme, THEME_STORAGE_KEY, type Theme, ThemeProvider, type ThemeProviderProps, type ThemeProviderState, useTheme };

@@ -130,7 +130,7 @@ describe('styles.css', () => {
 
   it('imports Tailwind, the token layer and the vendored shadcn sheet in order', () => {
     const tailwind = css.indexOf("@import 'tailwindcss';")
-    const tokens = css.indexOf("@import './tokens.css';")
+    const tokens = css.indexOf("@import './tokens/tokens.css';")
     const shadcn = css.indexOf("@import './shadcn-tailwind.css';")
     expect(tailwind).toBeGreaterThan(-1)
     expect(tokens).toBeGreaterThan(tailwind)

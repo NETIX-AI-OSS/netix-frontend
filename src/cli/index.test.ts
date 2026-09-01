@@ -4,7 +4,10 @@ import { main } from './index'
 const initMock = vi.hoisted(() => vi.fn(async () => 0))
 const addMock = vi.hoisted(() => vi.fn(async () => 0))
 const pullMock = vi.hoisted(() =>
-  vi.fn(async () => ({ pulled: ['data'], warnings: ['old spec'], failures: [] as string[] })),
+  vi.fn(async (opts?: { log?: (line: string) => void }) => {
+    opts?.log?.('data: pulled')
+    return { pulled: ['data'], warnings: ['old spec'], failures: [] as string[] }
+  }),
 )
 vi.mock('./commands/init', () => ({ init: initMock }))
 vi.mock('./commands/add', () => ({ addItems: addMock }))

@@ -81,3 +81,14 @@ it('notes files the template no longer carries instead of failing', () => {
   const notes = applyScaffoldTransforms(root, options())
   expect(notes).toContain('skipped app/lib/organization-locale.ts (not in template)')
 })
+
+it('tolerates a template without the data client test or the renameable manifests', () => {
+  rmSync(join(root, 'app/client/http-data-service-client.test.ts'))
+  rmSync(join(root, 'app-ui-ingress.yaml'))
+  applyScaffoldTransforms(root, options({ services: ['user'] }))
+
+  expect(existsSync(join(root, 'app/client/http-user-service-client.ts'))).toBe(true)
+  expect(existsSync(join(root, 'app/client/http-user-service-client.test.ts'))).toBe(false)
+  expect(existsSync(join(root, 'ops-console-ui-ingress.yaml'))).toBe(false)
+  expect(existsSync(join(root, 'ops-console-ui-deployment.yaml'))).toBe(true)
+})

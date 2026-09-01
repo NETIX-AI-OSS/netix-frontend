@@ -241,7 +241,7 @@ export function buildStylesCss(root = ROOT) {
     '   Tailwind build — nothing here is precompiled, so there is nothing to purge or re-scan. */',
     '',
     "@import 'tailwindcss';",
-    "@import './tokens.css';",
+    "@import './tokens/tokens.css';",
     "@import './shadcn-tailwind.css';",
     '',
     animations.trimEnd(),

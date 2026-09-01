@@ -3313,19 +3313,6 @@ function getEnumOptions(obj, getLabel, options) {
   }));
 }
 
-// src/utils/colors.ts
-var STATUS_COLORS = {
-  PURPLE: "#C26EE9",
-  PINK: "#EE5FAB",
-  YELLOW: "#E3CC00",
-  ORANGE: "#F19100",
-  GREEN: "#04CD25",
-  DARK_GREEN: "#109121",
-  GRAY: "#C6C6C6",
-  RED: "#FF3636",
-  BLUE: "#6CA6FE"
-};
-
 // src/utils/date/kernel.ts
 var MONTH_NAMES = [
   "January",
@@ -3704,7 +3691,6 @@ exports.GMT_FORMAT = GMT_FORMAT;
 exports.MONTH_OPTIONS = MONTH_OPTIONS;
 exports.STANDARD_TIME_FORMAT = STANDARD_TIME_FORMAT;
 exports.STANDARD_TIME_FORMAT_WITHOUT_SECONDS = STANDARD_TIME_FORMAT_WITHOUT_SECONDS;
-exports.STATUS_COLORS = STATUS_COLORS;
 exports.TIMEZONE = TIMEZONE;
 exports.TIME_FORMAT = TIME_FORMAT;
 exports.UPPERCASE_DATE_FORMAT = UPPERCASE_DATE_FORMAT;

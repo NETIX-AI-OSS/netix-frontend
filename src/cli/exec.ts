@@ -24,7 +24,8 @@ export const run: Runner = async (command, args, options = {}) => {
     return {
       code: typeof failure.code === 'number' ? failure.code : 1,
       stdout: failure.stdout ?? '',
-      stderr: failure.stderr ?? failure.message ?? '',
+      // A spawn failure (ENOENT etc.) carries empty stdio strings; the message is the signal.
+      stderr: failure.stderr || failure.message || '',
     }
   }
 }

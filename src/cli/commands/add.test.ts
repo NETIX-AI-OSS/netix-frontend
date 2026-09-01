@@ -32,3 +32,11 @@ it('resolves 1 when the spawn itself fails', async () => {
   child.emit('error', new Error('missing pnpm'))
   await expect(pending).resolves.toBe(1)
 })
+
+it('treats a signal-terminated child (null code) as failure', async () => {
+  const child = new EventEmitter()
+  spawnMock.mockReturnValue(child)
+  const pending = addItems(['x'])
+  child.emit('close', null)
+  await expect(pending).resolves.toBe(1)
+})

@@ -1,3 +1,0 @@
-/* Precompiled /ui stylesheet: component classes plus the full runtime token layer. */
-@import './ui-source.css';
-@import '../../dist/tokens/tokens.css';

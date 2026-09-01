@@ -17,7 +17,7 @@ const clack = vi.hoisted(() => ({
   text: vi.fn(),
   confirm: vi.fn(),
   multiselect: vi.fn(),
-  isCancel: () => false,
+  isCancel: vi.fn(() => false),
 }))
 vi.mock('@clack/prompts', () => clack)
 
@@ -93,9 +93,18 @@ it('keeps going when a post-step fails and says what to finish manually', async 
 
 it('collects answers from prompts when flags are missing', async () => {
   const dest = join(parent, 'asked-ui')
+  // Drive each prompt's validate too, so the inline validators are exercised.
   clack.text
-    .mockResolvedValueOnce(dest) // directory
-    .mockResolvedValueOnce('asked-ui') // name
+    .mockImplementationOnce(async (opts: { validate?: (v?: string) => string | undefined }) => {
+      expect(opts.validate?.('')).toBeTruthy()
+      expect(opts.validate?.(dest)).toBeUndefined()
+      return dest // directory
+    })
+    .mockImplementationOnce(async (opts: { validate?: (v?: string) => string | undefined }) => {
+      expect(opts.validate?.('Bad Name')).toBeTruthy()
+      expect(opts.validate?.('asked-ui')).toBeUndefined()
+      return 'asked-ui' // name
+    })
     .mockResolvedValueOnce('Asked UI') // title
     .mockResolvedValueOnce('acme.dev') // base domain
   clack.multiselect.mockResolvedValueOnce(['data'])
@@ -105,6 +114,18 @@ it('collects answers from prompts when flags are missing', async () => {
   await expect(init({ templatePath: FIXTURE }, runner)).resolves.toBe(0)
   expect(existsSync(join(dest, 'app/pages/profile.tsx'))).toBe(false)
   expect(readFileSync(join(dest, 'index.html'), 'utf8')).toContain('<title>Asked UI</title>')
+})
+
+it('cancels cleanly when the user aborts a prompt', async () => {
+  const cancelToken = Symbol('cancel')
+  clack.text.mockResolvedValueOnce(cancelToken)
+  clack.isCancel.mockReturnValueOnce(true)
+  const exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+
+  await expect(init({}, makeRunner().runner)).rejects.toBe(cancelToken)
+  expect(clack.cancel).toHaveBeenCalledWith('init cancelled')
+  expect(exit).toHaveBeenCalledWith(1)
+  exit.mockRestore()
 })
 
 it('refuses a non-empty target directory', async () => {
