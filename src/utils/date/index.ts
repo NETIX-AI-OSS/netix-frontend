@@ -15,7 +15,17 @@ import {
 } from './kernel'
 
 export type { DateArg, Duration }
-export { addDays, format, intervalToDuration } from './kernel'
+export {
+  addDays,
+  endOfDay,
+  format,
+  intervalToDuration,
+  startOfDay,
+  startOfHour,
+  startOfMonth,
+  subDays,
+  subHours,
+} from './kernel'
 
 export const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
 export const UTC_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"

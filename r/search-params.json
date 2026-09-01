@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "search-params",
+  "title": "Search Params Binding",
+  "description": "Router-agnostic URLSearchParams binding types, applyUpdater, and a test-only binding helper.",
+  "files": [
+    {
+      "path": "registry/netix/hooks/search-params.ts",
+      "content": "export type SetSearchParams = (next: URLSearchParams, options?: { replace?: boolean }) => void\n\n/** Structurally what react-router's `useSearchParams()` returns, so apps can pass it straight through. */\nexport type SearchParamsBinding = readonly [URLSearchParams, SetSearchParams]\n\nexport type Updater<T> = T | ((old: T) => T)\n\nexport const applyUpdater = <T>(updater: Updater<T>, previous: T): T =>\n  typeof updater === 'function' ? (updater as (old: T) => T)(previous) : updater\n",
+      "type": "registry:hook"
+    },
+    {
+      "path": "registry/netix/hooks/search-params.testing.ts",
+      "content": "import { useState } from 'react'\n\nimport type { SearchParamsBinding } from './search-params'\n\n/** Test-only stand-in for react-router's useSearchParams; not exported from the package. */\nexport function useTestSearchParams(initial = ''): SearchParamsBinding {\n  const [params, setParams] = useState(() => new URLSearchParams(initial))\n  return [params, setParams]\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

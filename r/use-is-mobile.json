@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-is-mobile",
+  "title": "useIsMobile",
+  "description": "Media-query backed mobile breakpoint hook.",
+  "files": [
+    {
+      "path": "registry/netix/hooks/use-is-mobile.ts",
+      "content": "import { useEffect, useState } from 'react'\n\nexport const MOBILE_BREAKPOINT = 768\n\nexport function useIsMobile() {\n  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)\n\n  useEffect(() => {\n    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)\n    const onChange = () => {\n      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)\n    }\n    mql.addEventListener('change', onChange)\n    // Mirrors an external source (matchMedia) into state; the sync write is the point of the effect.\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)\n    return () => mql.removeEventListener('change', onChange)\n  }, [])\n\n  return !!isMobile\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

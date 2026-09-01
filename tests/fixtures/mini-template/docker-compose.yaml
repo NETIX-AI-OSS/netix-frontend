@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  app-ui-dev:
+    container_name: app-ui-dev
+    image: asia-south2-docker.pkg.dev/stage-4t5/platform/app-ui:dev
+    env_file:
+      - .env
+    build:
+      context: .
+      target: build
+    volumes:
+      - ./src:/app/src
+    ports:
+      - 5173:5173
+
+  app-ui-deploy:
+    container_name: app-ui-deploy
+    image: asia-south2-docker.pkg.dev/stage-4t5/platform/app-ui:latest
+    env_file:
+      - .env
+    build:
+      args:
+        - NODE_ENV=production
+        - VITE_BASE_DOMAIN=${VITE_BASE_DOMAIN}
+        - VITE_LOGIN_PAGE_URL=${VITE_LOGIN_PAGE_URL}
+        - VITE_COOKIE_DOMAIN=${VITE_COOKIE_DOMAIN}
+        - VITE_AUTH_BASE_URL=${VITE_AUTH_BASE_URL}
+        - VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+        - VITE_DEV_MODE=${VITE_DEV_MODE}
+
+      context: .
+      target: deploy
+    ports:
+      - 8080:8080

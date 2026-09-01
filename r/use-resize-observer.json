@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-resize-observer",
+  "title": "useResizeObserver",
+  "description": "Observed element content-box size as state.",
+  "files": [
+    {
+      "path": "registry/netix/hooks/use-resize-observer.ts",
+      "content": "import { useEffect, useState } from 'react'\n\nexport function useResizeObserver(ref: HTMLElement | null) {\n  const [size, setSize] = useState({ width: 0, height: 0 })\n\n  useEffect(() => {\n    if (!ref) return\n\n    const resizeObserver = new ResizeObserver((entries) => {\n      for (const entry of entries) {\n        const { width, height } = entry.contentRect\n        setSize({ width, height })\n      }\n    })\n\n    resizeObserver.observe(ref)\n\n    return () => {\n      resizeObserver.disconnect()\n    }\n  }, [ref])\n\n  return size\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

@@ -52,6 +52,20 @@ export default defineConfig([
     ...shared,
   },
   {
+    // The netix CLI: a self-contained node bin; prompt deps are bundled so the
+    // package keeps zero runtime dependencies.
+    entry: { 'cli/index': 'src/cli/index.ts' },
+    format: ['esm'],
+    platform: 'node',
+    target: 'node22',
+    banner: { js: '#!/usr/bin/env node' },
+    dts: false,
+    treeshake: true,
+    sourcemap: false,
+    clean: false,
+    noExternal: ['@clack/prompts', 'picocolors'],
+  },
+  {
     entry: {
       'utils/dom': 'src/utils/dom/index.ts',
       'hooks/router': 'src/hooks/router.ts',

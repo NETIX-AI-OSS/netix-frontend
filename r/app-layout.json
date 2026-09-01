@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "app-layout",
+  "title": "App Layout",
+  "description": "Router root layout + PageLayout with scroll-aware topbar. Snapshot of the frontend-template canon.",
+  "registryDependencies": [
+    "@netix/recipes",
+    "@netix/app-sidebar",
+    "@netix/app-topbar"
+  ],
+  "files": [
+    {
+      "path": "registry/netix/blocks/app-layout/index.tsx",
+      "content": "import { Outlet } from 'react-router'\n\nimport { AppShell } from '@/components/recipes'\nimport { AppSidebar } from '@/components/sidebar'\n\nexport { PageLayout } from './page-layout'\n\nexport default function Layout() {\n  return (\n    <AppShell>\n      <div className=\"flex h-full overflow-hidden bg-background\">\n        <AppSidebar />\n        <div className=\"min-w-0 flex-1\">\n          <Outlet />\n        </div>\n      </div>\n    </AppShell>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "components/layout/index.tsx"
+    },
+    {
+      "path": "registry/netix/blocks/app-layout/page-layout.tsx",
+      "content": "import { type ReactNode, type UIEvent, useRef, useState } from 'react'\n\nimport { PageHeader } from '@/components/recipes'\nimport { AppTopBar } from '@/components/topbar'\n\nconst NAVIGATION_TOGGLE_DISTANCE = 12\n\ntype PageLayoutProps = {\n  /** Optional contextual navigation. It is rendered before the page pane. */\n  sidebar?: ReactNode\n  /** Content such as a breadcrumb trail, rendered above the page heading. */\n  breadcrumbs?: ReactNode\n  /** Override the default PageHeader when a page needs a richer heading. */\n  header?: ReactNode\n  title?: string\n  description?: string\n  actions?: ReactNode\n  children: ReactNode\n}\n\n/**\n * Route-owned layout for contextual navigation and page content.\n *\n * AppLayout owns only the persistent product rail. Keeping this boundary here\n * means the title/utility bar is positioned by flex layout after any number of\n * contextual sidebars, without a width or left-offset prop.\n */\nexport function PageLayout({\n  sidebar,\n  breadcrumbs,\n  header,\n  title,\n  description,\n  actions,\n  children,\n}: PageLayoutProps) {\n  const contentScrollRef = useRef<HTMLDivElement>(null)\n  const previousScrollTop = useRef(0)\n  const scrollDirection = useRef<'toward-start' | 'toward-end' | null>(null)\n  const scrollDistance = useRef(0)\n  const [isTopBarHidden, setIsTopBarHidden] = useState(false)\n\n  const handleContentScroll = (event: UIEvent<HTMLDivElement>) => {\n    const nextScrollTop = event.currentTarget.scrollTop\n    const delta = nextScrollTop - previousScrollTop.current\n\n    if (nextScrollTop <= 8) {\n      setIsTopBarHidden(false)\n      scrollDirection.current = null\n      scrollDistance.current = 0\n    } else if (delta !== 0) {\n      const nextDirection = delta < 0 ? 'toward-start' : 'toward-end'\n\n      if (scrollDirection.current !== nextDirection) {\n        scrollDirection.current = nextDirection\n        scrollDistance.current = 0\n      }\n\n      scrollDistance.current += Math.abs(delta)\n\n      if (scrollDistance.current >= NAVIGATION_TOGGLE_DISTANCE) {\n        setIsTopBarHidden(nextDirection === 'toward-end')\n        scrollDistance.current = 0\n      }\n    }\n\n    previousScrollTop.current = nextScrollTop\n  }\n\n  return (\n    <div className=\"flex h-full min-w-0\">\n      {sidebar}\n      <div className=\"relative min-w-0 flex-1 bg-background\">\n        <AppTopBar isHidden={isTopBarHidden} />\n        <div\n          ref={contentScrollRef}\n          onScroll={handleContentScroll}\n          className=\"h-full overflow-y-auto pt-14\"\n        >\n          <div className=\"mx-auto flex min-h-full w-full max-w-[1440px] flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-8\">\n            {breadcrumbs}\n            {header ??\n              (title ? (\n                <PageHeader title={title} description={description} actions={actions} />\n              ) : null)}\n            {children}\n          </div>\n        </div>\n      </div>\n    </div>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "components/layout/page-layout.tsx"
+    }
+  ],
+  "type": "registry:block"
+}

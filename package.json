@@ -13,9 +13,13 @@
   "engines": {
     "node": ">=22"
   },
+  "bin": {
+    "netix": "./dist/cli/index.js"
+  },
   "files": [
     "dist",
-    "presets"
+    "presets",
+    "services.json"
   ],
   "sideEffects": [
     "**/*.css"
@@ -140,6 +144,7 @@
     "build:js": "tsup",
     "build:css": "tailwindcss -i src/ui/styles.css -o dist/ui/styles.css --minify && tailwindcss -i src/ui/styles-notokens.css -o dist/ui/styles-notokens.css --minify",
     "build": "rm -rf dist && pnpm gen:tokens && pnpm build:js && pnpm build:css",
+    "registry:build": "shadcn build registry.json --output r",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",

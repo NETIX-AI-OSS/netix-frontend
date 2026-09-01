@@ -1,5 +1,47 @@
 # Changelog
 
+## v2.0.0 — 2026-09-01
+
+The platform release: the library shrinks to the contract that must never drift per-app, and
+everything component-shaped moves to a copy-in registry. Apps pinned to v1 tags are unaffected
+until they bump; the migration table lives in `docs/design-system/migration-guide.md`.
+
+Breaking:
+
+- Removed exports: `./hooks`, `./hooks/router`, `./ui`, `./ui/*`, `./ui/styles.css`,
+  `./ui/styles-notokens.css`, `./ui/theme`. Hooks and composites now install from the @netix
+  registry (`shadcn add @netix/<item>`); primitives come from the official shadcn registry
+  (base-nova). ThemeProvider moved to the new `./theme` entry.
+- Nova token migration: the token set is the frontend-template design foundation —
+  `--primary`/`--tint`/`--typeface-*`/`--type-*-size`/`--space-*`/`--status-*`
+  (success/warning/danger/info/neutral × base/foreground/surface/border)/`--chart-*` ramps.
+  The `--brand-*` scale, the 8×5 status ladder, elevation/motion shorthands, density switch and
+  Inter references are gone. `statusColor()` speaks the Nova names and slots.
+- No precompiled component CSS: `dist/ui/*` no longer exists, and Tailwind v3 apps no longer
+  scan this package's dist in `content` globs. The new `./styles.css` is a Tailwind v4 SOURCE
+  (tailwindcss + tokens + vendored shadcn variants sheet + enter/exit animation utilities +
+  app-shell base) compiled by the consuming app.
+- `src/utils` no longer exports the legacy `STATUS_COLORS` hexes.
+- peerDependencies pruned to the surviving surface: all `@radix-ui/*`, `@tanstack/react-table`,
+  `react-hook-form`, `react-router`, `sonner` and `lucide-react` peers are gone (registry items
+  declare them per-item instead).
+
+Added:
+
+- `netix` CLI (`bin`, zero runtime deps): `init` scaffolds from frontend-template with
+  interactive service selection, per-service client/orval/env fanout, gh-based schema pull,
+  install/codegen/git post-steps; `add` wraps the pinned shadcn CLI for @netix items;
+  `schema pull` refreshes OpenAPI specs per `services.json` (new root manifest, also exported).
+- The @netix shadcn registry: sources under `registry/netix/`, built to committed `r/`,
+  served from raw.githubusercontent by tag. Hooks and composites ported to the base-nova
+  Base UI primitives; app-shell blocks snapshot the template.
+- `./theme` (dataset-aware ThemeProvider), `./styles.css`, `./tokens.css`, `./theme-init.js`,
+  `./services.json` exports.
+- `api`: canonical auth config (`buildAuthConfig`, `COOKIE_TOKEN_TTL`, endpoint constants) —
+  replaces seven drifted per-app `authConfig.ts` copies.
+- Date kernel helpers promoted to the public `utils` surface (`startOfDay`, `endOfDay`,
+  `startOfHour`, `startOfMonth`, `subDays`, `subHours`).
+
 ## v1.0.2 — 2026-08-26
 
 Fleet-wave feedback patch (viz-ui adoption).

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-pagination",
+  "title": "usePagination",
+  "description": "URL-backed pagination state.",
+  "registryDependencies": [
+    "@netix/search-params"
+  ],
+  "files": [
+    {
+      "path": "registry/netix/hooks/use-pagination.ts",
+      "content": "import { useEffect, useState } from 'react'\n\nimport { applyUpdater, type SearchParamsBinding, type Updater } from './search-params'\n\nexport type PaginationState = { pageIndex: number; pageSize: number }\n\nexport type PaginationOptions = {\n  pageIndex?: number\n  pageSize?: number\n}\n\nexport function usePagination(\n  binding: SearchParamsBinding,\n  { pageIndex = 0, pageSize = 50 }: PaginationOptions = {},\n) {\n  const [params, setParams] = binding\n  const [pagination, setPagination] = useState<PaginationState>({ pageIndex, pageSize })\n\n  // The router's URLSearchParams is copied, never mutated in place.\n  const writeParams = (next: PaginationState) => {\n    const updated = new URLSearchParams(params)\n    updated.set('pageIndex', String(next.pageIndex))\n    updated.set('pageSize', String(next.pageSize))\n    setParams(updated)\n  }\n\n  const updatePagination = (updater: Updater<PaginationState>) => {\n    if (typeof updater !== 'function') {\n      writeParams(updater)\n      setPagination(updater)\n      return\n    }\n    setPagination((previous) => {\n      const next = applyUpdater(updater, previous)\n      writeParams(next)\n      return next\n    })\n  }\n\n  // Syncs state from the URL, the external source of truth for pagination.\n  /* eslint-disable react-hooks/set-state-in-effect */\n  useEffect(() => {\n    const pageIndexParam = params.get('pageIndex')\n    const pageSizeParam = params.get('pageSize')\n    setPagination({\n      pageIndex: pageIndexParam ? Number(pageIndexParam) : pageIndex,\n      pageSize: pageSizeParam ? Number(pageSizeParam) : pageSize,\n    })\n  }, [params, pageIndex, pageSize])\n\n  return { pagination, updatePagination }\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

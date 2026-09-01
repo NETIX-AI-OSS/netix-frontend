@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "router-hooks",
+  "title": "React Router Bindings",
+  "description": "useSearchParamsBinding plus useRouterFilters/Pagination/Tabs/TimeRange for react-router apps.",
+  "dependencies": [
+    "react-router"
+  ],
+  "registryDependencies": [
+    "@netix/search-params",
+    "@netix/use-filters",
+    "@netix/use-pagination",
+    "@netix/use-tabs",
+    "@netix/use-time-range"
+  ],
+  "files": [
+    {
+      "path": "registry/netix/hooks/router-hooks.ts",
+      "content": "import { useSearchParams } from 'react-router'\n\nimport type { SearchParamsBinding } from './search-params'\nimport { type FiltersOptions, useFilters } from './use-filters'\nimport { type PaginationOptions, usePagination } from './use-pagination'\nimport { type TabsOptions, useTabs } from './use-tabs'\nimport { type EpochRange, type TimeRangeOptions, useTimeRange } from './use-time-range'\n\n/** react-router is an optional peer, so this entry is never reachable from the RN-safe ./hooks barrel. */\nexport function useSearchParamsBinding(): SearchParamsBinding {\n  const [params, setParams] = useSearchParams()\n  return [params, setParams]\n}\n\nexport const useRouterPagination = (options?: PaginationOptions) =>\n  usePagination(useSearchParamsBinding(), options)\n\nexport const useRouterTabs = (options?: TabsOptions) => useTabs(useSearchParamsBinding(), options)\n\nexport const useRouterFilters = (options?: FiltersOptions) =>\n  useFilters(useSearchParamsBinding(), options)\n\nexport const useRouterTimeRange = (defaultRange?: EpochRange, options?: TimeRangeOptions) =>\n  useTimeRange(useSearchParamsBinding(), defaultRange, options)\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

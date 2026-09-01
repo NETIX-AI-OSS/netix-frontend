@@ -3442,6 +3442,23 @@ var endOfMonth = (value) => {
   date.setHours(23, 59, 59, 999);
   return date;
 };
+var startOfDay = (value) => {
+  const date = toDate(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+var endOfDay = (value) => {
+  const date = toDate(value);
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+var startOfHour = (value) => {
+  const date = toDate(value);
+  date.setMinutes(0, 0, 0);
+  return date;
+};
+var subHours = (value, amount) => new Date(toDate(value).getTime() - amount * MS_HOUR);
+var subDays = (value, amount) => addDays(value, -amount);
 var differenceInMilliseconds = (a, b) => toDate(a).getTime() - toDate(b).getTime();
 var isBefore = (a, b) => toDate(a).getTime() < toDate(b).getTime();
 function differenceInMonths(end, start) {
@@ -3701,6 +3718,7 @@ exports.cn = cn;
 exports.commaSeparatedToArray = commaSeparatedToArray;
 exports.configureDates = configureDates;
 exports.emailValidator = emailValidator;
+exports.endOfDay = endOfDay;
 exports.filterIntersection = filterIntersection;
 exports.format = format;
 exports.formatCurrency = formatCurrency;
@@ -3737,4 +3755,9 @@ exports.normalizeClockString = normalizeClockString;
 exports.parseLocalDate = parseLocalDate;
 exports.removeDuplicates = removeDuplicates;
 exports.removeEmptyAttributes = removeEmptyAttributes;
+exports.startOfDay = startOfDay;
+exports.startOfHour = startOfHour;
+exports.startOfMonth = startOfMonth;
+exports.subDays = subDays;
+exports.subHours = subHours;
 exports.timeDifference = timeDifference;

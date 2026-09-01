@@ -1,117 +1,73 @@
 # netix-frontend
 
-NETIX's shared frontend library: one package, one version, subpath entry points.
+The NETIX frontend platform: a small importable runtime contract, the Nova design tokens, a shadcn-compatible registry of copy-in components, and the `netix` CLI that scaffolds new apps.
 
-| Entry point                   | Contents                                                                                 | Platforms |
-| ----------------------------- | ---------------------------------------------------------------------------------------- | --------- |
-| `netix-frontend/api`          | `createHttpClient`, `createMutator`, `ApiError`, envelope parser, retry, Sentry filters  | web + RN  |
-| `netix-frontend/hooks`        | `useFilters`, `usePagination`, `useTabs`, `useTimeRange`, `usePermissions`, …            | web + RN  |
-| `netix-frontend/hooks/router` | the same hooks bound to react-router search params (`useRouterFilters`, …)               | web only  |
-| `netix-frontend/utils`        | `cn`, date module, formatters, collections, `STATUS_COLORS`, `getFileMetadata`           | web + RN  |
-| `netix-frontend/utils/dom`    | `downloadFile`, `uploadFile`, `lazyWithRetry` + chunk-reload guard                       | web only  |
-| `netix-frontend/i18n`         | `createI18n`, `createOrganizationLocale`, `normalizeLanguage`, shared `common` catalog   | web + RN  |
-| `netix-frontend/ui`           | 33 shadcn primitives + tier-2 composites + `ThemeProvider`, styled by `ui/styles.css`    | web only  |
-| `netix-frontend/tokens`       | design tokens: JS access + `tokens.css` (v4), `preset` (v3), `vars.css`, `theme-init.js` | web only  |
-| `netix-frontend/fonts/*`      | subsetted Archivo woff2 faces (400, 400 italic, 500, 600, 700)                           | web only  |
-| `netix-frontend/presets/*`    | `presets/eslint`, `presets/eslint-strict`, `presets/tsconfig`, `presets/prettier`        | tooling   |
+One rule organises everything: **things that must stay identical across every app are imported; everything else is copied.** `createHttpClient` is imported. `useTabs` is copied. Tokens and the global stylesheet are imported and cannot be ejected; UI components are copied and are yours.
 
-Install by immutable tag:
+## Install
 
 ```json
-"netix-frontend": "github:NETIX-AI-OSS/netix-frontend#v1.0.0"
+"netix-frontend": "github:NETIX-AI-OSS/netix-frontend#v2.0.0"
 ```
 
-`dist/` is committed (no `prepare` script) so installs need zero consumer configuration; CI gates dist drift.
-Only `react` is a required peer; every other peer is optional — install just what the entry points you use need.
+Immutable git tags, `dist/` committed, no build step on install, no npm registry. Only `react` is a required peer; everything else is optional and per-entry.
 
-## api
+## Create a new app
 
-`createHttpClient({ baseURL | getBaseURL, paramsSerializer, timeout, onDisplayError, onAuthError, retry })`
-returns an axios instance with the shared error interceptor (every branch throws `ApiError`;
-403 stays in-app, 401 is a no-op unless `onAuthError` is given) and idempotent-only retry
-(GET/HEAD/OPTIONS + 408/429 + network errors, equal-jitter backoff, Retry-After respected).
-`createMutator(client)` plugs into orval. `parseEnvelope` normalizes `{status_code, messages}`
-bodies — arrays, bare strings, stringified arrays, DRF `ErrorDetail` reprs — to `string[]`.
-Retry policies for both data layers: `createQueryRetryPolicy` (react-query) and
-`createSwrOnErrorRetry` (swr, exactly 3 retries on a 0-based attempt index).
-Sentry: `createSentryBeforeSend` drops handled HTTP statuses (`HANDLED_HTTP_STATUSES` = 400/403/404)
-plus canceled/network noise and fingerprints non-Error events. `createDevTokenManager` gates dev
-tokens on dev-mode + credentials + not-test, with all env values injected.
-
-## hooks
-
-Prop-driven, router-free core: `useFilters` (with `inclusiveEndDate` knob), `usePagination`,
-`useTabs`, `useTimeRange` (+ `TIME_DURATIONS`, `DURATION_OPTIONS`, `OVERALL_FROM_EPOCH`, epoch-range
-helpers), `useIsMobile`, `useResizeObserver`, `useDelayedLoading`, and `usePermissions` +
-`<PermissionGate>` (fail-closed, `isLoaded` exposed, bind your auth via `configurePermissions`).
-`netix-frontend/hooks/router` re-binds filters/pagination/tabs/time-range to react-router
-search params — separate entry so `./hooks` stays RN-safe.
-
-## utils
-
-`cn` (clsx + tailwind-merge, bundled). Date module: the 17 fleet format tokens
-(`FULL_DATE_FORMAT`, `STANDARD_TIME_FORMAT`, …) and the `getFullDate`/`getStandardTime`/… family,
-`parseLocalDate`, `formatDurationHMS` + `formatTimerClock`, `intervalToDuration`,
-`isScheduleDayValid` (plus the deprecated `isScheduleDayVaild` alias), `configureDates` for the
-i18n'd `'NA'` string. Formatters: `getFullUserName`, `getUserNameInitials`, `formatFileSize`.
-Collections: `commaSeparatedToArray({as})`, `arrayToCommaSeparated`, `removeDuplicates`,
-`filterIntersection`, `removeEmptyAttributes`, `emailValidator`, `getEnumOptions`.
-`STATUS_COLORS` (incl. `DARK_GREEN`), `getFileMetadata`.
-DOM-only (`utils/dom`): `downloadFile`/`saveFile`/`uploadFile`/`uploadStaticFile`,
-`lazyWithRetry` + `installChunkErrorReloadHandler`.
-
-## i18n
-
-`createI18n(options)` boots i18next (debug off, `i18n.dir()`-based RTL, RN language handling,
-SSR-guarded document dir). `createOrganizationLocale` is the per-identity org-locale runtime
-(pending-key + race guards, `clearActiveIdentity` on logout). The shared `common` catalog
-(en/ar/es) mounts as a real namespace: `t('common:confirm')` — app catalogs win on merge.
-
-## ui
-
-All primitives and composites ship from one entry with one stylesheet:
-
-```tsx
-import 'netix-frontend/ui/styles.css'
-import { Button, DataTable, ThemeProvider } from 'netix-frontend/ui'
+```bash
+npx github:NETIX-AI-OSS/netix-frontend init my-app-ui
 ```
 
-Every component is also its own entry — `import { Button } from 'netix-frontend/ui/button'`.
-Prefer the subpaths when an app lacks some optional peer (the `./ui` barrel resolves every peer
-it mentions, e.g. @tanstack/react-table, even if tree-shaking later drops it).
+The CLI scaffolds from `4T5Labs/frontend-template` (private — needs an authenticated `gh`), asks which services to wire (data, cafm, asset, user, notification — see `services.json`), generates the per-service API clients + orval config + env plumbing, pulls the OpenAPI specs from the backend repos, installs, generates the typed clients, and makes the first commit. Then, day to day:
 
-`styles.css` is precompiled by the lib's own Tailwind v4 (no preflight) and embeds the token layer.
-CAUTION for Tailwind v3 apps: v3's PostCSS hoists the file's `@layer utilities` block and purges any
-class not found in `content` — silently, and only visible at runtime (an off-screen dialog cost viz-ui
-an hour of e2e debugging). Every v3 consumer MUST add `'./node_modules/netix-frontend/dist/**/*.js'`
-to its `content` globs (the class strings live in the `dist/chunk-*.js` files, so the glob must cover
-all of dist). Apps with no Tailwind processing can import it unchanged. Composites: `DataTable` (+ skeleton
-loading, `ColumnFilter`, `PaginationControls`; @tanstack/react-table v9), `Combobox`/`FancyCombobox`
-(RTL-aware), `TreeView`, `Form*` (react-hook-form glue), `FormModal`/`ConfirmModal`,
-`LoadingState`/`EmptyState`, `Toaster` (sonner), `OptionList`. Theming: `ThemeProvider` + `useTheme`
-persist under the single `netix-theme` key (`THEME_STORAGE_KEY`).
+```bash
+npx netix add data-table        # copy @netix registry items (shadcn under the hood)
+npx netix schema pull           # refresh specs for the services the app uses
+```
 
-## tokens
+## Entry points
 
-`tokens/netix.tokens.json` is the source of truth; `pnpm gen:tokens` emits every artifact.
-Tailwind v4 apps: `@import 'tailwindcss'` then `@import 'netix-frontend/tokens/tokens.css'` —
-tokens.css carries an `@layer base` block, so it must come after tailwind or layer order is
-undefined. Tailwind v3 apps: `presets: [require('netix-frontend/tokens/preset')]`. No Tailwind:
-`netix-frontend/tokens/vars.css`. Pre-paint theme: `<script src=".../tokens/theme-init.js">`
-(copy to `public/`), or inline the exported `themeInitSnippet` string for single-file builds; the
-script honours `data-theme-key` / `data-default-theme` on `<html>` (defaults `netix-theme` /
-`system`). v4 apps that import tokens.css should use `netix-frontend/ui/styles-notokens.css`
-instead of `ui/styles.css` to avoid duplicating the token layer and fonts.
-JS access: `token(name, mode)`, `cssVar`, `statusColor`, `noticeColor`, `chartPalette` (Okabe–Ito).
-Font faces load from `netix-frontend/fonts/*` (declared in tokens.css/vars.css).
+| Entry                                                                                    | Contents                                                                                                                                                                              | Platforms |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `netix-frontend/api`                                                                     | `createHttpClient`, `createMutator`, retry/error/envelope policy, SWR + react-query retry helpers, Sentry filter, `buildAuthConfig` + the canonical auth constants, dev-token manager | web + RN  |
+| `netix-frontend/utils`                                                                   | `cn`, collections, date kernel + formatters, currency/file helpers                                                                                                                    | web + RN  |
+| `netix-frontend/utils/dom`                                                               | downloads, uploads, `lazyWithRetry`                                                                                                                                                   | web       |
+| `netix-frontend/i18n`                                                                    | `createI18n`, organization locale, common resources                                                                                                                                   | web + RN  |
+| `netix-frontend/tokens`                                                                  | resolved token values, `statusColor`/`noticeColor`/`chartPalette`, `themeInitSnippet`                                                                                                 | web + RN  |
+| `netix-frontend/theme`                                                                   | `ThemeProvider`/`useTheme` (reads the same `data-theme-key`/`data-default-theme` attributes as theme-init.js)                                                                         | web       |
+| `netix-frontend/styles.css`                                                              | the whole global stylesheet: Tailwind v4 + Nova tokens + shadcn variants + animation utilities + app-shell base                                                                       | web       |
+| `netix-frontend/tokens.css`, `tokens/theme-only.css`, `tokens/vars.css`, `tokens/preset` | token layer à la carte (v4 apps, compile-time-only, no-Tailwind apps, Tailwind v3 preset)                                                                                             | web       |
+| `netix-frontend/theme-init.js`                                                           | pre-paint FOUC guard (copy to `public/`, or inline `themeInitSnippet`)                                                                                                                | web       |
+| `netix-frontend/fonts/*`, `presets/*`, `services.json`                                   | Archivo faces; eslint/tsconfig/prettier presets; the service manifest                                                                                                                 | tooling   |
+
+There is deliberately no importable UI and no importable hooks — see the registry.
+
+## Styles
+
+Tailwind v4 app (the scaffold): `globals.css` is exactly one line — `@import 'netix-frontend/styles.css';`. The file is a Tailwind **source**, compiled by your build; nothing is precompiled, so there is nothing to purge and no `content` globs pointed at this package.
+
+Tokens only: `@import 'tailwindcss'; @import 'netix-frontend/tokens.css';` (order matters). Tailwind v3: `presets: [require('netix-frontend/tokens/preset')]`. No Tailwind: `netix-frontend/tokens/vars.css`.
+
+Token source of truth: `tokens/netix.tokens.json` → `pnpm gen:tokens` fans out every artifact; CI fails if the committed output drifts.
+
+## The @netix registry
+
+Component/hook/block sources live in `registry/netix/`, are tested here against verbatim base-nova fixtures, and are built into `r/` (committed). Apps consume them through `components.json`:
+
+```json
+"registries": { "@netix": "https://raw.githubusercontent.com/NETIX-AI-OSS/netix-frontend/v2.0.0/r/{name}.json" }
+```
+
+Stock primitives (button, dialog, …) come from the official shadcn registry in the `base-nova` style; @netix carries only NETIX-specific items: the data-table family, modals, combobox, tree view, the URL-state hooks, and the app-shell blocks. Full catalogue and rules: [docs/design-system](docs/design-system/README.md).
 
 ## Develop
 
 ```bash
 pnpm install
-pnpm build        # tokens + tsup + css
-pnpm test         # vitest; coverage gates: 100% non-ui, 90% ui
-pnpm lint && pnpm typecheck && pnpm format:check
+pnpm build            # gen:tokens + tsup (JS, d.ts, the netix CLI)
+pnpm registry:build   # registry.json -> r/
+pnpm test:coverage    # gates: 100% (api/i18n/tokens/utils), 90% (theme/cli/registry)
+pnpm typecheck && pnpm lint && pnpm format:check
 ```
 
-Releases: bump `version`, tag `vX.Y.Z` (immutable via ruleset), GitHub release. The release workflow asserts tag == package version.
+Commit regenerated `dist/` and `r/` with the change that caused them. Release: template tag first (`template-vX`), update `src/cli/refs.ts`, bump the version + `CHANGELOG.md`, tag `vX.Y.Z` (tags are immutable; CI publishes the GitHub release).

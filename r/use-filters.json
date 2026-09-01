@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-filters",
+  "title": "useFilters",
+  "description": "URL-backed list filters with date-range support. Requires the netix-frontend package for date utilities.",
+  "registryDependencies": [
+    "@netix/search-params"
+  ],
+  "files": [
+    {
+      "path": "registry/netix/hooks/use-filters.ts",
+      "content": "import { addDays, getFullDate } from 'netix-frontend/utils'\nimport { useEffect, useMemo, useState } from 'react'\n\nimport { applyUpdater, type SearchParamsBinding, type Updater } from './search-params'\n\nexport type FilterValues = Record<string, unknown>\n\nexport type FiltersOptions = {\n  /** Namespaces the URL param; anything other than 'filters' also stops the pageIndex reset. */\n  filterKey?: string\n  /** viz treats created_on__lte as an exclusive bound and shifts it a day; cafm does not. */\n  inclusiveEndDate?: boolean\n}\n\nconst hasValues = (filters?: FilterValues) =>\n  !!filters && Object.values(filters).filter((v) => v).length > 0\n\nexport function useFilters(binding: SearchParamsBinding, options?: FiltersOptions) {\n  const [params, setParams] = binding\n  const key = options?.filterKey || 'filters'\n  const inclusiveEndDate = options?.inclusiveEndDate ?? false\n  const [filters, setFilters] = useState<FilterValues>()\n  const [isLoading, setIsLoading] = useState(true)\n\n  const writeParams = (next?: FilterValues) => {\n    const updated = new URLSearchParams(params)\n    if (hasValues(next)) {\n      updated.set(key, JSON.stringify(next))\n    } else {\n      updated.delete(key)\n    }\n    if (!options?.filterKey) updated.set('pageIndex', '0')\n    setParams(updated)\n  }\n\n  const updateFilters = (updater: Updater<FilterValues | undefined>) => {\n    if (typeof updater !== 'function') {\n      writeParams(updater)\n      setFilters(updater)\n      return\n    }\n    setFilters((previous) => {\n      const next = applyUpdater(updater, previous)\n      writeParams(next)\n      return next\n    })\n  }\n\n  // Syncs state from the URL, the external source of truth for the filters.\n  /* eslint-disable react-hooks/set-state-in-effect */\n  useEffect(() => {\n    setIsLoading(true)\n    const raw = params.get(key)\n    if (raw) {\n      try {\n        setFilters(JSON.parse(raw))\n      } catch {\n        // A hand-edited URL must not take the list down; keep the previous filters.\n      }\n    } else {\n      setFilters(undefined)\n    }\n    setIsLoading(false)\n  }, [params, key])\n\n  const transformedFilters: FilterValues = useMemo(() => {\n    const end = filters?.created_on__lte as string | Date | undefined\n    const created_on__lte = end ? getFullDate(inclusiveEndDate ? addDays(end, 1) : end) : undefined\n    return { ...filters, created_on__lte }\n  }, [filters, inclusiveEndDate])\n\n  return { raw: filters, filters: transformedFilters, updateFilters, isLoading }\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "data-table-types",
+  "title": "DataTable Types",
+  "description": "Shared column/filter metadata contracts for the data-table family.",
+  "dependencies": [
+    "react-hook-form"
+  ],
+  "registryDependencies": [
+    "@netix/search-params",
+    "@netix/use-filters"
+  ],
+  "files": [
+    {
+      "path": "registry/netix/components/data-table-types.ts",
+      "content": "import type { FieldValues } from 'react-hook-form'\n\nimport type { Updater } from '@/hooks/search-params'\nimport type { FilterValues } from '@/hooks/use-filters'\n\nexport type FilterOption = { label: string; value: string }\n\n// Orval list hooks are generated per app and differ in their option key (react-query vs swr).\nexport type UseListHook = (\n  params: Record<string, unknown>,\n  options: Record<string, { enabled: boolean }>,\n) => { data?: unknown; isLoading?: boolean }\n\nexport type UseOptionsHook = (data: unknown) => FilterOption[]\n\nexport type ColumnFilterMeta = {\n  key: string\n  useList?: UseListHook\n  useOptions?: UseOptionsHook\n  options?: FilterOption[]\n  multiple?: boolean\n  transformer?: (f?: FieldValues) => Promise<FieldValues | undefined>\n  sort?: string\n}\n\nexport type ColumnMeta = {\n  filter?: ColumnFilterMeta\n  headerClassName?: string\n  cellClassName?: string\n}\n\nexport type ColumnFilterLabels = {\n  search: string\n  reset: string\n  noDataFound: string\n}\n\nexport const DEFAULT_COLUMN_FILTER_LABELS: ColumnFilterLabels = {\n  search: 'Search',\n  reset: 'Reset',\n  noDataFound: 'No data found',\n}\n\nexport const DEBOUNCE_DELAY_MS = 800\n\n// Everything the router-coupled donors read from useFilters()/useUser(), injected instead.\n// Shaped so a useFilters() result can be spread straight in.\nexport type FilterContext = {\n  filters?: FilterValues\n  updateFilters: (updater: Updater<FilterValues | undefined>) => void\n  listParams?: Record<string, unknown>\n  queryOptionKey?: string\n  debounceMs?: number\n  labels?: Partial<ColumnFilterLabels>\n  translateOptionLabel?: (label: string) => string\n  onError?: (error: unknown) => void\n}\n",
+      "type": "registry:component"
+    }
+  ],
+  "type": "registry:component"
+}
