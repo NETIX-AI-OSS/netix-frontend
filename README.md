@@ -58,7 +58,7 @@ Component/hook/block sources live in `registry/netix/`, are tested here against 
 "registries": { "@netix": "https://raw.githubusercontent.com/NETIX-AI-OSS/netix-frontend/v2.0.0/r/{name}.json" }
 ```
 
-Stock primitives (button, dialog, …) come from the official shadcn registry in the `base-nova` style; @netix carries only NETIX-specific items: the data-table family, modals, combobox, tree view, the URL-state hooks, and the app-shell blocks. Full catalogue and rules: [docs/design-system](docs/design-system/README.md).
+@netix carries the ten NETIX-customized canon primitives (`@netix/button`, `@netix/dialog`, …) plus everything NETIX-specific: the data-table family, modals, combobox, tree view, the URL-state hooks, and the app-shell blocks. Primitives outside the canon set come from the official shadcn registry in the `base-nova` style. Full catalogue and rules: [docs/design-system](docs/design-system/README.md).
 
 ## Develop
 

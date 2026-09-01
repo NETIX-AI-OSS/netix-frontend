@@ -4,7 +4,7 @@
   "title": "LoadingState",
   "description": "Skeleton/section/inline loading placeholder with variant inference.",
   "registryDependencies": [
-    "skeleton"
+    "@netix/skeleton"
   ],
   "files": [
     {

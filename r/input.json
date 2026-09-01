@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input",
+  "title": "Input",
+  "description": "NETIX base-nova input (Base UI), the canon primitive — mirrors the frontend-template source.",
+  "files": [
+    {
+      "path": "registry/_fixtures/components/ui/input.tsx",
+      "content": "import * as React from 'react'\nimport { Input as InputPrimitive } from '@base-ui/react/input'\n\nimport { cn } from '@/lib/utils'\n\nfunction Input({ className, type, ...props }: React.ComponentProps<'input'>) {\n  return (\n    <InputPrimitive\n      type={type}\n      data-slot=\"input\"\n      className={cn(\n        'h-8 w-full min-w-0 rounded-lg border border-transparent bg-muted/50 px-2.5 py-1 text-base shadow-none transition-[background-color,color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/20 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:bg-destructive/5 aria-invalid:ring-2 aria-invalid:ring-destructive/20 md:text-sm',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Input }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

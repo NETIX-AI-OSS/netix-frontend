@@ -8,8 +8,8 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "button",
-    "select"
+    "@netix/button",
+    "@netix/select"
   ],
   "files": [
     {

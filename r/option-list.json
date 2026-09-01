@@ -7,7 +7,7 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "input"
+    "@netix/input"
   ],
   "files": [
     {

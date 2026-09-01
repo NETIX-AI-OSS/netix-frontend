@@ -34,7 +34,9 @@ Added:
   `schema pull` refreshes OpenAPI specs per `services.json` (new root manifest, also exported).
 - The @netix shadcn registry: sources under `registry/netix/`, built to committed `r/`,
   served from raw.githubusercontent by tag. Hooks and composites ported to the base-nova
-  Base UI primitives; app-shell blocks snapshot the template.
+  Base UI primitives; the ten NETIX-customized canon primitives ship as `@netix/<name>`
+  registry:ui items (composites depend on those, never on stock); app-shell blocks
+  snapshot the template.
 - `./theme` (dataset-aware ThemeProvider), `./styles.css`, `./tokens.css`, `./theme-init.js`,
   `./services.json` exports.
 - `api`: canonical auth config (`buildAuthConfig`, `COOKIE_TOKEN_TTL`, endpoint constants) —

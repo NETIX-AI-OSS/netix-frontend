@@ -7,10 +7,10 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "badge",
-    "button",
-    "popover",
-    "separator",
+    "@netix/badge",
+    "@netix/button",
+    "@netix/popover",
+    "@netix/separator",
     "@netix/option-list"
   ],
   "files": [

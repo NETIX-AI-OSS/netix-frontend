@@ -8,8 +8,8 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "button",
-    "skeleton",
+    "@netix/button",
+    "@netix/skeleton",
     "@netix/column-filter",
     "@netix/data-table-types",
     "@netix/empty-state",

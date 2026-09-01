@@ -9,9 +9,9 @@
     "react-hook-form"
   ],
   "registryDependencies": [
-    "button",
-    "input",
-    "popover",
+    "@netix/button",
+    "@netix/input",
+    "@netix/popover",
     "@netix/data-table-types",
     "@netix/loading-state",
     "@netix/option-list"

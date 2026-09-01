@@ -4,13 +4,139 @@
   "homepage": "https://github.com/NETIX-AI-OSS/netix-frontend",
   "items": [
     {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "NETIX base-nova badge (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "NETIX base-nova button (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "NETIX base-nova dialog (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "NETIX base-nova field (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "NETIX base-nova input (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "NETIX base-nova label (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "NETIX base-nova popover (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "NETIX base-nova select (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "NETIX base-nova separator (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "NETIX base-nova skeleton (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/_fixtures/components/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "search-params",
       "type": "registry:hook",
       "title": "Search Params Binding",
       "description": "Router-agnostic URLSearchParams binding types, applyUpdater, and a test-only binding helper.",
       "files": [
-        { "path": "registry/netix/hooks/search-params.ts", "type": "registry:hook" },
-        { "path": "registry/netix/hooks/search-params.testing.ts", "type": "registry:hook" }
+        {
+          "path": "registry/netix/hooks/search-params.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/netix/hooks/search-params.testing.ts",
+          "type": "registry:hook"
+        }
       ]
     },
     {
@@ -18,7 +144,12 @@
       "type": "registry:hook",
       "title": "useDelayedLoading",
       "description": "Delays a loading flag so quick responses never flash a spinner.",
-      "files": [{ "path": "registry/netix/hooks/use-delayed-loading.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-delayed-loading.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-filters",
@@ -26,14 +157,24 @@
       "title": "useFilters",
       "description": "URL-backed list filters with date-range support. Requires the netix-frontend package for date utilities.",
       "registryDependencies": ["@netix/search-params"],
-      "files": [{ "path": "registry/netix/hooks/use-filters.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-filters.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-is-mobile",
       "type": "registry:hook",
       "title": "useIsMobile",
       "description": "Media-query backed mobile breakpoint hook.",
-      "files": [{ "path": "registry/netix/hooks/use-is-mobile.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-is-mobile.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-pagination",
@@ -41,21 +182,36 @@
       "title": "usePagination",
       "description": "URL-backed pagination state.",
       "registryDependencies": ["@netix/search-params"],
-      "files": [{ "path": "registry/netix/hooks/use-pagination.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-pagination.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-permissions",
       "type": "registry:hook",
       "title": "usePermissions + PermissionGate",
       "description": "Fail-closed permission checks bound to the app's current-user hook via configurePermissions.",
-      "files": [{ "path": "registry/netix/hooks/use-permissions.tsx", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-permissions.tsx",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-resize-observer",
       "type": "registry:hook",
       "title": "useResizeObserver",
       "description": "Observed element content-box size as state.",
-      "files": [{ "path": "registry/netix/hooks/use-resize-observer.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-resize-observer.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-tabs",
@@ -63,7 +219,12 @@
       "title": "useTabs",
       "description": "URL-backed tab state with clear-on-change param support.",
       "registryDependencies": ["@netix/search-params"],
-      "files": [{ "path": "registry/netix/hooks/use-tabs.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-tabs.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "use-time-range",
@@ -71,7 +232,12 @@
       "title": "useTimeRange",
       "description": "URL-backed epoch time-range state with quick durations. Requires the netix-frontend package for date utilities.",
       "registryDependencies": ["@netix/search-params"],
-      "files": [{ "path": "registry/netix/hooks/use-time-range.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/use-time-range.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "router-hooks",
@@ -86,16 +252,24 @@
         "@netix/use-tabs",
         "@netix/use-time-range"
       ],
-      "files": [{ "path": "registry/netix/hooks/router-hooks.ts", "type": "registry:hook" }]
+      "files": [
+        {
+          "path": "registry/netix/hooks/router-hooks.ts",
+          "type": "registry:hook"
+        }
+      ]
     },
     {
       "name": "loading-state",
       "type": "registry:component",
       "title": "LoadingState",
       "description": "Skeleton/section/inline loading placeholder with variant inference.",
-      "registryDependencies": ["skeleton"],
+      "registryDependencies": ["@netix/skeleton"],
       "files": [
-        { "path": "registry/netix/components/loading-state.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/loading-state.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -105,7 +279,10 @@
       "description": "Empty results placeholder.",
       "dependencies": ["lucide-react"],
       "files": [
-        { "path": "registry/netix/components/empty-state.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/empty-state.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -114,9 +291,12 @@
       "title": "OptionList",
       "description": "Searchable option list used by the combobox and column filter.",
       "dependencies": ["lucide-react"],
-      "registryDependencies": ["input"],
+      "registryDependencies": ["@netix/input"],
       "files": [
-        { "path": "registry/netix/components/option-list.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/option-list.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -127,7 +307,10 @@
       "dependencies": ["react-hook-form"],
       "registryDependencies": ["@netix/search-params", "@netix/use-filters"],
       "files": [
-        { "path": "registry/netix/components/data-table-types.ts", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/data-table-types.ts",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -137,15 +320,18 @@
       "description": "Per-column filter popover for the data table.",
       "dependencies": ["@tanstack/react-table", "lucide-react", "react-hook-form"],
       "registryDependencies": [
-        "button",
-        "input",
-        "popover",
+        "@netix/button",
+        "@netix/input",
+        "@netix/popover",
         "@netix/data-table-types",
         "@netix/loading-state",
         "@netix/option-list"
       ],
       "files": [
-        { "path": "registry/netix/components/column-filter.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/column-filter.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -155,8 +341,8 @@
       "description": "TanStack Table v9 data table with pinning, skeleton loading, filters and empty states.",
       "dependencies": ["@tanstack/react-table", "lucide-react"],
       "registryDependencies": [
-        "button",
-        "skeleton",
+        "@netix/button",
+        "@netix/skeleton",
         "@netix/column-filter",
         "@netix/data-table-types",
         "@netix/empty-state",
@@ -164,7 +350,10 @@
         "@netix/use-delayed-loading"
       ],
       "files": [
-        { "path": "registry/netix/components/data-table.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/data-table.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -173,7 +362,7 @@
       "title": "PaginationControls",
       "description": "Pager + page-size selector for the data table.",
       "dependencies": ["@tanstack/react-table", "lucide-react"],
-      "registryDependencies": ["button", "select"],
+      "registryDependencies": ["@netix/button", "@netix/select"],
       "files": [
         {
           "path": "registry/netix/components/pagination-controls.tsx",
@@ -186,9 +375,12 @@
       "type": "registry:component",
       "title": "ConfirmModal",
       "description": "Confirmation dialog with async-safe confirm handling.",
-      "registryDependencies": ["button", "dialog", "@netix/loading-state"],
+      "registryDependencies": ["@netix/button", "@netix/dialog", "@netix/loading-state"],
       "files": [
-        { "path": "registry/netix/components/confirm-modal.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/confirm-modal.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -196,9 +388,12 @@
       "type": "registry:component",
       "title": "FormModal",
       "description": "Dialog shell for forms with permission-gated trigger and async submit.",
-      "registryDependencies": ["button", "dialog", "@netix/loading-state"],
+      "registryDependencies": ["@netix/button", "@netix/dialog", "@netix/loading-state"],
       "files": [
-        { "path": "registry/netix/components/form-modal.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/form-modal.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -207,9 +402,18 @@
       "title": "FancyCombobox",
       "description": "Multi-select combobox with badges, search and load-more.",
       "dependencies": ["lucide-react"],
-      "registryDependencies": ["badge", "button", "popover", "separator", "@netix/option-list"],
+      "registryDependencies": [
+        "@netix/badge",
+        "@netix/button",
+        "@netix/popover",
+        "@netix/separator",
+        "@netix/option-list"
+      ],
       "files": [
-        { "path": "registry/netix/components/fancy-combobox.tsx", "type": "registry:component" }
+        {
+          "path": "registry/netix/components/fancy-combobox.tsx",
+          "type": "registry:component"
+        }
       ]
     },
     {
@@ -218,13 +422,18 @@
       "title": "TreeView",
       "description": "Async-loading tree with keyboard navigation.",
       "dependencies": ["lucide-react"],
-      "files": [{ "path": "registry/netix/components/tree-view.tsx", "type": "registry:component" }]
+      "files": [
+        {
+          "path": "registry/netix/components/tree-view.tsx",
+          "type": "registry:component"
+        }
+      ]
     },
     {
       "name": "recipes",
       "type": "registry:block",
       "title": "Page Recipes",
-      "description": "AppShell, PageHeader, list/detail/settings page layouts, dashboard grid, metric cards — the template's composition primitives. Snapshot of the frontend-template canon.",
+      "description": "AppShell, PageHeader, list/detail/settings page layouts, dashboard grid, metric cards \u2014 the template's composition primitives. Snapshot of the frontend-template canon.",
       "files": [
         {
           "path": "registry/netix/blocks/recipes/index.tsx",

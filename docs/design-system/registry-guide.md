@@ -19,12 +19,12 @@ That one line delivers Tailwind, the Nova token layer, the shadcn variants sheet
 "registries": { "@netix": "https://raw.githubusercontent.com/NETIX-AI-OSS/netix-frontend/<ref>/r/{name}.json" }
 ```
 
-- Stock primitives (button, dialog, select, …) come from the **official shadcn registry** with the app's `base-nova` style: `pnpm dlx shadcn add dialog`.
-- NETIX composites, hooks and blocks come from **@netix**: `pnpm dlx shadcn add @netix/data-table`, or the wrapper `npx netix add data-table` (bare names are namespaced automatically).
+- The **canon primitives** (badge, button, dialog, field, input, label, popover, select, separator, skeleton) are NETIX-customized base-nova components and ship from **@netix** as `registry:ui` items — `@netix/button` etc. Composites depend on them by that name, so `add` always restores the NETIX version, never the stock one. Primitives outside the canon set (accordion, slider, …) still come from the official shadcn registry in the `base-nova` style.
+- NETIX composites, hooks and blocks come from **@netix** too: `pnpm dlx shadcn add @netix/data-table`, or the wrapper `npx netix add data-table` (bare names are namespaced automatically).
 
 Registry sources live in `registry/netix/` here, are tested in this repo against verbatim base-nova fixtures, and are built with `pnpm registry:build` into `r/` (committed, drift-gated). The `<ref>` in the URL pins the registry version an app tracks — scaffolds pin the release tag; move it deliberately.
 
-Item catalogue: hooks (`search-params`, `use-tabs`, `use-filters`, `use-pagination`, `use-time-range`, `use-permissions`, `use-delayed-loading`, `use-is-mobile`, `use-resize-observer`, `router-hooks`), components (`data-table` family, `pagination-controls`, `confirm-modal`, `form-modal`, `fancy-combobox`, `tree-view`, `option-list`, `loading-state`, `empty-state`), blocks (`recipes`, `app-layout`, `app-sidebar`, `app-topbar`).
+Item catalogue: ui (the ten canon primitives above), hooks (`search-params`, `use-tabs`, `use-filters`, `use-pagination`, `use-time-range`, `use-permissions`, `use-delayed-loading`, `use-is-mobile`, `use-resize-observer`, `router-hooks`), components (`data-table` family, `pagination-controls`, `confirm-modal`, `form-modal`, `fancy-combobox`, `tree-view`, `option-list`, `loading-state`, `empty-state`), blocks (`recipes`, `app-layout`, `app-sidebar`, `app-topbar` — these assume the template's full vendored set and reference the few extra primitives they use, like tooltip and dropdown-menu, from the official registry).
 
 ## Dependencies the items assume
 

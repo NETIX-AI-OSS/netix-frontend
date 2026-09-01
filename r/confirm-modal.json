@@ -4,8 +4,8 @@
   "title": "ConfirmModal",
   "description": "Confirmation dialog with async-safe confirm handling.",
   "registryDependencies": [
-    "button",
-    "dialog",
+    "@netix/button",
+    "@netix/dialog",
     "@netix/loading-state"
   ],
   "files": [

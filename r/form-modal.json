@@ -4,8 +4,8 @@
   "title": "FormModal",
   "description": "Dialog shell for forms with permission-gated trigger and async submit.",
   "registryDependencies": [
-    "button",
-    "dialog",
+    "@netix/button",
+    "@netix/dialog",
     "@netix/loading-state"
   ],
   "files": [
