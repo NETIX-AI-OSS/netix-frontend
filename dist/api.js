@@ -1,6 +1,35 @@
 import Axios from 'axios';
 
-// src/api/dev-token.ts
+// src/api/auth-config.ts
+var TOKEN_ENDPOINT = "/auth/token/";
+var REFRESH_ENDPOINT = "/auth/token/refresh/";
+var VERIFY_ENDPOINT = "/auth/token/verify/";
+var COOKIE_TOKEN_TTL = "300";
+var COOKIE_REFRESH_TTL = "172800";
+var COOKIE_SECURE = true;
+var DEV_AUTH_BASE_URL = "http://localhost:8001";
+function buildAuthConfig({
+  devMode = false,
+  origin = "",
+  hostname = "",
+  devAuthBaseUrl = DEV_AUTH_BASE_URL,
+  env = {}
+} = {}) {
+  return {
+    COOKIE_TOKEN_TTL,
+    COOKIE_REFRESH_TTL,
+    COOKIE_SECURE,
+    COOKIE_DOMAIN: devMode ? "localhost" : env.cookieDomain ?? "",
+    LOGIN_PAGE_URL: devMode ? origin : env.loginPageUrl ?? "",
+    AUTH_BASE_URL: devMode ? devAuthBaseUrl : env.authBaseUrl ?? "",
+    LAUNCHPAD_PAGE_URL: devMode ? origin : env.launchpadPageUrl ?? "",
+    BASE_DOMAIN: devMode ? hostname : env.baseDomain ?? "",
+    CURRENT_APP_DOMAIN: hostname,
+    TOKEN_ENDPOINT,
+    REFRESH_ENDPOINT,
+    VERIFY_ENDPOINT
+  };
+}
 function createDevTokenManager(config) {
   const {
     devMode,
@@ -493,4 +522,4 @@ function createSwrOnErrorRetry(options = {}) {
   };
 }
 
-export { ApiError, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, SWR_MAX_RETRIES, asStatusCode, attachRetryInterceptor, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+export { ApiError, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, DEV_AUTH_BASE_URL, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, REFRESH_ENDPOINT, SWR_MAX_RETRIES, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

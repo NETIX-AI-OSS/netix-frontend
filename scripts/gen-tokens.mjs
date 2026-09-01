@@ -99,9 +99,13 @@ const REDUCED_MOTION = `@media (prefers-reduced-motion: reduce) {
   *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
 }`
+
+/** Collapses the blank-line runs that empty sections (e.g. no density blocks) leave behind. */
+const assemble = (parts) => parts.join('\n').replace(/\n{3,}/g, '\n\n')
 
 const keyframesCss = (src) =>
   Object.entries(src.tailwind.keyframes)
@@ -121,9 +125,7 @@ const keyframesCss = (src) =>
 /** The @custom-variant + @theme contract Tailwind needs at compile time. */
 const themeBlocks = (src) => {
   const theme = [
-    '  --font-sans: var(--font-sans);',
-    '  --font-mono: var(--font-mono);',
-    '  --font-arabic: var(--font-arabic);',
+    ...Object.entries(src.tailwind.fonts).map(([key, name]) => `  --font-${key}: var(--${name});`),
     ...Object.entries(src.tailwind.colors).map(
       ([key, name]) => `  --color-${key}: var(--${name});`,
     ),
@@ -142,10 +144,12 @@ const themeBlocks = (src) => {
     block('@theme inline', theme),
     '',
     '/* Non-inline @theme: declares the radius vars and wires rounded-* to them. */',
-    block(
-      '@theme',
-      Object.entries(src.radiusScale).map(([name, value]) => decl(name, value)),
-    ),
+    block('@theme', [
+      ...Object.entries(src.radiusScale).map(([name, value]) => decl(name, value)),
+      decl('radius-2xl', 'calc(var(--radius) * 1.8)'),
+      decl('radius-3xl', 'calc(var(--radius) * 2.2)'),
+      decl('radius-4xl', 'calc(var(--radius) * 2.6)'),
+    ]),
   ]
 }
 
@@ -156,7 +160,7 @@ export function buildThemeOnlyCss(src) {
 
 export function buildTokensCss(src) {
   const [customVariant, , ...themeRest] = themeBlocks(src)
-  return [
+  return assemble([
     `/* ${BANNER} */`,
     '',
     customVariant,
@@ -182,17 +186,74 @@ export function buildTokensCss(src) {
         ]),
       ),
       '',
-      indent(block('*:focus-visible', ['  outline: none;', '  box-shadow: var(--focus-ring);'])),
+      indent(
+        block('*:focus-visible', ['  outline: 2px solid var(--ring);', '  outline-offset: 2px;']),
+      ),
     ]),
     '',
     REDUCED_MOTION,
+    '',
+  ])
+}
+
+/** App-shell base styles shared by every scaffolded app; ported from the template's globals. */
+const APP_BASE = `@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    height: 100%;
+    min-width: 320px;
+    background: var(--background);
+    overflow: hidden;
+  }
+  body {
+    height: 100%;
+    min-height: 100vh;
+    margin: 0;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    overflow: hidden;
+  }
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  [data-slot='select-trigger']:focus-visible {
+    outline: none;
+  }
+}`
+
+/** The one stylesheet a Tailwind v4 app imports — a Tailwind SOURCE file, compiled by the app. */
+export function buildStylesCss(root = ROOT) {
+  const animations = readFileSync(join(root, 'tokens/animations.css'), 'utf8')
+  return [
+    `/* ${BANNER} */`,
+    '/* Single import for Tailwind v4 apps: Tailwind itself, the Nova token layer, the shadcn',
+    "   variants/utilities, and the app-shell base styles. Compiled by the consuming app's",
+    '   Tailwind build — nothing here is precompiled, so there is nothing to purge or re-scan. */',
+    '',
+    "@import 'tailwindcss';",
+    "@import './tokens.css';",
+    "@import './shadcn-tailwind.css';",
+    '',
+    animations.trimEnd(),
+    '',
+    APP_BASE,
     '',
   ].join('\n')
 }
 
 export function buildVarsCss(src) {
   const dark = modeBody(src, 'dark')
-  return [
+  return assemble([
     `/* ${BANNER} */`,
     '/* Plain custom properties for apps without Tailwind: OS preference first, [data-theme] wins. */',
     '',
@@ -216,7 +277,7 @@ export function buildVarsCss(src) {
     '',
     REDUCED_MOTION,
     '',
-  ].join('\n')
+  ])
 }
 
 /** Serializes a plain JSON value as a prettier-shaped JS literal. */
@@ -230,12 +291,15 @@ const js = (value, pad = '  ') => {
 }
 
 export function buildPresetCjs(src) {
-  const { colors, boxShadow, ...rest } = src.tailwind
+  const { colors, boxShadow, fonts, ...rest } = src.tailwind
   const colorLines = Object.entries(colors)
     .map(([key, name]) => `  ${IDENT.test(key) ? key : `'${key}'`}: withAlpha('${name}'),`)
     .join('\n')
   const shadows = Object.fromEntries(
     Object.entries(boxShadow).map(([key, name]) => [key, `var(--${name})`]),
+  )
+  const fontFamily = Object.fromEntries(
+    Object.entries(fonts).map(([key, name]) => [key, `var(--${name})`]),
   )
   return `// ${BANNER}
 // Tailwind v3 compatibility preset. withAlpha keeps opacity modifiers (bg-card/50) working for
@@ -252,9 +316,8 @@ module.exports = {
   theme: {
     extend: {
       colors,
-      fontFamily: ${js(rest.fontFamily, '      ')},
+      fontFamily: ${js(fontFamily, '      ')},
       borderRadius: ${js(rest.borderRadius, '      ')},
-      borderWidth: ${js(rest.borderWidth, '      ')},
       boxShadow: ${js(shadows, '      ')},
       keyframes: ${js(rest.keyframes, '      ')},
       animation: ${js(rest.animation, '      ')},
@@ -290,6 +353,7 @@ export function buildThemeInitSnippet(root = ROOT) {
 /** Every generated text artifact, keyed by repo-relative path. */
 export function buildAll(src, root = ROOT) {
   return {
+    'dist/styles.css': buildStylesCss(root),
     'dist/tokens/tokens.css': buildTokensCss(src),
     'dist/tokens/theme-only.css': buildThemeOnlyCss(src),
     'dist/tokens/vars.css': buildVarsCss(src),
@@ -306,6 +370,9 @@ const fontCopies = (src) =>
     `dist/fonts/${file}`,
   ])
 
+/** Files vendored verbatim from pinned devDependencies; the drift gate covers upgrades. */
+const staticCopies = () => [['node_modules/shadcn/dist/tailwind.css', 'dist/shadcn-tailwind.css']]
+
 const read = (path) => {
   try {
     return readFileSync(path)
@@ -319,7 +386,7 @@ export function write(root, src) {
     mkdirSync(dirname(join(root, path)), { recursive: true })
     writeFileSync(join(root, path), content)
   }
-  for (const [from, to] of fontCopies(src)) {
+  for (const [from, to] of [...fontCopies(src), ...staticCopies()]) {
     mkdirSync(dirname(join(root, to)), { recursive: true })
     copyFileSync(join(root, from), join(root, to))
   }
@@ -330,7 +397,7 @@ export function check(root, src) {
   const drift = []
   for (const [path, content] of Object.entries(buildAll(src, root)))
     if (read(join(root, path))?.toString('utf8') !== content) drift.push(path)
-  for (const [from, to] of fontCopies(src))
+  for (const [from, to] of [...fontCopies(src), ...staticCopies()])
     if (!read(join(root, from))?.equals(read(join(root, to)) ?? Buffer.alloc(0))) drift.push(to)
   return drift
 }

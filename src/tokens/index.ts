@@ -6,20 +6,11 @@ export { tokens }
 export type ThemeMode = keyof typeof tokens
 export type TokenName = keyof (typeof tokens)['light']
 
-export const STATUS_NAMES = [
-  'ok',
-  'warning',
-  'critical',
-  'info',
-  'neutral',
-  'offline',
-  'stale',
-  'nodata',
-] as const
+export const STATUS_NAMES = ['success', 'warning', 'danger', 'info', 'neutral'] as const
 export type StatusName = (typeof STATUS_NAMES)[number]
 
-/** base = the ink/graph colour, fill = solid backgrounds, tint = subtle surfaces. */
-export type StatusSlot = 'base' | 'fill' | 'on' | 'tint' | 'on-tint'
+/** base = the ink/graph colour, foreground = text ink, surface/border = subtle containers. */
+export type StatusSlot = 'base' | 'foreground' | 'surface' | 'border'
 
 export const NOTICE_SEVERITIES = ['advisory', 'attention', 'critical'] as const
 export type NoticeSeverity = (typeof NOTICE_SEVERITIES)[number]

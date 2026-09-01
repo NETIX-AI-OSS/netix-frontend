@@ -1,5 +1,56 @@
 import { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
+/**
+ * The canonical envoy-ts-auth configuration every NETIX app shares. Seven apps used to carry
+ * hand-maintained copies of these constants; this module is the single source of truth.
+ *
+ * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
+ * stays safe for CJS/react-native builds and deterministic under test.
+ */
+declare const TOKEN_ENDPOINT = "/auth/token/";
+declare const REFRESH_ENDPOINT = "/auth/token/refresh/";
+declare const VERIFY_ENDPOINT = "/auth/token/verify/";
+declare const COOKIE_TOKEN_TTL = "300";
+declare const COOKIE_REFRESH_TTL = "172800";
+declare const COOKIE_SECURE = true;
+/** Where the auth service listens in local development. */
+declare const DEV_AUTH_BASE_URL = "http://localhost:8001";
+/** The app's env-derived inputs, usually straight from `import.meta.env.VITE_*`. */
+type AuthConfigEnv = {
+    loginPageUrl?: string;
+    authBaseUrl?: string;
+    cookieDomain?: string;
+    launchpadPageUrl?: string;
+    baseDomain?: string;
+};
+type BuildAuthConfigOptions = {
+    /** `import.meta.env.VITE_DEV_MODE === 'true'` in the donor apps. */
+    devMode?: boolean;
+    /** `window.location.origin`; the dev fallback for the login and launchpad pages. */
+    origin?: string;
+    /** `window.location.hostname`; the dev fallback for the base domain. */
+    hostname?: string;
+    /** Override for non-standard local auth ports. */
+    devAuthBaseUrl?: string;
+    env?: AuthConfigEnv;
+};
+type AuthConfig = {
+    COOKIE_TOKEN_TTL: string;
+    COOKIE_REFRESH_TTL: string;
+    COOKIE_SECURE: boolean;
+    COOKIE_DOMAIN: string;
+    LOGIN_PAGE_URL: string;
+    AUTH_BASE_URL: string;
+    LAUNCHPAD_PAGE_URL: string;
+    BASE_DOMAIN: string;
+    CURRENT_APP_DOMAIN: string;
+    TOKEN_ENDPOINT: string;
+    REFRESH_ENDPOINT: string;
+    VERIFY_ENDPOINT: string;
+};
+/** The AUTH_CONFIG object envoy-ts-auth expects, with the fleet's dev-mode switches applied. */
+declare function buildAuthConfig({ devMode, origin, hostname, devAuthBaseUrl, env, }?: BuildAuthConfigOptions): AuthConfig;
+
 type DevTokenConfig = {
     /** Injected, never read from import.meta — the RN-safe entries must stay bundler-agnostic. */
     devMode: boolean;
@@ -209,4 +260,4 @@ declare function isRetryableSwrError(error: unknown): boolean;
  */
 declare function createSwrOnErrorRetry(options?: SwrRetryOptions): SwrOnErrorRetry;
 
-export { ApiError, type ApiErrorOptions, type DevTokenConfig, type DevTokenManager, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, type RetryOptions, SWR_MAX_RETRIES, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, type SwrOnErrorRetry, type SwrRetryOptions, type SwrRevalidatorOptions, asStatusCode, attachRetryInterceptor, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+export { ApiError, type ApiErrorOptions, type AuthConfig, type AuthConfigEnv, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, DEV_AUTH_BASE_URL, type DevTokenConfig, type DevTokenManager, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, REFRESH_ENDPOINT, type RetryOptions, SWR_MAX_RETRIES, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, type SwrOnErrorRetry, type SwrRetryOptions, type SwrRevalidatorOptions, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

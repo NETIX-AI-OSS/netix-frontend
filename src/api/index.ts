@@ -1,3 +1,16 @@
+export {
+  type AuthConfig,
+  type AuthConfigEnv,
+  buildAuthConfig,
+  type BuildAuthConfigOptions,
+  COOKIE_REFRESH_TTL,
+  COOKIE_SECURE,
+  COOKIE_TOKEN_TTL,
+  DEV_AUTH_BASE_URL,
+  REFRESH_ENDPOINT,
+  TOKEN_ENDPOINT,
+  VERIFY_ENDPOINT,
+} from './auth-config'
 export { createDevTokenManager, type DevTokenConfig, type DevTokenManager } from './dev-token'
 export { parseEnvelope } from './envelope'
 export {

@@ -6,7 +6,36 @@ function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
 var Axios__default = /*#__PURE__*/_interopDefault(Axios);
 
-// src/api/dev-token.ts
+// src/api/auth-config.ts
+var TOKEN_ENDPOINT = "/auth/token/";
+var REFRESH_ENDPOINT = "/auth/token/refresh/";
+var VERIFY_ENDPOINT = "/auth/token/verify/";
+var COOKIE_TOKEN_TTL = "300";
+var COOKIE_REFRESH_TTL = "172800";
+var COOKIE_SECURE = true;
+var DEV_AUTH_BASE_URL = "http://localhost:8001";
+function buildAuthConfig({
+  devMode = false,
+  origin = "",
+  hostname = "",
+  devAuthBaseUrl = DEV_AUTH_BASE_URL,
+  env = {}
+} = {}) {
+  return {
+    COOKIE_TOKEN_TTL,
+    COOKIE_REFRESH_TTL,
+    COOKIE_SECURE,
+    COOKIE_DOMAIN: devMode ? "localhost" : env.cookieDomain ?? "",
+    LOGIN_PAGE_URL: devMode ? origin : env.loginPageUrl ?? "",
+    AUTH_BASE_URL: devMode ? devAuthBaseUrl : env.authBaseUrl ?? "",
+    LAUNCHPAD_PAGE_URL: devMode ? origin : env.launchpadPageUrl ?? "",
+    BASE_DOMAIN: devMode ? hostname : env.baseDomain ?? "",
+    CURRENT_APP_DOMAIN: hostname,
+    TOKEN_ENDPOINT,
+    REFRESH_ENDPOINT,
+    VERIFY_ENDPOINT
+  };
+}
 function createDevTokenManager(config) {
   const {
     devMode,
@@ -500,13 +529,21 @@ function createSwrOnErrorRetry(options = {}) {
 }
 
 exports.ApiError = ApiError;
+exports.COOKIE_REFRESH_TTL = COOKIE_REFRESH_TTL;
+exports.COOKIE_SECURE = COOKIE_SECURE;
+exports.COOKIE_TOKEN_TTL = COOKIE_TOKEN_TTL;
+exports.DEV_AUTH_BASE_URL = DEV_AUTH_BASE_URL;
 exports.HANDLED_HTTP_STATUSES = HANDLED_HTTP_STATUSES;
 exports.MAX_QUERY_RETRIES = MAX_QUERY_RETRIES;
 exports.MAX_RETRIES = MAX_RETRIES;
 exports.MAX_RETRY_AFTER_MS = MAX_RETRY_AFTER_MS;
+exports.REFRESH_ENDPOINT = REFRESH_ENDPOINT;
 exports.SWR_MAX_RETRIES = SWR_MAX_RETRIES;
+exports.TOKEN_ENDPOINT = TOKEN_ENDPOINT;
+exports.VERIFY_ENDPOINT = VERIFY_ENDPOINT;
 exports.asStatusCode = asStatusCode;
 exports.attachRetryInterceptor = attachRetryInterceptor;
+exports.buildAuthConfig = buildAuthConfig;
 exports.coerceNonErrorEvent = coerceNonErrorEvent;
 exports.computeBackoffDelayMs = computeBackoffDelayMs;
 exports.computeSwrBackoffDelayMs = computeSwrBackoffDelayMs;

@@ -55,6 +55,7 @@ export default defineConfig([
     entry: {
       'utils/dom': 'src/utils/dom/index.ts',
       'hooks/router': 'src/hooks/router.ts',
+      theme: 'src/theme/index.ts',
       ui: 'src/ui/index.ts',
       'ui/theme': 'src/ui/theme/index.ts',
       ...uiEntries(),
