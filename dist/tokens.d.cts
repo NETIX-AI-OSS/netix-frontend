@@ -1,3 +1,10 @@
+declare const STYLE_NAMES: readonly ["nova", "rhea"];
+
+declare const __style_names_STYLE_NAMES: typeof STYLE_NAMES;
+declare namespace __style_names {
+  export { __style_names_STYLE_NAMES as STYLE_NAMES };
+}
+
 declare const tokens: {
     readonly light: {
         readonly 'typeface-display': "'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
@@ -38,14 +45,14 @@ declare const tokens: {
         readonly 'primary-active': "#124b6d";
         readonly 'primary-subtle': "oklch(0.95 0.018 241)";
         readonly 'primary-foreground': "oklch(1 0 0)";
+        readonly 'primary-2': "oklch(0.18 0 0)";
+        readonly 'primary-2-foreground': "oklch(1 0 0)";
         readonly secondary: "oklch(0.95 0 0)";
         readonly 'secondary-foreground': "oklch(0.16 0 0)";
         readonly muted: "oklch(0.955 0.004 247)";
         readonly 'muted-foreground': "oklch(0.49 0 0)";
-        readonly tint: "oklch(0.94 0.018 241)";
-        readonly 'tint-foreground': "oklch(0.34 0.07 241)";
-        readonly accent: "oklch(0.18 0 0)";
-        readonly 'accent-foreground': "oklch(1 0 0)";
+        readonly accent: "oklch(0.94 0.018 241)";
+        readonly 'accent-foreground': "oklch(0.34 0.07 241)";
         readonly destructive: "oklch(0.57 0.21 27)";
         readonly 'destructive-foreground': "oklch(1 0 0)";
         readonly success: "oklch(0.51 0.15 153)";
@@ -156,7 +163,6 @@ declare const tokens: {
         readonly 'radius-md': "0.5rem";
         readonly 'radius-lg': "0.625rem";
         readonly 'radius-xl': "0.875rem";
-        readonly 'radius-card': "1.25rem";
         readonly 'radius-pill': "999px";
     };
     readonly dark: {
@@ -198,14 +204,14 @@ declare const tokens: {
         readonly 'primary-active': "#2f8abd";
         readonly 'primary-subtle': "oklch(0.28 0.04 241)";
         readonly 'primary-foreground': "oklch(1 0 0)";
+        readonly 'primary-2': "oklch(0.93 0 0)";
+        readonly 'primary-2-foreground': "oklch(0.16 0 0)";
         readonly secondary: "oklch(0.27 0 0)";
         readonly 'secondary-foreground': "oklch(0.94 0 0)";
         readonly muted: "oklch(0.255 0 0)";
         readonly 'muted-foreground': "oklch(0.69 0 0)";
-        readonly tint: "oklch(0.29 0.02 241)";
-        readonly 'tint-foreground': "oklch(0.94 0.02 241)";
-        readonly accent: "oklch(0.93 0 0)";
-        readonly 'accent-foreground': "oklch(0.16 0 0)";
+        readonly accent: "oklch(0.29 0.02 241)";
+        readonly 'accent-foreground': "oklch(0.94 0.02 241)";
         readonly destructive: "oklch(0.57 0.21 27)";
         readonly 'destructive-foreground': "oklch(1 0 0)";
         readonly success: "oklch(0.51 0.15 153)";
@@ -316,13 +322,14 @@ declare const tokens: {
         readonly 'radius-md': "0.5rem";
         readonly 'radius-lg': "0.625rem";
         readonly 'radius-xl': "0.875rem";
-        readonly 'radius-card': "1.25rem";
         readonly 'radius-pill': "999px";
     };
 };
 
-declare const themeInitSnippet = "// Applies the stored theme before first paint; keep in sync with ThemeProvider.\n;(function () {\n  try {\n    var root = document.documentElement\n    var key = root.dataset.themeKey || 'netix-theme'\n    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'\n    var dark =\n      stored === 'dark' ||\n      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)\n    var resolved = dark ? 'dark' : 'light'\n    root.classList.add(resolved)\n    root.style.colorScheme = resolved\n  } catch {\n    // localStorage/matchMedia unavailable \u2014 fall back to the light default\n  }\n})()\n";
+declare const themeInitSnippet = "// Applies the stored theme and style before first paint; keep in sync with ThemeProvider.\n;(function () {\n  try {\n    var root = document.documentElement\n    var key = root.dataset.themeKey || 'netix-theme'\n    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'\n    var dark =\n      stored === 'dark' ||\n      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)\n    var resolved = dark ? 'dark' : 'light'\n    root.classList.add(resolved)\n    root.style.colorScheme = resolved\n  } catch {\n    // localStorage/matchMedia unavailable \u2014 fall back to the light default\n  }\n  try {\n    var element = document.documentElement\n    var styleKey = element.dataset.styleKey || 'netix-style'\n    // An unknown value simply matches no [data-style] block, so :root keeps the default style.\n    element.setAttribute(\n      'data-style',\n      localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',\n    )\n  } catch {\n    // storage blocked \u2014 the default style applies\n  }\n})()\n";
 
+/** The design styles the token layer ships — the shape axis, orthogonal to light/dark. */
+type StyleName = (typeof __style_names)['STYLE_NAMES'][number];
 type ThemeMode = keyof typeof tokens;
 type TokenName = keyof (typeof tokens)['light'];
 declare const STATUS_NAMES: readonly ["success", "warning", "danger", "info", "neutral"];
@@ -340,4 +347,4 @@ declare const noticeColor: (severity: NoticeSeverity, mode?: ThemeMode, slot?: "
 /** Okabe–Ito categorical ramp, in order — never use it to encode status. */
 declare const chartPalette: (mode?: ThemeMode) => string[];
 
-export { NOTICE_SEVERITIES, type NoticeSeverity, STATUS_NAMES, type StatusName, type StatusSlot, type ThemeMode, type TokenName, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };
+export { NOTICE_SEVERITIES, type NoticeSeverity, STATUS_NAMES, STYLE_NAMES, type StatusName, type StatusSlot, type StyleName, type ThemeMode, type TokenName, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };

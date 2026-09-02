@@ -15,6 +15,7 @@ const mockMatchMedia = (matches: boolean) =>
 beforeEach(() => {
   root.className = ''
   root.style.colorScheme = ''
+  root.removeAttribute('data-style')
   localStorage.clear()
   mockMatchMedia(false)
 })
@@ -57,6 +58,47 @@ it('leaves the document untouched when storage throws', async () => {
   })
   await run()
   expect(root.className).toBe('')
+  expect(root.getAttribute('data-style')).toBeNull()
+})
+
+describe('style axis', () => {
+  afterEach(() => {
+    delete root.dataset.styleKey
+    delete root.dataset.defaultStyle
+  })
+
+  it('applies the default style when nothing is stored', async () => {
+    await run()
+    expect(root.getAttribute('data-style')).toBe('nova')
+  })
+
+  it('applies the stored style', async () => {
+    localStorage.setItem('netix-style', 'rhea')
+    await run()
+    expect(root.getAttribute('data-style')).toBe('rhea')
+  })
+
+  it('reads the storage key from data-style-key', async () => {
+    root.dataset.styleKey = 'app-style'
+    localStorage.setItem('app-style', 'rhea')
+    localStorage.setItem('netix-style', 'nova')
+    await run()
+    expect(root.getAttribute('data-style')).toBe('rhea')
+  })
+
+  it('falls back to data-default-style when nothing is stored', async () => {
+    root.dataset.defaultStyle = 'rhea'
+    await run()
+    expect(root.getAttribute('data-style')).toBe('rhea')
+  })
+
+  it('applies the style even when the theme half throws', async () => {
+    vi.stubGlobal('matchMedia', undefined)
+    localStorage.setItem('netix-style', 'rhea')
+    await run()
+    expect(root.className).toBe('')
+    expect(root.getAttribute('data-style')).toBe('rhea')
+  })
 })
 
 describe('dataset overrides', () => {

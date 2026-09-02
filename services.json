@@ -1,45 +1,131 @@
 {
-  "$comment": "Canonical NETIX service manifest: which backend repo publishes each OpenAPI spec, where it lives, and the app-side wiring conventions. Consumed by the netix CLI (init, schema pull) and exported as netix-frontend/services.json.",
+  "$comment": "Canonical NETIX service manifest: which backend repo publishes each OpenAPI spec, where it lives, and the app-side wiring conventions. Consumed by the netix CLI (init, service add, schema pull) and exported as netix-frontend/services.json. The user service is platform plumbing — init always wires it and it never gets a module page. Entries cover every NETIX-AI backend with a public *.api host; apiSubdomain comes from each repo's deploy manifests, localPort from its native container port, listEndpoint is the collection a scaffolded module page opens on — one real, paginated route per service, taken from that service's own spec.",
   "services": {
-    "data": {
-      "title": "Data Service",
-      "backendRepo": "4T5Labs/data-service",
-      "specPath": "openapi/schema-data.yaml",
-      "localPort": 8009,
-      "envVar": "VITE_DATA_SERVICE_BASE_URL",
-      "apiSubdomain": "data.api"
-    },
-    "cafm": {
-      "title": "CAFM",
-      "backendRepo": "4T5Labs/cafm-backend",
-      "specPath": "openapi/schema-cafm.yaml",
-      "localPort": 8000,
-      "envVar": "VITE_CAFM_SERVICE_BASE_URL",
-      "apiSubdomain": "cafm.api"
-    },
-    "asset": {
-      "title": "Asset Management",
-      "backendRepo": "4T5Labs/asset-service",
-      "specPath": "openapi/schema-asset.yaml",
-      "localPort": 8003,
-      "envVar": "VITE_ASSET_SERVICE_BASE_URL",
-      "apiSubdomain": "asset.api"
-    },
     "user": {
       "title": "User Management",
       "backendRepo": "NETIX-AI/user-management",
       "specPath": "openapi/schema-user-management.yaml",
       "localPort": 8001,
       "envVar": "VITE_USER_SERVICE_BASE_URL",
-      "apiSubdomain": "user.api"
+      "apiSubdomain": "user.api",
+      "listEndpoint": "/api/organization-user/"
+    },
+    "asset": {
+      "title": "Asset Management",
+      "backendRepo": "NETIX-AI/asset-service",
+      "specPath": "openapi/schema-asset.yaml",
+      "localPort": 8003,
+      "envVar": "VITE_ASSET_SERVICE_BASE_URL",
+      "apiSubdomain": "asset.api",
+      "listEndpoint": "/api/asset/"
+    },
+    "cafm": {
+      "title": "CAFM",
+      "backendRepo": "NETIX-AI/cafm-backend",
+      "specPath": "openapi/schema-cafm.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_CAFM_SERVICE_BASE_URL",
+      "apiSubdomain": "cafm.api",
+      "listEndpoint": "/api/service-request/"
+    },
+    "data": {
+      "title": "Data Service",
+      "backendRepo": "NETIX-AI/data-service",
+      "specPath": "openapi/schema-data.yaml",
+      "localPort": 8009,
+      "envVar": "VITE_DATA_SERVICE_BASE_URL",
+      "apiSubdomain": "data.api",
+      "listEndpoint": "/api/alarm-log/"
+    },
+    "gateway": {
+      "title": "Gateway",
+      "backendRepo": "NETIX-AI/gateway-service",
+      "specPath": "openapi/schema-gateway.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_GATEWAY_SERVICE_BASE_URL",
+      "apiSubdomain": "gateway.api",
+      "listEndpoint": "/api/gateways/"
+    },
+    "ml-engine": {
+      "title": "ML Engine",
+      "backendRepo": "NETIX-AI/ml-engine",
+      "specPath": "openapi/schema-ml-engine.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_ML_ENGINE_SERVICE_BASE_URL",
+      "apiSubdomain": "ml-engine.api",
+      "listEndpoint": "/api/ml-request/"
     },
     "notification": {
       "title": "Notifications",
-      "backendRepo": "4T5Labs/notification-service",
+      "backendRepo": "NETIX-AI/notification-service",
       "specPath": "openapi/schema-notification.yaml",
       "localPort": 8002,
       "envVar": "VITE_NOTIFICATION_SERVICE_BASE_URL",
-      "apiSubdomain": "notification.api"
+      "apiSubdomain": "notification.api",
+      "listEndpoint": "/api/notification/"
+    },
+    "report": {
+      "title": "Report Engine",
+      "backendRepo": "NETIX-AI/report-engine",
+      "specPath": "openapi/schema-report.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_REPORT_SERVICE_BASE_URL",
+      "apiSubdomain": "report.api",
+      "listEndpoint": "/api/report-template/"
+    },
+    "simulator": {
+      "title": "Simulator",
+      "backendRepo": "NETIX-AI/simulator-service",
+      "specPath": "openapi/schema-sim.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_SIMULATOR_SERVICE_BASE_URL",
+      "apiSubdomain": "sim.api",
+      "listEndpoint": "/api/simulated-device/"
+    },
+    "stormbreaker": {
+      "title": "Stormbreaker",
+      "backendRepo": "NETIX-AI/stormbreaker_backend",
+      "specPath": "openapi/schema-stormbreaker.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_STORMBREAKER_SERVICE_BASE_URL",
+      "apiSubdomain": "storm.api",
+      "listEndpoint": "/api/parsers/"
+    },
+    "tag": {
+      "title": "Tag Service",
+      "backendRepo": "NETIX-AI/tag-service",
+      "specPath": "openapi/schema-tag.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_TAG_SERVICE_BASE_URL",
+      "apiSubdomain": "tag.api",
+      "listEndpoint": "/api/tag/"
+    },
+    "update": {
+      "title": "Update Service",
+      "backendRepo": "NETIX-AI/update-service",
+      "specPath": "openapi/schema-update.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_UPDATE_SERVICE_BASE_URL",
+      "apiSubdomain": "update.api",
+      "listEndpoint": "/api/release/"
+    },
+    "vision-ai": {
+      "title": "Vision AI",
+      "backendRepo": "NETIX-AI/vision-ai-service",
+      "specPath": "openapi/vision-ai-service.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_VISION_AI_SERVICE_BASE_URL",
+      "apiSubdomain": "vision-ai.api",
+      "listEndpoint": "/api/v1/cameras/"
+    },
+    "visualization": {
+      "title": "Visualization",
+      "backendRepo": "NETIX-AI/visualization-backend",
+      "specPath": "openapi/schema-visualization.yaml",
+      "localPort": 8000,
+      "envVar": "VITE_VISUALIZATION_SERVICE_BASE_URL",
+      "apiSubdomain": "viz.api",
+      "listEndpoint": "/api/dashboard-type/"
     }
   }
 }

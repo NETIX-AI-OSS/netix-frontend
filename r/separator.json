@@ -5,7 +5,7 @@
   "description": "NETIX base-nova separator (Base UI), the canon primitive — mirrors the frontend-template source.",
   "files": [
     {
-      "path": "registry/_fixtures/components/ui/separator.tsx",
+      "path": "registry/netix/ui/separator.tsx",
       "content": "import { Separator as SeparatorPrimitive } from '@base-ui/react/separator'\n\nimport { cn } from '@/lib/utils'\n\nfunction Separator({ className, orientation = 'horizontal', ...props }: SeparatorPrimitive.Props) {\n  return (\n    <SeparatorPrimitive\n      data-slot=\"separator\"\n      orientation={orientation}\n      className={cn(\n        'shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Separator }\n",
       "type": "registry:ui"
     }

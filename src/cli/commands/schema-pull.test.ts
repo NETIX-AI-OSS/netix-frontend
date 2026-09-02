@@ -47,7 +47,23 @@ describe('detectServices', () => {
     expect(detectServices(cwd, manifest).sort()).toEqual(['cafm', 'data'])
   })
 
-  it('returns nothing without a schema directory', () => {
+  it('reads wired services from orval.config.ts even before a first successful pull', () => {
+    writeFileSync(
+      join(cwd, 'orval.config.ts'),
+      "export default defineConfig({\n  'asset-service': {\n  },\n})\n",
+    )
+    expect(detectServices(cwd, manifest)).toEqual(['asset'])
+  })
+
+  it('unions orval blocks and schema files, in manifest order', () => {
+    writeFileSync(join(cwd, 'orval.config.ts'), "defineConfig({\n  'cafm-service': {},\n})\n")
+    mkdirSync(join(cwd, 'schema'))
+    writeFileSync(join(cwd, 'schema/data-service.yaml'), '')
+    writeFileSync(join(cwd, 'schema/cafm-service.yaml'), '')
+    expect(detectServices(cwd, manifest)).toEqual(['cafm', 'data'])
+  })
+
+  it('returns nothing without an orval config or schema directory', () => {
     expect(detectServices(cwd, manifest)).toEqual([])
   })
 })
@@ -112,4 +128,66 @@ it('detects services from disk when none are passed, and warns when none exist',
   const { runner } = makeRunner(ok('openapi: 3.1.0\n'))
   const detected = await schemaPull({ cwd, manifest, runner, now: () => NOW })
   expect(detected.pulled).toEqual(['notification'])
+})
+
+describe('generate', () => {
+  it('runs pnpm generate:client after a successful pull', async () => {
+    const { calls, runner } = makeRunner(ok('openapi: 3.1.0\n'))
+    const result = await schemaPull({
+      cwd,
+      manifest,
+      services: ['cafm'],
+      generate: true,
+      runner,
+      now: () => NOW,
+    })
+    expect(result.generated).toBe(true)
+    expect(result.failures).toEqual([])
+    expect(calls).toContainEqual(['pnpm', 'generate:client'])
+  })
+
+  it('reports a generate failure without hiding the pulled specs', async () => {
+    const runner: Runner = async (command, args) => {
+      if (command === 'pnpm') return fail()
+      if (args.some((arg) => arg.includes('/contents/'))) return ok('openapi: 3.1.0\n')
+      return ok(`${FRESH}\n`)
+    }
+    const result = await schemaPull({
+      cwd,
+      manifest,
+      services: ['data'],
+      generate: true,
+      runner,
+      now: () => NOW,
+    })
+    expect(result.pulled).toEqual(['data'])
+    expect(result.generated).toBe(false)
+    expect(result.failures[0]).toContain('generate:client failed')
+  })
+
+  it('never generates on a dry run or when nothing was pulled', async () => {
+    const dry = makeRunner(ok('unused'))
+    await schemaPull({
+      cwd,
+      manifest,
+      services: ['user'],
+      dryRun: true,
+      generate: true,
+      runner: dry.runner,
+      now: () => NOW,
+    })
+    expect(dry.calls).toEqual([])
+
+    const failing = makeRunner(fail())
+    const result = await schemaPull({
+      cwd,
+      manifest,
+      services: ['user'],
+      generate: true,
+      runner: failing.runner,
+      now: () => NOW,
+    })
+    expect(result.generated).toBe(false)
+    expect(failing.calls.some((call) => call[0] === 'pnpm')).toBe(false)
+  })
 })

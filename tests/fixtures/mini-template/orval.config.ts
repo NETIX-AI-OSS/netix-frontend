@@ -1,22 +1,6 @@
 import { defineConfig } from 'orval'
 
-export default defineConfig({
-  'data-service': {
-    input: './schema/data-service.yaml',
-    output: {
-      target: './app/client/gen/data-service/index.ts',
-      schemas: './app/client/gen/data-service',
-      client: 'swr',
-      httpClient: 'axios',
-      mode: 'tags-split',
-      mock: false,
-      prettier: true,
-      override: {
-        mutator: {
-          path: './app/client/http-data-service-client.ts',
-          name: 'httpDataServiceClient',
-        },
-      },
-    },
-  },
-})
+// One entry per backend service, keyed `<svc>-service` and reading
+// `schema/<svc>-service.yaml`. `netix init --services` writes these;
+// `pnpm generate:client` turns them into `app/client/gen/`.
+export default defineConfig({})

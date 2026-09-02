@@ -39,6 +39,26 @@
         "default": "./dist/api.cjs"
       }
     },
+    "./auth": {
+      "import": {
+        "types": "./dist/auth.d.ts",
+        "default": "./dist/auth.js"
+      },
+      "require": {
+        "types": "./dist/auth.d.cts",
+        "default": "./dist/auth.cjs"
+      }
+    },
+    "./hooks": {
+      "import": {
+        "types": "./dist/hooks.d.ts",
+        "default": "./dist/hooks.js"
+      },
+      "require": {
+        "types": "./dist/hooks.d.cts",
+        "default": "./dist/hooks.cjs"
+      }
+    },
     "./utils": {
       "react-native": {
         "types": "./dist/utils.d.cts",
@@ -111,6 +131,8 @@
     "build:js": "tsup",
     "build": "rm -rf dist && pnpm gen:tokens && pnpm build:js",
     "registry:build": "shadcn build registry.json --output r",
+    "sync:template": "node scripts/sync-template-components.mjs",
+    "sync:template:check": "node scripts/sync-template-components.mjs --check",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
@@ -189,6 +211,7 @@
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "yaml": "^2.9.0"
   }
 }

@@ -1,7 +1,11 @@
 import { tokens } from './tokens'
 
+export { STYLE_NAMES } from './style-names'
 export { themeInitSnippet } from './theme-init-snippet'
 export { tokens }
+
+/** The design styles the token layer ships — the shape axis, orthogonal to light/dark. */
+export type StyleName = (typeof import('./style-names'))['STYLE_NAMES'][number]
 
 export type ThemeMode = keyof typeof tokens
 export type TokenName = keyof (typeof tokens)['light']

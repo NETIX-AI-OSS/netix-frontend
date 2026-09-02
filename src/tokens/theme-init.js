@@ -1,4 +1,4 @@
-// Applies the stored theme before first paint; keep in sync with ThemeProvider.
+// Applies the stored theme and style before first paint; keep in sync with ThemeProvider.
 ;(function () {
   try {
     var root = document.documentElement
@@ -12,5 +12,16 @@
     root.style.colorScheme = resolved
   } catch {
     // localStorage/matchMedia unavailable — fall back to the light default
+  }
+  try {
+    var element = document.documentElement
+    var styleKey = element.dataset.styleKey || 'netix-style'
+    // An unknown value simply matches no [data-style] block, so :root keeps the default style.
+    element.setAttribute(
+      'data-style',
+      localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',
+    )
+  } catch {
+    // storage blocked — the default style applies
   }
 })()

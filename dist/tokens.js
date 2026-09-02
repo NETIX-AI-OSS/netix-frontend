@@ -39,14 +39,14 @@ var tokens = {
     "primary-active": "#124b6d",
     "primary-subtle": "oklch(0.95 0.018 241)",
     "primary-foreground": "oklch(1 0 0)",
+    "primary-2": "oklch(0.18 0 0)",
+    "primary-2-foreground": "oklch(1 0 0)",
     secondary: "oklch(0.95 0 0)",
     "secondary-foreground": "oklch(0.16 0 0)",
     muted: "oklch(0.955 0.004 247)",
     "muted-foreground": "oklch(0.49 0 0)",
-    tint: "oklch(0.94 0.018 241)",
-    "tint-foreground": "oklch(0.34 0.07 241)",
-    accent: "oklch(0.18 0 0)",
-    "accent-foreground": "oklch(1 0 0)",
+    accent: "oklch(0.94 0.018 241)",
+    "accent-foreground": "oklch(0.34 0.07 241)",
     destructive: "oklch(0.57 0.21 27)",
     "destructive-foreground": "oklch(1 0 0)",
     success: "oklch(0.51 0.15 153)",
@@ -157,7 +157,6 @@ var tokens = {
     "radius-md": "0.5rem",
     "radius-lg": "0.625rem",
     "radius-xl": "0.875rem",
-    "radius-card": "1.25rem",
     "radius-pill": "999px"
   },
   dark: {
@@ -199,14 +198,14 @@ var tokens = {
     "primary-active": "#2f8abd",
     "primary-subtle": "oklch(0.28 0.04 241)",
     "primary-foreground": "oklch(1 0 0)",
+    "primary-2": "oklch(0.93 0 0)",
+    "primary-2-foreground": "oklch(0.16 0 0)",
     secondary: "oklch(0.27 0 0)",
     "secondary-foreground": "oklch(0.94 0 0)",
     muted: "oklch(0.255 0 0)",
     "muted-foreground": "oklch(0.69 0 0)",
-    tint: "oklch(0.29 0.02 241)",
-    "tint-foreground": "oklch(0.94 0.02 241)",
-    accent: "oklch(0.93 0 0)",
-    "accent-foreground": "oklch(0.16 0 0)",
+    accent: "oklch(0.29 0.02 241)",
+    "accent-foreground": "oklch(0.94 0.02 241)",
     destructive: "oklch(0.57 0.21 27)",
     "destructive-foreground": "oklch(1 0 0)",
     success: "oklch(0.51 0.15 153)",
@@ -317,13 +316,15 @@ var tokens = {
     "radius-md": "0.5rem",
     "radius-lg": "0.625rem",
     "radius-xl": "0.875rem",
-    "radius-card": "1.25rem",
     "radius-pill": "999px"
   }
 };
 
+// src/tokens/style-names.ts
+var STYLE_NAMES = ["nova", "rhea"];
+
 // src/tokens/theme-init-snippet.ts
-var themeInitSnippet = `// Applies the stored theme before first paint; keep in sync with ThemeProvider.
+var themeInitSnippet = `// Applies the stored theme and style before first paint; keep in sync with ThemeProvider.
 ;(function () {
   try {
     var root = document.documentElement
@@ -338,6 +339,17 @@ var themeInitSnippet = `// Applies the stored theme before first paint; keep in 
   } catch {
     // localStorage/matchMedia unavailable \u2014 fall back to the light default
   }
+  try {
+    var element = document.documentElement
+    var styleKey = element.dataset.styleKey || 'netix-style'
+    // An unknown value simply matches no [data-style] block, so :root keeps the default style.
+    element.setAttribute(
+      'data-style',
+      localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',
+    )
+  } catch {
+    // storage blocked \u2014 the default style applies
+  }
 })()
 `;
 
@@ -350,4 +362,4 @@ var statusColor = (status, mode = "light", slot = "base") => token(slot === "bas
 var noticeColor = (severity, mode = "light", slot = "ink") => token(slot === "ink" ? `notice-${severity}` : `notice-${severity}-${slot}`, mode);
 var chartPalette = (mode = "light") => Array.from({ length: 10 }, (_, index) => token(`cat-${index + 1}`, mode));
 
-export { NOTICE_SEVERITIES, STATUS_NAMES, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };
+export { NOTICE_SEVERITIES, STATUS_NAMES, STYLE_NAMES, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };

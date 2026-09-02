@@ -1,4 +1,4 @@
-import { Auth, createBrowserLocaleStorage, LocaleRuntime } from 'envoy-ts-auth'
+import { createBrowserLocaleStorage, LocaleRuntime } from 'envoy-ts-auth'
 import {
   createOrganizationLocale,
   localeIdentity,
@@ -6,18 +6,12 @@ import {
   type OrganizationLocale,
 } from 'netix-frontend/i18n'
 
+import { ENV } from '@/config/env'
+import { getAccessToken } from '@/lib/auth'
 import i18n from '@/lib/i18n'
 
-const AUTH_BASE_URL = import.meta.env.VITE_AUTH_BASE_URL || 'http://localhost:8001'
+const AUTH_BASE_URL = ENV.authBaseUrl
 let coordinator: OrganizationLocale | null = null
-
-async function getAccessToken(): Promise<string | null> {
-  try {
-    return await Auth.getInstance().getToken()
-  } catch {
-    return null
-  }
-}
 
 function getCoordinator(): OrganizationLocale | null {
   if (typeof window === 'undefined') return null

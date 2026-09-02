@@ -2,13 +2,15 @@
 
 This repository is the canonical source for NETIX web UI, split along one rule:
 
-- **Imported, never ejected** — design tokens, the global stylesheet, the theme runtime, and the tool presets ship from this package (`netix-frontend/styles.css`, `netix-frontend/tokens.css`, `netix-frontend/theme`, `netix-frontend/presets/*`). A token change lands everywhere on the next version bump; apps cannot fork it.
-- **Copied, never imported** — UI primitives, composites, hooks, and app-shell blocks are source files an app owns. Stock shadcn primitives (style `base-nova`, backed by `@base-ui/react`) come from the official shadcn registry; everything NETIX-specific comes from the **@netix registry** served by this repo (`shadcn add @netix/<item>`, or `netix add <item>`). A registry update can never silently break an app — apps take updates by re-running `add`.
+- **Imported, never ejected** — shared logic and runtime contracts: API/auth, shared hooks, design tokens, the global stylesheet, theme, i18n, utilities, and tool presets.
+- **Copied, never imported** — UI primitives and reusable composites. Stock shadcn primitives (style `base-nova`, backed by `@base-ui/react`) come from the official shadcn registry; NETIX-specific components come from **@netix** (`shadcn add @netix/<item>`, or `netix add <item>`). The registry contains components only. The app shell and pages arrive from frontend-template and stay application code.
 
 The system uses React 19, Vite, Tailwind CSS v4, base-nova shadcn/ui primitives on `@base-ui/react`, semantic Nova tokens, and one restrained light/dark theme. It is for web React applications only. New apps start from `npx github:NETIX-AI-OSS/netix-frontend init` — the scaffold arrives already wired.
 
-Start with the [registry guide](registry-guide.md), then use a scaffolded app's `/foundations/design-system` route as the working visual reference: semantic tokens, component states, keyboard focus, data-display patterns, toast and overlay behaviour, and an RTL smoke test.
+Start with the [registry guide](registry-guide.md), then use a scaffolded app's `/workspace/design-system` route as the working visual reference: semantic tokens, component states, keyboard focus, data-display patterns, toast and overlay behaviour, and an RTL smoke test.
 
-In an app, the local source is the contract. Keep UI primitives in `app/components/ui`, page-level compositions in `app/components/recipes`, and app-specific behaviour in feature components. Before changing a primitive, update its documented contract, the reference route when a visible behaviour changes, and the focused test or guardrail that protects it.
+In an app, the local source is the contract: registry primitives live in `app/components/ui`, registry composites in `app/components/composites/<name>`, and template-owned application components in `app/components/application/<name>`. Every non-primitive component uses a folder. Feature-specific code stays beside its module. There is no recipe layer or generic component junk drawer.
 
-See [component contracts](component-contracts.md), [page recipes](page-recipes.md), [migration guidance](migration-guide.md), and [maintenance guidance](governance.md).
+Appearance has two independent axes: light/dark/system, and the **design style** — component shape. Nova (the default) and Rhea (pill controls, softer panels) ship today; see [design styles](styles.md).
+
+See [component contracts](component-contracts.md), [component structure](component-structure.md), [design styles](styles.md), [migration guidance](migration-guide.md), and [maintenance guidance](governance.md).

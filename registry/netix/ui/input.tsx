@@ -1,0 +1,20 @@
+import { Input as InputPrimitive } from '@base-ui/react/input'
+import * as React from 'react'
+
+import { cn } from '@/lib/utils'
+
+function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
+  return (
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        'h-8 w-full min-w-0 rounded-control border border-transparent bg-muted/50 px-(--control-px) py-1 text-base shadow-none transition-[background-color,color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/20 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:bg-destructive/5 aria-invalid:ring-2 aria-invalid:ring-destructive/20 md:text-sm',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Input }

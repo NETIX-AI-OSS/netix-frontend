@@ -65,9 +65,67 @@ it('scaffolds end to end with --yes and runs every post-step', async () => {
   expect(JSON.parse(readFileSync(join(dest, 'package.json'), 'utf8')).name).toBe('ops-console-ui')
   expect(existsSync(join(dest, 'app/client/http-cafm-service-client.ts'))).toBe(true)
   expect(readFileSync(join(dest, 'schema/cafm-service.yaml'), 'utf8')).toContain('openapi')
+  // The user service rides along unasked — wired as a client, but never a module.
+  expect(existsSync(join(dest, 'app/client/http-user-service-client.ts'))).toBe(true)
+  expect(existsSync(join(dest, 'schema/user-service.yaml'))).toBe(true)
+  expect(existsSync(join(dest, 'app/pages/user.tsx'))).toBe(false)
+  expect(readFileSync(join(dest, 'app/pages/lazy.ts'), 'utf8')).not.toContain('UserPage')
+  expect(readFileSync(join(dest, 'app/pages/cafm.tsx'), 'utf8')).toContain('CafmPage')
+  expect(readFileSync(join(dest, 'app/lib/navigation.ts'), 'utf8')).toContain(
+    "path: '/workspace/cafm',",
+  )
   expect(calls.some((line) => line.startsWith('git init'))).toBe(true)
   expect(calls.some((line) => line.startsWith('pnpm install'))).toBe(true)
   expect(calls.some((line) => line.startsWith('pnpm generate:client'))).toBe(true)
+
+  // git runs LAST so the scaffold commit captures the pulled schemas and the
+  // lockfile — a fresh app must start with a clean tree, not untracked files.
+  const gitAt = calls.findIndex((line) => line.startsWith('git init'))
+  expect(gitAt).toBeGreaterThan(calls.findIndex((line) => line.includes('/contents/')))
+  expect(gitAt).toBeGreaterThan(calls.findIndex((line) => line.startsWith('pnpm install')))
+  expect(gitAt).toBeGreaterThan(calls.findIndex((line) => line.startsWith('pnpm generate:client')))
+  expect(calls.at(-1)).toContain('git commit')
+})
+
+it('lists every unfinished step in Next steps, in the order to run them', async () => {
+  // app/client/gen is gitignored and node_modules is absent: a note that stops at
+  // `pnpm dev` sends the user to an app that will not boot.
+  const dest = join(parent, 'unfinished-ui')
+  const { runner } = makeRunner()
+
+  await expect(
+    init(flagsFor(dest, { install: false, schemas: false, generate: false, git: false }), runner),
+  ).resolves.toBe(0)
+
+  const [note] = clack.note.mock.calls.at(-1) as [string, string]
+  expect(note.split('\n').slice(0, 4)).toEqual([
+    'cd ' + dest,
+    'pnpm install',
+    'npx netix schema pull',
+    'pnpm dev',
+  ])
+})
+
+it('names pnpm generate:client on its own when only that step is left', async () => {
+  // `netix schema pull` ends with generate:client, so it stands in for both — but a
+  // failed generate after a good pull is the one case that needs naming.
+  const dest = join(parent, 'ungenerated-ui')
+  const { runner } = makeRunner(['pnpm generate:client'])
+
+  await expect(init(flagsFor(dest, { git: false }), runner)).resolves.toBe(0)
+
+  const [note] = clack.note.mock.calls.at(-1) as [string, string]
+  expect(note.split('\n').slice(0, 3)).toEqual(['cd ' + dest, 'pnpm generate:client', 'pnpm dev'])
+})
+
+it('leaves Next steps at cd + dev when everything ran', async () => {
+  const dest = join(parent, 'complete-ui')
+  const { runner } = makeRunner()
+
+  await expect(init(flagsFor(dest), runner)).resolves.toBe(0)
+
+  const [note] = clack.note.mock.calls.at(-1) as [string, string]
+  expect(note.split('\n').slice(0, 2)).toEqual(['cd ' + dest, 'pnpm dev'])
 })
 
 it('skips post-steps that were turned off', async () => {
@@ -81,6 +139,27 @@ it('skips post-steps that were turned off', async () => {
   expect(calls.some((line) => line.startsWith('git init'))).toBe(false)
   expect(calls.some((line) => line.startsWith('pnpm install'))).toBe(false)
   expect(calls.some((line) => line.includes('/contents/'))).toBe(false)
+})
+
+it('wires only the always-on user service when none is selected', async () => {
+  const dest = join(parent, 'bare-ui')
+  const { calls, runner } = makeRunner()
+
+  await expect(init(flagsFor(dest, { services: '' }), runner)).resolves.toBe(0)
+
+  expect(existsSync(join(dest, 'app/client/http-data-service-client.ts'))).toBe(false)
+  expect(existsSync(join(dest, 'schema/data-service.yaml'))).toBe(false)
+  expect(readFileSync(join(dest, 'vite.config.ts'), 'utf8')).not.toContain('/data-api')
+
+  // Every app authenticates, so user management is not optional.
+  expect(existsSync(join(dest, 'app/client/http-user-service-client.ts'))).toBe(true)
+  expect(readFileSync(join(dest, 'app/config/env.ts'), 'utf8')).toContain(
+    "userService: serviceUrl('user.api', '/user-api')",
+  )
+  expect(existsSync(join(dest, 'app/pages/user.tsx'))).toBe(false)
+  expect(readFileSync(join(dest, 'vite.config.ts'), 'utf8').match(/'\/user-api'/g)).toHaveLength(1)
+  expect(calls.some((line) => line.includes('user-management'))).toBe(true)
+  expect(calls.some((line) => line.startsWith('pnpm generate:client'))).toBe(true)
 })
 
 it('keeps going when a post-step fails and says what to finish manually', async () => {
@@ -112,6 +191,12 @@ it('collects answers from prompts when flags are missing', async () => {
     )
     .mockResolvedValueOnce('Asked UI') // title
     .mockResolvedValueOnce('acme.dev') // base domain
+    .mockImplementationOnce(async (opts: { validate?: (v?: string) => string | undefined }) => {
+      expect(opts.validate?.('nope')).toBeTruthy()
+      expect(opts.validate?.('99999')).toBeTruthy()
+      expect(opts.validate?.('')).toBeUndefined()
+      return '4000' // dev server port
+    })
   clack.multiselect.mockResolvedValueOnce(['data'])
   clack.confirm.mockResolvedValueOnce(true)
   const { runner } = makeRunner()
@@ -119,6 +204,11 @@ it('collects answers from prompts when flags are missing', async () => {
   await expect(init({ templatePath: FIXTURE }, runner)).resolves.toBe(0)
   expect(existsSync(join(dest, 'app/pages/profile.tsx'))).toBe(false)
   expect(readFileSync(join(dest, 'index.html'), 'utf8')).toContain('<title>Asked UI</title>')
+  expect(readFileSync(join(dest, 'vite.config.ts'), 'utf8')).toContain('port: 4000,')
+
+  // The always-wired user service is not up for selection.
+  const { options } = clack.multiselect.mock.calls[0]?.[0] as { options: Array<{ value: string }> }
+  expect(options.map((option) => option.value)).not.toContain('user')
 })
 
 it('suggests a title without the -ui plumbing suffix', async () => {
@@ -160,6 +250,7 @@ it('refuses unknown services and non-kebab names', async () => {
   const { runner } = makeRunner()
   await expect(init(flagsFor(join(parent, 'a-ui'), { services: 'bogus' }), runner)).resolves.toBe(1)
   await expect(init(flagsFor(join(parent, 'b-ui'), { name: 'Bad Name' }), runner)).resolves.toBe(1)
+  await expect(init(flagsFor(join(parent, 'c-ui'), { port: '0' }), runner)).resolves.toBe(1)
 })
 
 it('reports a template acquisition failure', async () => {

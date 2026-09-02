@@ -86,14 +86,14 @@
   --primary-active: #124b6d;
   --primary-subtle: oklch(0.95 0.018 241);
   --primary-foreground: oklch(1 0 0);
+  --primary-2: oklch(0.18 0 0);
+  --primary-2-foreground: oklch(1 0 0);
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: var(--foreground);
   --muted: oklch(0.955 0.004 247);
   --muted-foreground: oklch(0.49 0 0);
-  --tint: oklch(0.94 0.018 241);
-  --tint-foreground: oklch(0.34 0.07 241);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(1 0 0);
+  --accent: oklch(0.94 0.018 241);
+  --accent-foreground: oklch(0.34 0.07 241);
   --destructive: oklch(0.57 0.21 27);
   --destructive-foreground: oklch(1 0 0);
   --success: var(--status-success);
@@ -228,13 +228,13 @@
   --primary-hover: #237cab;
   --primary-active: #2f8abd;
   --primary-subtle: oklch(0.28 0.04 241);
+  --primary-2: oklch(0.93 0 0);
+  --primary-2-foreground: oklch(0.16 0 0);
   --secondary: oklch(0.27 0 0);
   --muted: oklch(0.255 0 0);
   --muted-foreground: oklch(0.69 0 0);
-  --tint: oklch(0.29 0.02 241);
-  --tint-foreground: oklch(0.94 0.02 241);
-  --accent: oklch(0.93 0 0);
-  --accent-foreground: oklch(0.16 0 0);
+  --accent: oklch(0.29 0.02 241);
+  --accent-foreground: oklch(0.94 0.02 241);
   --border: oklch(0.32 0 0);
   --input: oklch(0.32 0 0);
   --ring: oklch(0.72 0.03 241);
@@ -275,6 +275,36 @@
   --shadow-popover: 0 18px 44px -20px rgb(0 0 0 / 0.62), 0 4px 14px -6px rgb(0 0 0 / 0.38);
 }
 
+:root,
+[data-style='nova'] {
+  --radius-control: var(--radius-lg);
+  --radius-control-sm: min(var(--radius-md), 12px);
+  --radius-control-xs: min(var(--radius-md), 10px);
+  --radius-field: var(--radius-lg);
+  --radius-surface: var(--radius-lg);
+  --radius-panel: var(--radius-xl);
+  --radius-item: var(--radius-md);
+  --radius-item-sm: var(--radius-sm);
+  --radius-indicator: 4px;
+  --control-px: 0.625rem;
+  --control-px-xs: 0.5rem;
+  --control-px-lg: 0.625rem;
+}
+[data-style='rhea'] {
+  --radius-control: var(--radius-pill);
+  --radius-control-sm: var(--radius-pill);
+  --radius-control-xs: var(--radius-pill);
+  --radius-field: 1rem;
+  --radius-surface: var(--radius-xl);
+  --radius-panel: 1.25rem;
+  --radius-item: var(--radius-pill);
+  --radius-item-sm: var(--radius-pill);
+  --radius-indicator: 5px;
+  --control-px: 0.75rem;
+  --control-px-xs: 0.625rem;
+  --control-px-lg: 1rem;
+}
+
 @theme inline {
   --font-sans: var(--typeface-body);
   --font-heading: var(--typeface-display);
@@ -292,12 +322,12 @@
   --color-primary-active: var(--primary-active);
   --color-primary-subtle: var(--primary-subtle);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-2: var(--primary-2);
+  --color-primary-2-foreground: var(--primary-2-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-tint: var(--tint);
-  --color-tint-foreground: var(--tint-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -398,11 +428,21 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.625rem;
   --radius-xl: 0.875rem;
-  --radius-card: 1.25rem;
   --radius-pill: 999px;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Shape aliases the style layer re-points; values here are the default style. */
+  --radius-control: var(--radius-lg);
+  --radius-control-sm: min(var(--radius-md), 12px);
+  --radius-control-xs: min(var(--radius-md), 10px);
+  --radius-field: var(--radius-lg);
+  --radius-surface: var(--radius-lg);
+  --radius-panel: var(--radius-xl);
+  --radius-item: var(--radius-md);
+  --radius-item-sm: var(--radius-sm);
+  --radius-indicator: 4px;
 }
 
 @layer base {

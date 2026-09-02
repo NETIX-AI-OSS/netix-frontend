@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_DEV_MODE: string
-  readonly VITE_DATA_SERVICE_BASE_URL: string
+  readonly VITE_BASE_DOMAIN: string
+  readonly VITE_SENTRY_DSN: string
 }
 
 interface ImportMeta {

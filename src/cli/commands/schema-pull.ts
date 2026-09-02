@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { run, type Runner } from '../exec'
@@ -10,9 +10,11 @@ const DAY_MS = 24 * 60 * 60 * 1000
 export type SchemaPullOptions = {
   cwd: string
   manifest: ServicesManifest
-  /** Service keys; when empty, detected from existing schema/<key>-service.yaml files. */
+  /** Service keys; when empty, every wired service (see detectServices). */
   services?: string[]
   dryRun?: boolean
+  /** Run `pnpm generate:client` after pulling, so specs and clients move together. */
+  generate?: boolean
   runner?: Runner
   log?: (line: string) => void
   /** Injectable clock for tests. */
@@ -23,16 +25,32 @@ export type SchemaPullResult = {
   pulled: string[]
   warnings: string[]
   failures: string[]
+  generated: boolean
 }
 
-/** Services an app already uses, read from its schema/ directory. */
+/**
+ * Services an app is wired to: its orval.config.ts blocks, plus any
+ * schema/<key>-service.yaml already on disk. Orval is the primary signal so a
+ * service whose very first pull failed (wired, but no yaml yet) is still found.
+ */
 export function detectServices(cwd: string, manifest: ServicesManifest): string[] {
-  const dir = join(cwd, 'schema')
-  if (!existsSync(dir)) return []
   const known = Object.keys(manifest.services)
-  return readdirSync(dir)
-    .map((file) => file.replace(/-service\.ya?ml$/, ''))
-    .filter((key, index, all) => known.includes(key) && all.indexOf(key) === index)
+  const found = new Set<string>()
+
+  const orvalFile = join(cwd, 'orval.config.ts')
+  if (existsSync(orvalFile)) {
+    const orval = readFileSync(orvalFile, 'utf8')
+    for (const key of known) if (orval.includes(`'${serviceNames(key).slug}':`)) found.add(key)
+  }
+
+  const dir = join(cwd, 'schema')
+  if (existsSync(dir))
+    for (const file of readdirSync(dir)) {
+      const key = file.replace(/-service\.ya?ml$/, '')
+      if (known.includes(key)) found.add(key)
+    }
+
+  return known.filter((key) => found.has(key))
 }
 
 export async function schemaPull({
@@ -40,14 +58,15 @@ export async function schemaPull({
   manifest,
   services = [],
   dryRun = false,
+  generate = false,
   runner = run,
   log = () => {},
   now = Date.now,
 }: SchemaPullOptions): Promise<SchemaPullResult> {
   const keys = services.length ? services : detectServices(cwd, manifest)
-  const result: SchemaPullResult = { pulled: [], warnings: [], failures: [] }
+  const result: SchemaPullResult = { pulled: [], warnings: [], failures: [], generated: false }
   if (!keys.length) {
-    result.warnings.push('no services selected and none detected under schema/')
+    result.warnings.push('no services selected and none wired in this app')
     return result
   }
 
@@ -93,6 +112,15 @@ export async function schemaPull({
           `${key}: spec last touched ${ageDays} days ago — the backend snapshot may be stale`,
         )
     }
+  }
+
+  // Regenerate even when some pulls failed: the ones that landed should not
+  // wait on the ones that didn't, and the exit code already carries the failures.
+  if (generate && !dryRun && result.pulled.length) {
+    log('pnpm generate:client')
+    const gen = await runner('pnpm', ['generate:client'], { cwd })
+    if (gen.code === 0) result.generated = true
+    else result.failures.push('pnpm generate:client failed — rerun it once the cause is fixed')
   }
   return result
 }

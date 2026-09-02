@@ -1,7 +1,13 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { THEME_STORAGE_KEY, ThemeProvider, type ThemeProviderProps, useTheme } from './index'
+import {
+  STYLE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
+  ThemeProvider,
+  type ThemeProviderProps,
+  useTheme,
+} from './index'
 import { datasetDefaults } from './theme-provider'
 
 const listeners = new Set<(event: MediaQueryListEvent) => void>()
@@ -20,12 +26,14 @@ const stubMatchMedia = (matches: boolean) =>
   )
 
 const Probe = () => {
-  const { theme, resolvedTheme, setTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme, style, setStyle } = useTheme()
   return (
     <>
       <span data-testid="state">{`${theme}/${resolvedTheme}`}</span>
+      <span data-testid="style">{style}</span>
       <button onClick={() => setTheme('dark')}>dark</button>
       <button onClick={() => setTheme('system')}>system</button>
+      <button onClick={() => setStyle('rhea')}>rhea</button>
     </>
   )
 }
@@ -38,6 +46,7 @@ const setup = (props: Partial<ThemeProviderProps> = {}) =>
   )
 
 const state = () => screen.getByTestId('state').textContent
+const style = () => screen.getByTestId('style').textContent
 const root = document.documentElement
 
 beforeEach(() => {
@@ -45,12 +54,19 @@ beforeEach(() => {
   localStorage.clear()
   root.className = ''
   root.style.colorScheme = ''
+  root.removeAttribute('data-style')
   delete root.dataset.themeKey
   delete root.dataset.defaultTheme
+  delete root.dataset.styleKey
+  delete root.dataset.defaultStyle
   stubMatchMedia(false)
 })
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  // The storage spies below would otherwise leak into every later test in this file.
+  vi.restoreAllMocks()
+})
 
 it('follows the OS by default and applies the class plus color-scheme', () => {
   stubMatchMedia(true)
@@ -98,7 +114,12 @@ it('falls back to the fleet defaults without a document', () => {
   vi.stubGlobal('document', undefined)
   const defaults = datasetDefaults()
   vi.stubGlobal('document', realDocument)
-  expect(defaults).toEqual({ storageKey: THEME_STORAGE_KEY, defaultTheme: 'system' })
+  expect(defaults).toEqual({
+    storageKey: THEME_STORAGE_KEY,
+    defaultTheme: 'system',
+    styleStorageKey: STYLE_STORAGE_KEY,
+    defaultStyle: 'nova',
+  })
 })
 
 it('persists a new choice under the shared key and swaps the class', async () => {
@@ -162,4 +183,67 @@ it('returns the inert default outside a provider', () => {
   render(<Probe />)
   expect(state()).toBe('system/light')
   expect(() => screen.getByRole('button', { name: 'dark' }).click()).not.toThrow()
+})
+
+describe('style axis', () => {
+  it('applies the default style as a data-style attribute', () => {
+    setup()
+    expect(style()).toBe('nova')
+    expect(root.getAttribute('data-style')).toBe('nova')
+  })
+
+  it('restores the stored style and keeps it independent of the theme', async () => {
+    localStorage.setItem(STYLE_STORAGE_KEY, 'rhea')
+    setup({ defaultTheme: 'light' })
+    expect(style()).toBe('rhea')
+    await userEvent.click(screen.getByRole('button', { name: 'dark' }))
+    expect(style()).toBe('rhea')
+    expect(state()).toBe('dark/dark')
+  })
+
+  it('ignores a stored value that is not a shipped style', () => {
+    localStorage.setItem(STYLE_STORAGE_KEY, 'not-a-style')
+    setup()
+    expect(style()).toBe('nova')
+  })
+
+  it('reads its defaults from the <html> dataset, and lets props win', () => {
+    root.dataset.styleKey = 'acme-style'
+    root.dataset.defaultStyle = 'rhea'
+    setup()
+    expect(style()).toBe('rhea')
+
+    setup({ defaultStyle: 'nova' })
+    expect(screen.getAllByTestId('style').at(-1)?.textContent).toBe('nova')
+  })
+
+  it('persists a new style under the shared key and repaints the attribute', async () => {
+    setup()
+    await userEvent.click(screen.getByRole('button', { name: 'rhea' }))
+    expect(style()).toBe('rhea')
+    expect(root.getAttribute('data-style')).toBe('rhea')
+    expect(localStorage.getItem(STYLE_STORAGE_KEY)).toBe('rhea')
+  })
+
+  it('writes to a custom style storage key', async () => {
+    setup({ styleStorageKey: 'app-style' })
+    await userEvent.click(screen.getByRole('button', { name: 'rhea' }))
+    expect(localStorage.getItem('app-style')).toBe('rhea')
+    expect(localStorage.getItem(STYLE_STORAGE_KEY)).toBeNull()
+  })
+
+  it('still applies a style when storage throws', async () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    setup()
+    await userEvent.click(screen.getByRole('button', { name: 'rhea' }))
+    expect(style()).toBe('rhea')
+  })
+
+  it('returns the inert default outside a provider', () => {
+    render(<Probe />)
+    expect(style()).toBe('nova')
+    expect(() => screen.getByRole('button', { name: 'rhea' }).click()).not.toThrow()
+  })
 })

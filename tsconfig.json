@@ -13,9 +13,10 @@
     "noEmit": true,
     "types": ["vitest/globals"],
     "paths": {
-      "@/components/ui/*": ["./registry/_fixtures/components/ui/*"],
+      "@/components/ui/*": ["./registry/netix/ui/*"],
       "@/lib/utils": ["./registry/_fixtures/lib/utils"],
-      "@/hooks/*": ["./registry/netix/hooks/*"],
+      "netix-frontend/auth": ["./src/auth/index.ts"],
+      "netix-frontend/hooks": ["./src/hooks/index.ts"],
       "netix-frontend/api": ["./src/api/index.ts"],
       "netix-frontend/i18n": ["./src/i18n/index.ts"],
       "netix-frontend/theme": ["./src/theme/index.ts"],

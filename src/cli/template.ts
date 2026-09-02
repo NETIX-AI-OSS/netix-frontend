@@ -4,6 +4,8 @@ import { basename } from 'node:path'
 import { run, type Runner, runShell } from './exec'
 import { TEMPLATE_REPO } from './refs'
 
+// .env is tracked template content (the scaffold rewrites its domain), so it is copied
+// like any other file; only build output and VCS metadata are skipped.
 const COPY_EXCLUDES = new Set(['.git', 'node_modules', 'dist', 'coverage'])
 
 export type AcquireOptions = {

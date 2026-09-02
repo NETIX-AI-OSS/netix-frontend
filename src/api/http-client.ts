@@ -4,7 +4,6 @@ import Axios, {
   type InternalAxiosRequestConfig,
 } from 'axios'
 
-import type { DevTokenManager } from './dev-token'
 import { createErrorInterceptor, type ErrorInterceptorConfig } from './error-interceptor'
 import { createParamsSerializer, type ParamsSerializerStrategy } from './params'
 import { attachRetryInterceptor, type RetryOptions } from './retry'
@@ -19,7 +18,6 @@ export type HttpClientConfig = {
   headers?: Record<string, string>
   paramsSerializer?: ParamsSerializerStrategy
   getToken?: () => MaybePromise<string | null | undefined>
-  devTokens?: DevTokenManager
   /** Replaces the default auth request interceptor wholesale. */
   requestInterceptor?: (
     config: InternalAxiosRequestConfig,
@@ -29,13 +27,12 @@ export type HttpClientConfig = {
 }
 
 function createAuthRequestInterceptor(config: HttpClientConfig) {
-  const { getBaseURL, getToken, devTokens } = config
+  const { getBaseURL, getToken } = config
 
   return async (request: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     if (getBaseURL) request.baseURL = getBaseURL()
 
-    const devToken = devTokens?.shouldUseDevToken(request) ? await devTokens.getToken() : null
-    const token = devToken ?? (await getToken?.())
+    const token = await getToken?.()
     // Only set the header when a token exists, so an unauthenticated call is not sent `Bearer `.
     if (token) request.headers.Authorization = `Bearer ${token}`
 

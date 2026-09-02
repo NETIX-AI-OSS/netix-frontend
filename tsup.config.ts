@@ -19,6 +19,8 @@ export default defineConfig([
   {
     entry: {
       api: 'src/api/index.ts',
+      auth: 'src/auth/index.ts',
+      hooks: 'src/hooks/index.ts',
       utils: 'src/utils/index.ts',
       i18n: 'src/i18n/index.ts',
       tokens: 'src/tokens/index.ts',
@@ -33,12 +35,22 @@ export default defineConfig([
     format: ['esm'],
     platform: 'node',
     target: 'node22',
-    banner: { js: '#!/usr/bin/env node' },
+    // `yaml` resolves to a CJS build under the `node` condition, and esbuild's
+    // interop shim throws "Dynamic require ... is not supported" in an ESM bundle
+    // unless a real `require` is in scope. Give it one — the bundle must stay a
+    // single self-contained file with zero runtime dependencies.
+    banner: {
+      js: [
+        '#!/usr/bin/env node',
+        "import { createRequire as __netixCreateRequire } from 'node:module'",
+        'const require = __netixCreateRequire(import.meta.url)',
+      ].join('\n'),
+    },
     dts: false,
     treeshake: true,
     sourcemap: false,
     clean: false,
-    noExternal: ['@clack/prompts', 'picocolors'],
+    noExternal: ['@clack/prompts', 'picocolors', 'yaml'],
   },
   {
     entry: {

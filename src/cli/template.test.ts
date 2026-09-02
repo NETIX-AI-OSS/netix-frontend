@@ -65,8 +65,8 @@ describe('github tarball path', () => {
       return ok('ok')
     }
     const { source } = await acquireTemplate({ dest, ref: 'template-v9', runner })
-    expect(source).toBe('4T5Labs/frontend-template@template-v9')
-    expect(calls.at(-1)).toContain('gh api repos/4T5Labs/frontend-template/tarball/template-v9')
+    expect(source).toBe('NETIX-AI/frontend-template@template-v9')
+    expect(calls.at(-1)).toContain('gh api repos/NETIX-AI/frontend-template/tarball/template-v9')
     expect(calls.at(-1)).toContain(`tar -xz --strip-components=1 -C '${dest}'`)
   })
 

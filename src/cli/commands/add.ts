@@ -11,7 +11,9 @@ export function qualifyItems(items: string[]): string[] {
 
 /**
  * Thin wrapper over the pinned shadcn CLI. The app's components.json (written by
- * `netix init`) maps the @netix namespace to this repo's registry.
+ * `netix init`) maps the @netix namespace to this repo's registry. Only `netix add`
+ * reaches for it: scaffolding never fetches, because frontend-template already ships
+ * the components a scaffolded app renders.
  */
 export function addItems(items: string[], passthrough: string[] = []): Promise<number> {
   const args = ['dlx', `shadcn@${SHADCN_VERSION}`, 'add', ...qualifyItems(items), ...passthrough]

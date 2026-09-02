@@ -9,9 +9,11 @@ const pullMock = vi.hoisted(() =>
     return { pulled: ['data'], warnings: ['old spec'], failures: [] as string[] }
   }),
 )
+const serviceAddMock = vi.hoisted(() => vi.fn(async () => 0))
 vi.mock('./commands/init', () => ({ init: initMock }))
 vi.mock('./commands/add', () => ({ addItems: addMock }))
 vi.mock('./commands/schema-pull', () => ({ schemaPull: pullMock }))
+vi.mock('./commands/service-add', () => ({ serviceAdd: serviceAddMock }))
 
 let stdout: string[]
 let stderr: string[]
@@ -50,13 +52,12 @@ it('rejects unknown commands with the usage text', async () => {
 
 it('routes init flags through', async () => {
   await expect(
-    main(['init', './my-ui', '--services', 'data,cafm', '--strip-demo', '--yes', '--no-install']),
+    main(['init', './my-ui', '--services', 'data,cafm', '--yes', '--no-install']),
   ).resolves.toBe(0)
   expect(initMock).toHaveBeenCalledWith(
     expect.objectContaining({
       dir: './my-ui',
       services: 'data,cafm',
-      stripDemo: true,
       yes: true,
       install: false,
       git: true,
@@ -66,17 +67,30 @@ it('routes init flags through', async () => {
 
 it('routes add items and passthrough flags, and requires at least one item', async () => {
   await expect(main(['add'])).resolves.toBe(1)
-  await expect(main(['add', 'use-tabs', 'data-table', '--overwrite'])).resolves.toBe(0)
-  expect(addMock).toHaveBeenCalledWith(['use-tabs', 'data-table'], ['--overwrite'])
+  await expect(main(['add', 'pagination-controls', 'data-table', '--overwrite'])).resolves.toBe(0)
+  expect(addMock).toHaveBeenCalledWith(['pagination-controls', 'data-table'], ['--overwrite'])
+})
+
+it('routes service add with comma- or space-separated names and the skip flags', async () => {
+  await expect(main(['service', 'add', 'data,cafm', 'asset', '--no-generate'])).resolves.toBe(0)
+  expect(serviceAddMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      services: ['data', 'cafm', 'asset'],
+      schemas: true,
+      generate: false,
+    }),
+  )
 })
 
 it('routes schema pull, prints warnings, and fails when a pull fails', async () => {
-  await expect(main(['schema', 'pull', 'data', '--dry-run'])).resolves.toBe(0)
+  await expect(main(['schema', 'pull', 'data,cafm', 'data', '--dry-run'])).resolves.toBe(0)
   expect(pullMock).toHaveBeenCalledWith(
-    expect.objectContaining({ services: ['data'], dryRun: true }),
+    // Comma and space both separate; the duplicate "data" collapses.
+    expect.objectContaining({ services: ['data', 'cafm'], dryRun: true, generate: true }),
   )
   expect(stderr.join('')).toContain('old spec')
 
   pullMock.mockResolvedValueOnce({ pulled: [], warnings: [], failures: ['data: fetch failed'] })
-  await expect(main(['schema', 'pull'])).resolves.toBe(1)
+  await expect(main(['schema', 'pull', '--no-generate'])).resolves.toBe(1)
+  expect(pullMock).toHaveBeenLastCalledWith(expect.objectContaining({ generate: false }))
 })

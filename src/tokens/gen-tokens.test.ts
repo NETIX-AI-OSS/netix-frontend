@@ -8,6 +8,7 @@ import * as gen from '../../scripts/gen-tokens.mjs'
 const {
   buildAll,
   buildPresetCjs,
+  buildStyleNamesTs,
   buildStylesCss,
   buildTokensCss,
   buildTokensTs,
@@ -84,8 +85,8 @@ describe('tokens.css', () => {
   it('satisfies the Nova contract markers and bans the legacy ones', () => {
     for (const marker of [
       '--primary: #196796',
-      '--tint:',
-      '--accent: oklch(0.18 0 0)',
+      '--accent: oklch(0.94 0.018 241)',
+      '--primary-2: oklch(0.18 0 0)',
       '--status-success-foreground',
       '--type-display-size',
       "--typeface-body: 'Archivo'",
@@ -95,6 +96,7 @@ describe('tokens.css', () => {
     ])
       expect(css).toContain(marker)
     expect(css).not.toContain('--brand')
+    expect(css).not.toContain('--tint')
     expect(css).not.toContain('Inter')
   })
 
@@ -221,6 +223,51 @@ describe('tokens.ts', () => {
     expect(ts).toContain("    'typeface-body':\n      \"'Archivo'")
     const lines: string[] = ts.split('\n')
     expect(lines.every((line) => line.length <= 100 || !line.includes(': '))).toBe(true)
+  })
+})
+
+describe('style layer', () => {
+  const css = buildTokensCss(src)
+  const vars = buildVarsCss(src)
+
+  it('binds the default style to :root so an app that never sets data-style still gets it', () => {
+    expect(css).toContain(":root,\n[data-style='nova'] {")
+    expect(vars).toContain(":root,\n[data-style='nova'] {")
+  })
+
+  it('emits every other style as an override that lands after the default', () => {
+    expect(css).toContain("[data-style='rhea'] {")
+    expect(css.indexOf("[data-style='rhea']")).toBeGreaterThan(css.indexOf(':root,\n[data-style='))
+    expect(css).toContain('--radius-control: var(--radius-pill);')
+  })
+
+  it('re-points shape aliases only — never the radius scale or the palette', () => {
+    const rest = css.slice(css.indexOf("[data-style='rhea']"))
+    const rhea = rest.slice(0, rest.indexOf('}'))
+    expect(rhea).toContain('--radius-control: var(--radius-pill);')
+    expect(rhea).not.toContain('--radius-lg:')
+    expect(rhea).not.toContain('--primary:')
+  })
+
+  it('declares the shape aliases in @theme so the rounded-* utilities exist', () => {
+    const theme = css.slice(css.indexOf('@theme {'))
+    for (const alias of [
+      '--radius-control:',
+      '--radius-surface:',
+      '--radius-panel:',
+      '--radius-item:',
+    ])
+      expect(theme).toContain(alias)
+  })
+
+  it('gives every style the same token names, so switching can never drop one', () => {
+    const styles = src.styles as Record<string, Record<string, string>>
+    const shapes = Object.values(styles).map((tokens) => Object.keys(tokens).join(','))
+    expect(new Set(shapes).size).toBe(1)
+  })
+
+  it('emits the style names as a const tuple for the theme runtime', () => {
+    expect(buildStyleNamesTs(src)).toContain("export const STYLE_NAMES = ['nova', 'rhea'] as const")
   })
 })
 

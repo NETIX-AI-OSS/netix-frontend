@@ -23,4 +23,4 @@ jobs:
       - run: pnpm build
       - run: pnpm registry:build
       # The committed dist, registry output and generated tokens must match the source exactly.
-      - run: git diff --exit-code -- dist r src/tokens/tokens.ts src/tokens/theme-init-snippet.ts
+      - run: git diff --exit-code -- dist r src/tokens/tokens.ts src/tokens/theme-init-snippet.ts src/tokens/style-names.ts

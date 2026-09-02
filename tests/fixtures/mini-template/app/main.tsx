@@ -1,30 +1,26 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router'
-import { SWRConfig } from 'swr'
-import { ThemeProvider } from '@/components/theme-provider'
-import Layout from '@/components/layout'
-import { LazyRoute } from '@/components/lazy-route'
-import { swrConfig } from '@/client/swr-config'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ThemeProvider } from 'netix-frontend/theme'
+import Layout from '@/components/application/layout'
+import { LazyRoute } from '@/components/application/lazy-route'
+import { queryClient } from '@/client/query-client'
 import '@/assets/styles/globals.css'
+import '@/lib/auth-init'
 import '@/lib/i18n'
 import { initializeOrganizationLocale } from '@/lib/organization-locale'
 import { Toaster } from '@/components/ui/toaster'
-import {
-  DesignSystemPage,
-  HomePage,
-  PermissionsPage,
-  ProfilePage,
-  SecurityPage,
-  SettingsPage,
-  SupportPage,
-} from '@/pages/lazy'
+// Namespaced so adding a page is one <Route> below and one line in pages/lazy.ts —
+// there is no import list to keep in step.
+import * as Pages from '@/pages/lazy'
 
 void initializeOrganizationLocale()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SWRConfig value={swrConfig}>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
           <Routes>
@@ -33,55 +29,49 @@ createRoot(document.getElementById('root')!).render(
                 path="/"
                 element={
                   <LazyRoute>
-                    <HomePage />
+                    <Pages.HomePage />
+                  </LazyRoute>
+                }
+              />
+              <Route path="/workspace" element={<Navigate to="/workspace/access" replace />} />
+              <Route
+                path="/workspace/access"
+                element={
+                  <LazyRoute>
+                    <Pages.AccessPage />
                   </LazyRoute>
                 }
               />
               <Route
-                path="/profile"
+                path="/workspace/access/:group"
                 element={
                   <LazyRoute>
-                    <ProfilePage />
+                    <Pages.AccessGroupPage />
                   </LazyRoute>
                 }
               />
               <Route
-                path="/permissions"
+                path="/workspace/design-system"
                 element={
                   <LazyRoute>
-                    <PermissionsPage />
+                    <Pages.DesignSystemPage />
                   </LazyRoute>
                 }
               />
               <Route
-                path="/security"
+                path="/workspace/demo"
                 element={
                   <LazyRoute>
-                    <SecurityPage />
+                    <Pages.DemoPage />
                   </LazyRoute>
                 }
               />
+              {/* netix-routes:insert */}
               <Route
-                path="/foundations/design-system"
+                path="*"
                 element={
                   <LazyRoute>
-                    <DesignSystemPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="/support"
-                element={
-                  <LazyRoute>
-                    <SupportPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <LazyRoute>
-                    <SettingsPage />
+                    <Pages.NotFoundPage />
                   </LazyRoute>
                 }
               />
@@ -90,6 +80,7 @@ createRoot(document.getElementById('root')!).render(
           <Toaster position="bottom-right" />
         </BrowserRouter>
       </ThemeProvider>
-    </SWRConfig>
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
   </StrictMode>,
 )

@@ -5,6 +5,7 @@ import {
   noticeColor,
   STATUS_NAMES,
   statusColor,
+  STYLE_NAMES,
   token,
   tokens,
 } from './index'
@@ -35,6 +36,11 @@ it('carries every non-colour scale', () => {
 it('defaults to light and reads dark on request', () => {
   expect(token('foreground')).toBe(tokens.light.foreground)
   expect(token('foreground', 'dark')).toBe(tokens.dark.foreground)
+})
+
+it('lists the design styles the token layer ships, default first', () => {
+  expect(STYLE_NAMES[0]).toBe('nova')
+  expect(STYLE_NAMES).toContain('rhea')
 })
 
 it('names the custom property', () => {

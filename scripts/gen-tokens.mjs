@@ -85,6 +85,31 @@ const modeBody = (src, mode, withRadius = false) => {
   return lines
 }
 
+/** Style names in declaration order; the first is the default the app falls back to. */
+export const styleNames = (src) => Object.keys(src.styles)
+
+const defaultStyleTokens = (src) => src.styles[styleNames(src)[0]]
+
+/**
+ * One block per design style. The first style also answers to a bare `:root`, so an app that
+ * never sets `data-style` still gets it, and a nested `[data-style]` can switch back to it.
+ * These blocks are unlayered on purpose: they must beat the `@layer theme` defaults Tailwind
+ * emits for the same custom properties.
+ */
+const styleBlocks = (src) =>
+  Object.entries(src.styles).map(([name, tokens], index) =>
+    block(
+      index ? `[data-style='${name}']` : `:root,\n[data-style='${name}']`,
+      Object.entries(tokens).map(([token, value]) => decl(token, value)),
+    ),
+  )
+
+/** The default style's radius aliases, so `rounded-control` and friends exist as utilities. */
+const styleRadiusDecls = (src) =>
+  Object.entries(defaultStyleTokens(src))
+    .filter(([name]) => name.startsWith('radius-'))
+    .map(([name, value]) => decl(name, value))
+
 const densityBlocks = (src) =>
   Object.entries(src.density).map(([name, tokens]) =>
     block(
@@ -149,6 +174,9 @@ const themeBlocks = (src) => {
       decl('radius-2xl', 'calc(var(--radius) * 1.8)'),
       decl('radius-3xl', 'calc(var(--radius) * 2.2)'),
       decl('radius-4xl', 'calc(var(--radius) * 2.6)'),
+      '',
+      '  /* Shape aliases the style layer re-points; values here are the default style. */',
+      ...styleRadiusDecls(src),
     ]),
   ]
 }
@@ -170,6 +198,8 @@ export function buildTokensCss(src) {
     block(':root', modeBody(src, 'light')),
     '',
     block('.dark', modeBody(src, 'dark')),
+    '',
+    ...styleBlocks(src),
     '',
     ...densityBlocks(src),
     '',
@@ -273,6 +303,8 @@ export function buildVarsCss(src) {
     '',
     block(".dark,\n[data-theme='dark']", ['  color-scheme: dark;', '', ...dark]),
     '',
+    ...styleBlocks(src),
+    '',
     ...densityBlocks(src),
     '',
     REDUCED_MOTION,
@@ -343,6 +375,14 @@ export function buildTokensTs(src) {
   return `// ${BANNER}\n\nexport const tokens = {\n${modes.join('\n')}\n} as const\n`
 }
 
+/** The style names as a const tuple, so the theme runtime's Style type follows the tokens. */
+export function buildStyleNamesTs(src) {
+  const names = styleNames(src)
+    .map((name) => `'${name}'`)
+    .join(', ')
+  return `// ${BANNER}\n\nexport const STYLE_NAMES = [${names}] as const\n`
+}
+
 /** Single-file apps inline this instead of copying theme-init.js into public/. */
 export function buildThemeInitSnippet(root = ROOT) {
   const source = readFileSync(join(root, 'src/tokens/theme-init.js'), 'utf8')
@@ -360,6 +400,7 @@ export function buildAll(src, root = ROOT) {
     'dist/tokens/preset.cjs': buildPresetCjs(src),
     'dist/tokens/theme-init.js': readFileSync(join(root, 'src/tokens/theme-init.js'), 'utf8'),
     'src/tokens/tokens.ts': buildTokensTs(src),
+    'src/tokens/style-names.ts': buildStyleNamesTs(src),
     'src/tokens/theme-init-snippet.ts': buildThemeInitSnippet(root),
   }
 }

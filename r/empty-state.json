@@ -8,9 +8,10 @@
   ],
   "files": [
     {
-      "path": "registry/netix/components/empty-state.tsx",
+      "path": "registry/netix/components/empty-state/index.tsx",
       "content": "import { FolderOpen } from 'lucide-react'\n\nimport { cn } from '@/lib/utils'\n\nexport type EmptyStateProps = {\n  text?: string\n  icon?: React.ReactNode\n  className?: string\n}\n\nexport function EmptyState({ text = 'No data found', icon, className }: EmptyStateProps) {\n  return (\n    <div\n      className={cn(\n        'mt-32 flex items-center justify-center gap-2 text-secondary-foreground',\n        className,\n      )}\n    >\n      {icon ?? <FolderOpen />}\n      <span className=\"text-lg\">{text}</span>\n    </div>\n  )\n}\n",
-      "type": "registry:component"
+      "type": "registry:component",
+      "target": "@/components/composites/empty-state/index.tsx"
     }
   ],
   "type": "registry:component"

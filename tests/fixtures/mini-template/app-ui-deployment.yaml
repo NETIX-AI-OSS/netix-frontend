@@ -31,12 +31,7 @@ spec:
       imagePullSecrets:
       - name: regcred
       containers:
-        - env:
-            - name: GENERATE_SOURCEMAP
-              value: "false"
-            - name: WDS_SOCKET_PORT
-              value: "0"
-          image: asia-south2-docker.pkg.dev/stage-4t5/platform/app-ui:latest
+        - image: asia-south2-docker.pkg.dev/stage-4t5/platform/app-ui:latest
           imagePullPolicy: Always
           name: app-ui
           ports:

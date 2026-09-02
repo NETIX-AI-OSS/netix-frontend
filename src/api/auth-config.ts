@@ -2,6 +2,11 @@
  * The canonical envoy-ts-auth configuration every NETIX app shares. Seven apps used to carry
  * hand-maintained copies of these constants; this module is the single source of truth.
  *
+ * Everything derives from the one deploy input, the base domain: universal-login is served at
+ * the domain root, the launchpad at `launchpad.<domain>`, and the session cookie is scoped to
+ * the bare domain so every `<app>.<domain>` shares it. Local dev keeps the same shape scoped
+ * to localhost, with auth riding the app's `/user-api` dev proxy against real staging.
+ *
  * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
  * stays safe for CJS/react-native builds and deterministic under test.
  */
@@ -12,30 +17,30 @@ export const VERIFY_ENDPOINT = '/auth/token/verify/'
 
 export const COOKIE_TOKEN_TTL = '300'
 export const COOKIE_REFRESH_TTL = '172800'
+/**
+ * True even on http://localhost: envoy-ts-auth stamps every cookie `SameSite=None`, which
+ * browsers only accept together with `Secure`. Chrome and Firefox treat localhost as a secure
+ * context so the pair works in dev; Safari does not and silently drops the cookie — local
+ * development is Chrome/Firefox.
+ */
 export const COOKIE_SECURE = true
 
-/** Where the auth service listens in local development. */
-export const DEV_AUTH_BASE_URL = 'http://localhost:8001'
-
-/** The app's env-derived inputs, usually straight from `import.meta.env.VITE_*`. */
-export type AuthConfigEnv = {
-  loginPageUrl?: string
-  authBaseUrl?: string
-  cookieDomain?: string
-  launchpadPageUrl?: string
-  baseDomain?: string
-}
-
 export type BuildAuthConfigOptions = {
-  /** `import.meta.env.VITE_DEV_MODE === 'true'` in the donor apps. */
-  devMode?: boolean
-  /** `window.location.origin`; the dev fallback for the login and launchpad pages. */
-  origin?: string
-  /** `window.location.hostname`; the dev fallback for the base domain. */
+  /** The one deploy input every URL derives from (`ENV.baseDomain`). */
+  baseDomain: string
+  /**
+   * `ENV.authBaseUrl` — the same-origin `/user-api` dev-proxy prefix under `vite dev` (real
+   * staging auth, no CORS), `https://user.api.<domain>` in a build.
+   */
+  authBaseUrl: string
+  /** `ENV.isDev`: scopes the cookie and the redirect allowlist to localhost. */
+  dev?: boolean
+  /** `window.location.hostname` — the deployed app's own domain, for the redirect allowlist. */
   hostname?: string
-  /** Override for non-standard local auth ports. */
-  devAuthBaseUrl?: string
-  env?: AuthConfigEnv
+  /** Local dev: open the dev sign-in prompt instead of navigating to universal-login. */
+  onLogout?: () => void
+  /** Local dev: suppress the post-login launchpad redirect (the prompt handles success). */
+  onLogin?: () => void
 }
 
 export type AuthConfig = {
@@ -51,28 +56,34 @@ export type AuthConfig = {
   TOKEN_ENDPOINT: string
   REFRESH_ENDPOINT: string
   VERIFY_ENDPOINT: string
+  ON_LOGIN?: () => void
+  ON_LOGOUT?: () => void
 }
 
-/** The AUTH_CONFIG object envoy-ts-auth expects, with the fleet's dev-mode switches applied. */
+/** The AUTH_CONFIG object envoy-ts-auth expects, fully derived from the base domain. */
 export function buildAuthConfig({
-  devMode = false,
-  origin = '',
+  baseDomain,
+  authBaseUrl,
+  dev = false,
   hostname = '',
-  devAuthBaseUrl = DEV_AUTH_BASE_URL,
-  env = {},
-}: BuildAuthConfigOptions = {}): AuthConfig {
+  onLogin,
+  onLogout,
+}: BuildAuthConfigOptions): AuthConfig {
   return {
     COOKIE_TOKEN_TTL,
     COOKIE_REFRESH_TTL,
     COOKIE_SECURE,
-    COOKIE_DOMAIN: devMode ? 'localhost' : (env.cookieDomain ?? ''),
-    LOGIN_PAGE_URL: devMode ? origin : (env.loginPageUrl ?? ''),
-    AUTH_BASE_URL: devMode ? devAuthBaseUrl : (env.authBaseUrl ?? ''),
-    LAUNCHPAD_PAGE_URL: devMode ? origin : (env.launchpadPageUrl ?? ''),
-    BASE_DOMAIN: devMode ? hostname : (env.baseDomain ?? ''),
-    CURRENT_APP_DOMAIN: hostname,
+    // The bare domain covers every subdomain (RFC 6265), which is what shares the session.
+    COOKIE_DOMAIN: dev ? 'localhost' : baseDomain,
+    LOGIN_PAGE_URL: `https://${baseDomain}/`,
+    AUTH_BASE_URL: authBaseUrl,
+    LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
+    BASE_DOMAIN: dev ? 'localhost' : baseDomain,
+    CURRENT_APP_DOMAIN: dev ? 'localhost' : hostname,
     TOKEN_ENDPOINT,
     REFRESH_ENDPOINT,
     VERIFY_ENDPOINT,
+    ON_LOGIN: onLogin,
+    ON_LOGOUT: onLogout,
   }
 }
