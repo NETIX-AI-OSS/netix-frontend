@@ -8,6 +8,8 @@ import * as gen from '../../scripts/gen-tokens.mjs'
 const {
   buildAll,
   buildPresetCjs,
+  buildStyleNamesTs,
+  buildStylesCss,
   buildTokensCss,
   buildTokensTs,
   buildVarsCss,
@@ -28,6 +30,11 @@ const makeRoot = () => {
   cpSync(join(ROOT, 'tokens'), join(root, 'tokens'), { recursive: true })
   mkdirSync(join(root, 'src/tokens'), { recursive: true })
   cpSync(join(ROOT, 'src/tokens/theme-init.js'), join(root, 'src/tokens/theme-init.js'))
+  mkdirSync(join(root, 'node_modules/shadcn/dist'), { recursive: true })
+  cpSync(
+    join(ROOT, 'node_modules/shadcn/dist/tailwind.css'),
+    join(root, 'node_modules/shadcn/dist/tailwind.css'),
+  )
   return root
 }
 
@@ -35,10 +42,11 @@ describe('flatten', () => {
   it('picks the requested mode and appends the radius scale', () => {
     const light = Object.fromEntries(flatten(src, 'light'))
     const dark = Object.fromEntries(flatten(src, 'dark'))
-    expect(light['brand-600']).toBe('#196796')
-    expect(dark['brand-600']).toBe('#4ba3d8')
+    expect(light['primary']).toBe('#196796')
+    expect(dark['primary']).toBe('#196796')
+    expect(light['background']).not.toBe(dark['background'])
     expect(light['cat-1']).toBe(dark['cat-1'])
-    expect(light['radius-lg']).toBe('10px')
+    expect(light['radius-lg']).toBe('0.625rem')
   })
 })
 
@@ -70,28 +78,82 @@ describe('tokens.css', () => {
   it('declares the dark variant, the fonts and both theme blocks', () => {
     expect(css).toContain('@custom-variant dark (&:is(.dark *));')
     expect(css).toContain("src: url('../fonts/archivo-700.woff2') format('woff2');")
-    expect(css).toMatch(/:root \{[\s\S]*--brand-600: #196796;/)
-    expect(css).toMatch(/\.dark \{[\s\S]*--brand-600: #4ba3d8;/)
+    expect(css).toMatch(/:root \{[\s\S]*--primary: #196796;/)
+    expect(css).toMatch(/\.dark \{[\s\S]*--background: oklch\(0\.17 0 0\);/)
+  })
+
+  it('satisfies the Nova contract markers and bans the legacy ones', () => {
+    for (const marker of [
+      '--primary: #196796',
+      '--accent: oklch(0.94 0.018 241)',
+      '--primary-2: oklch(0.18 0 0)',
+      '--status-success-foreground',
+      '--type-display-size',
+      "--typeface-body: 'Archivo'",
+      '--space-12',
+      '--chart-categorical-5',
+      '--chart-diverging-positive',
+    ])
+      expect(css).toContain(marker)
+    expect(css).not.toContain('--brand')
+    expect(css).not.toContain('--tint')
+    expect(css).not.toContain('Inter')
   })
 
   it('keeps mode-invariant tokens out of the dark block', () => {
-    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('[data-density'))
+    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('@theme inline'))
     expect(dark).not.toContain('--cat-1:')
     expect(dark).not.toContain('--space-4:')
+    expect(dark).not.toContain('--primary:')
   })
 
-  it('maps every Tailwind colour and the radius scale', () => {
+  it('maps every Tailwind colour, the fonts and the radius scale', () => {
     expect(css).toContain('--color-primary: var(--primary);')
     expect(css).toContain('--color-notice-advisory-surface: var(--notice-advisory-surface);')
-    expect(css).toMatch(/@theme \{\n {2}--radius-sm: 6px;/)
+    expect(css).toContain('--font-sans: var(--typeface-body);')
+    expect(css).toContain('--font-heading: var(--typeface-display);')
+    expect(css).toMatch(/@theme \{\n {2}--radius: 0\.625rem;/)
+    expect(css).toContain('--radius-2xl: calc(var(--radius) * 1.8);')
     expect(css).toContain(
       '--animate-shimmer: shimmer var(--shimmer-duration, 1.5s) linear infinite;',
     )
   })
 
-  it('ships the density switch and the reduced-motion guard', () => {
-    expect(css).toContain("[data-density='compact'] {")
+  it('ships the focus ring, the reduced-motion guard and no density blocks', () => {
+    expect(css).toContain('outline: 2px solid var(--ring);')
     expect(css).toContain('@media (prefers-reduced-motion: reduce) {')
+    expect(css).not.toContain('[data-density')
+    expect(css).not.toContain('\n\n\n')
+  })
+})
+
+describe('styles.css', () => {
+  const css = buildStylesCss()
+
+  it('imports Tailwind, the token layer and the vendored shadcn sheet in order', () => {
+    const tailwind = css.indexOf("@import 'tailwindcss';")
+    const tokens = css.indexOf("@import './tokens/tokens.css';")
+    const shadcn = css.indexOf("@import './shadcn-tailwind.css';")
+    expect(tailwind).toBeGreaterThan(-1)
+    expect(tokens).toBeGreaterThan(tailwind)
+    expect(shadcn).toBeGreaterThan(tokens)
+  })
+
+  it('vendors the enter/exit animation utilities the base-nova components use', () => {
+    for (const utility of [
+      '@utility animate-in',
+      '@utility animate-out',
+      '@utility fade-in-0',
+      '@utility zoom-out-95',
+      '@utility slide-in-from-right-2',
+    ])
+      expect(css).toContain(utility)
+  })
+
+  it('carries the app-shell base layer', () => {
+    expect(css).toContain('border-color: var(--border);')
+    expect(css).toContain('#root {')
+    expect(css).toContain("[data-slot='select-trigger']:focus-visible")
   })
 })
 
@@ -134,13 +196,15 @@ describe('preset.cjs', () => {
     const { darkMode, theme } = preset()
     expect(darkMode).toEqual(['class'])
     expect(theme.extend.borderRadius).toMatchObject({ lg: 'var(--radius-lg)' })
-    expect(theme.extend.borderWidth).toMatchObject({ 'form-input': 'var(--border-form-input)' })
-    expect(theme.extend.boxShadow).toMatchObject({ focus: 'var(--focus-ring)' })
-    expect(theme.extend.fontFamily).toMatchObject({ archivo: 'var(--font-family)' })
-    expect(theme.extend.animation).toMatchObject({ 'accordion-up': 'accordion-up 0.2s ease-out' })
+    expect(theme.extend.boxShadow).toMatchObject({ popover: 'var(--shadow-popover)' })
+    expect(theme.extend.fontFamily).toMatchObject({ sans: 'var(--typeface-body)' })
+    expect(theme.extend.animation).toMatchObject({
+      shimmer: 'shimmer var(--shimmer-duration, 1.5s) linear infinite',
+    })
     expect(theme.extend.keyframes).toMatchObject({
       shimmer: { '100%': { 'background-position': '-200% 0' } },
     })
+    expect(theme.extend.borderWidth).toBeUndefined()
   })
 })
 
@@ -150,15 +214,60 @@ describe('tokens.ts', () => {
   it('emits resolved literals under both modes', () => {
     expect(ts).toContain('export const tokens = {')
     expect(ts).toContain("    primary: '#196796',")
-    expect(ts).toContain("    primary: '#4ba3d8',")
+    expect(ts).toContain("    background: 'oklch(0.17 0 0)',")
     expect(ts).toContain('} as const')
   })
 
   it('matches prettier: dashed keys quoted, apostrophes double-quoted, wide values wrapped', () => {
-    expect(ts).toContain("    'brand-600': '#196796',")
-    expect(ts).toContain("    'font-mono':\n      \"'JetBrains Mono'")
+    expect(ts).toContain("    'chart-categorical-5':")
+    expect(ts).toContain("    'typeface-body':\n      \"'Archivo'")
     const lines: string[] = ts.split('\n')
     expect(lines.every((line) => line.length <= 100 || !line.includes(': '))).toBe(true)
+  })
+})
+
+describe('style layer', () => {
+  const css = buildTokensCss(src)
+  const vars = buildVarsCss(src)
+
+  it('binds the default style to :root so an app that never sets data-style still gets it', () => {
+    expect(css).toContain(":root,\n[data-style='nova'] {")
+    expect(vars).toContain(":root,\n[data-style='nova'] {")
+  })
+
+  it('emits every other style as an override that lands after the default', () => {
+    expect(css).toContain("[data-style='rhea'] {")
+    expect(css.indexOf("[data-style='rhea']")).toBeGreaterThan(css.indexOf(':root,\n[data-style='))
+    expect(css).toContain('--radius-control: var(--radius-pill);')
+  })
+
+  it('re-points shape aliases only — never the radius scale or the palette', () => {
+    const rest = css.slice(css.indexOf("[data-style='rhea']"))
+    const rhea = rest.slice(0, rest.indexOf('}'))
+    expect(rhea).toContain('--radius-control: var(--radius-pill);')
+    expect(rhea).not.toContain('--radius-lg:')
+    expect(rhea).not.toContain('--primary:')
+  })
+
+  it('declares the shape aliases in @theme so the rounded-* utilities exist', () => {
+    const theme = css.slice(css.indexOf('@theme {'))
+    for (const alias of [
+      '--radius-control:',
+      '--radius-surface:',
+      '--radius-panel:',
+      '--radius-item:',
+    ])
+      expect(theme).toContain(alias)
+  })
+
+  it('gives every style the same token names, so switching can never drop one', () => {
+    const styles = src.styles as Record<string, Record<string, string>>
+    const shapes = Object.values(styles).map((tokens) => Object.keys(tokens).join(','))
+    expect(new Set(shapes).size).toBe(1)
+  })
+
+  it('emits the style names as a const tuple for the theme runtime', () => {
+    expect(buildStyleNamesTs(src)).toContain("export const STYLE_NAMES = ['nova', 'rhea'] as const")
   })
 })
 
@@ -177,14 +286,18 @@ describe('write and check', () => {
       ...Object.keys(buildAll(src, root)),
       ...fonts,
       'dist/fonts/OFL.txt',
+      'dist/shadcn-tailwind.css',
     ])
   })
 
-  it('writes every artifact and the fonts, then reports no drift', () => {
+  it('writes every artifact and the copies, then reports no drift', () => {
     write(root, src)
     expect(check(root, src)).toEqual([])
     expect(readFileSync(join(root, 'dist/tokens/theme-init.js'), 'utf8')).toContain('netix-theme')
     expect(readFileSync(join(root, 'dist/fonts/archivo-400.woff2')).byteLength).toBeGreaterThan(0)
+    expect(readFileSync(join(root, 'dist/shadcn-tailwind.css'), 'utf8')).toContain(
+      '@custom-variant data-open',
+    )
   })
 
   it('detects an edited artifact', () => {

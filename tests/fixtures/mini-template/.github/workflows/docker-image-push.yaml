@@ -1,0 +1,36 @@
+name: Docker Image Build & Push
+
+on: workflow_dispatch
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+permissions:
+  contents: read
+jobs:
+
+  build-push:
+
+    runs-on: deploy-stg
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+        name: Checking out code
+
+      - name: Build the Docker image
+        run: DOCKER_BUILDKIT=1 docker compose build app-ui-deploy
+
+      - name: Push the Docker image
+        run: docker compose push app-ui-deploy
+
+      - name: Deploy app ui (apply Deployment + Service)
+        run: kubectl apply -f app-ui-deployment.yaml
+
+      - name: Roll app-ui deployment to pull fresh image
+        run: kubectl rollout restart deployment/app-ui -n frontend
+
+      - name: Wait for app-ui rollout to complete
+        run: kubectl rollout status deployment/app-ui -n frontend --timeout=180s

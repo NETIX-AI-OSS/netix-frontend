@@ -1,25 +1,20 @@
 import { tokens } from './tokens'
 
+export { STYLE_NAMES } from './style-names'
 export { themeInitSnippet } from './theme-init-snippet'
 export { tokens }
+
+/** The design styles the token layer ships — the shape axis, orthogonal to light/dark. */
+export type StyleName = (typeof import('./style-names'))['STYLE_NAMES'][number]
 
 export type ThemeMode = keyof typeof tokens
 export type TokenName = keyof (typeof tokens)['light']
 
-export const STATUS_NAMES = [
-  'ok',
-  'warning',
-  'critical',
-  'info',
-  'neutral',
-  'offline',
-  'stale',
-  'nodata',
-] as const
+export const STATUS_NAMES = ['success', 'warning', 'danger', 'info', 'neutral'] as const
 export type StatusName = (typeof STATUS_NAMES)[number]
 
-/** base = the ink/graph colour, fill = solid backgrounds, tint = subtle surfaces. */
-export type StatusSlot = 'base' | 'fill' | 'on' | 'tint' | 'on-tint'
+/** base = the ink/graph colour, foreground = text ink, surface/border = subtle containers. */
+export type StatusSlot = 'base' | 'foreground' | 'surface' | 'border'
 
 export const NOTICE_SEVERITIES = ['advisory', 'attention', 'critical'] as const
 export type NoticeSeverity = (typeof NOTICE_SEVERITIES)[number]

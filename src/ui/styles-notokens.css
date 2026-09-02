@@ -1,3 +1,0 @@
-/* Component classes only — for apps that already import tokens.css themselves. */
-@import './ui-source.css';
-@import '../../dist/tokens/theme-only.css';

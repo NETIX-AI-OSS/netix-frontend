@@ -3,20 +3,24 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-sans: var(--typeface-body);
+  --font-heading: var(--typeface-display);
+  --font-display: var(--typeface-display);
+  --font-mono: var(--typeface-mono);
   --font-arabic: var(--font-arabic);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-foreground-light: var(--foreground-light);
-  --color-foreground-dark: var(--foreground-dark);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-subtle: var(--primary-subtle);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary-light: var(--primary-light);
+  --color-primary-2: var(--primary-2);
+  --color-primary-2-foreground: var(--primary-2-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -25,27 +29,67 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-icon: var(--icon);
-  --color-brand-100: var(--brand-100);
-  --color-brand-500: var(--brand-500);
-  --color-brand-600: var(--brand-600);
-  --color-brand-700: var(--brand-700);
-  --color-ml-accent: var(--ml-accent);
-  --color-status-warn: var(--status-warn);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
   --color-status-success: var(--status-success);
-  --color-status-muted: var(--status-muted);
-  --color-status-error: var(--status-error);
-  --color-status-ok: var(--status-ok);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-success-surface: var(--status-success-surface);
+  --color-status-success-border: var(--status-success-border);
   --color-status-warning: var(--status-warning);
-  --color-status-critical: var(--status-critical);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-warning-surface: var(--status-warning-surface);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-foreground: var(--status-danger-foreground);
+  --color-status-danger-surface: var(--status-danger-surface);
+  --color-status-danger-border: var(--status-danger-border);
   --color-status-info: var(--status-info);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-info-surface: var(--status-info-surface);
+  --color-status-info-border: var(--status-info-border);
   --color-status-neutral: var(--status-neutral);
-  --color-status-offline: var(--status-offline);
-  --color-status-stale: var(--status-stale);
-  --color-status-nodata: var(--status-nodata);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+  --color-status-neutral-surface: var(--status-neutral-surface);
+  --color-status-neutral-border: var(--status-neutral-border);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-categorical-1: var(--chart-categorical-1);
+  --color-chart-categorical-2: var(--chart-categorical-2);
+  --color-chart-categorical-3: var(--chart-categorical-3);
+  --color-chart-categorical-4: var(--chart-categorical-4);
+  --color-chart-categorical-5: var(--chart-categorical-5);
+  --color-chart-sequential-1: var(--chart-sequential-1);
+  --color-chart-sequential-2: var(--chart-sequential-2);
+  --color-chart-sequential-3: var(--chart-sequential-3);
+  --color-chart-sequential-4: var(--chart-sequential-4);
+  --color-chart-sequential-5: var(--chart-sequential-5);
+  --color-chart-diverging-negative: var(--chart-diverging-negative);
+  --color-chart-diverging-neutral: var(--chart-diverging-neutral);
+  --color-chart-diverging-positive: var(--chart-diverging-positive);
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+  --color-cat-6: var(--cat-6);
+  --color-cat-7: var(--cat-7);
+  --color-cat-8: var(--cat-8);
+  --color-cat-9: var(--cat-9);
+  --color-cat-10: var(--cat-10);
   --color-notice-advisory: var(--notice-advisory);
   --color-notice-advisory-surface: var(--notice-advisory-surface);
   --color-notice-advisory-border: var(--notice-advisory-border);
@@ -57,44 +101,12 @@
   --color-notice-critical-border: var(--notice-critical-border);
   --color-skeleton-base: var(--skeleton-base);
   --color-skeleton-highlight: var(--skeleton-highlight);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --shadow-elev-1: var(--elev-1);
-  --shadow-elev-2: var(--elev-2);
-  --shadow-elev-3: var(--elev-3);
-  --shadow-focus: var(--focus-ring);
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --color-phase-r: var(--phase-r);
+  --color-phase-y: var(--phase-y);
+  --color-phase-b: var(--phase-b);
+  --color-phase-n: var(--phase-n);
+  --shadow-popover: var(--shadow-popover);
   --animate-shimmer: shimmer var(--shimmer-duration, 1.5s) linear infinite;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
 
   @keyframes shimmer {
     0% {
@@ -108,10 +120,24 @@
 
 /* Non-inline @theme: declares the radius vars and wires rounded-* to them. */
 @theme {
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --radius-card: 20px;
+  --radius: 0.625rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
   --radius-pill: 999px;
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Shape aliases the style layer re-points; values here are the default style. */
+  --radius-control: var(--radius-lg);
+  --radius-control-sm: min(var(--radius-md), 12px);
+  --radius-control-xs: min(var(--radius-md), 10px);
+  --radius-field: var(--radius-lg);
+  --radius-surface: var(--radius-lg);
+  --radius-panel: var(--radius-xl);
+  --radius-item: var(--radius-md);
+  --radius-item-sm: var(--radius-sm);
+  --radius-indicator: 4px;
 }

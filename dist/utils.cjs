@@ -3313,19 +3313,6 @@ function getEnumOptions(obj, getLabel, options) {
   }));
 }
 
-// src/utils/colors.ts
-var STATUS_COLORS = {
-  PURPLE: "#C26EE9",
-  PINK: "#EE5FAB",
-  YELLOW: "#E3CC00",
-  ORANGE: "#F19100",
-  GREEN: "#04CD25",
-  DARK_GREEN: "#109121",
-  GRAY: "#C6C6C6",
-  RED: "#FF3636",
-  BLUE: "#6CA6FE"
-};
-
 // src/utils/date/kernel.ts
 var MONTH_NAMES = [
   "January",
@@ -3442,6 +3429,23 @@ var endOfMonth = (value) => {
   date.setHours(23, 59, 59, 999);
   return date;
 };
+var startOfDay = (value) => {
+  const date = toDate(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+var endOfDay = (value) => {
+  const date = toDate(value);
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+var startOfHour = (value) => {
+  const date = toDate(value);
+  date.setMinutes(0, 0, 0);
+  return date;
+};
+var subHours = (value, amount) => new Date(toDate(value).getTime() - amount * MS_HOUR);
+var subDays = (value, amount) => addDays(value, -amount);
 var differenceInMilliseconds = (a, b) => toDate(a).getTime() - toDate(b).getTime();
 var isBefore = (a, b) => toDate(a).getTime() < toDate(b).getTime();
 function differenceInMonths(end, start) {
@@ -3687,7 +3691,6 @@ exports.GMT_FORMAT = GMT_FORMAT;
 exports.MONTH_OPTIONS = MONTH_OPTIONS;
 exports.STANDARD_TIME_FORMAT = STANDARD_TIME_FORMAT;
 exports.STANDARD_TIME_FORMAT_WITHOUT_SECONDS = STANDARD_TIME_FORMAT_WITHOUT_SECONDS;
-exports.STATUS_COLORS = STATUS_COLORS;
 exports.TIMEZONE = TIMEZONE;
 exports.TIME_FORMAT = TIME_FORMAT;
 exports.UPPERCASE_DATE_FORMAT = UPPERCASE_DATE_FORMAT;
@@ -3701,6 +3704,7 @@ exports.cn = cn;
 exports.commaSeparatedToArray = commaSeparatedToArray;
 exports.configureDates = configureDates;
 exports.emailValidator = emailValidator;
+exports.endOfDay = endOfDay;
 exports.filterIntersection = filterIntersection;
 exports.format = format;
 exports.formatCurrency = formatCurrency;
@@ -3737,4 +3741,9 @@ exports.normalizeClockString = normalizeClockString;
 exports.parseLocalDate = parseLocalDate;
 exports.removeDuplicates = removeDuplicates;
 exports.removeEmptyAttributes = removeEmptyAttributes;
+exports.startOfDay = startOfDay;
+exports.startOfHour = startOfHour;
+exports.startOfMonth = startOfMonth;
+exports.subDays = subDays;
+exports.subHours = subHours;
 exports.timeDifference = timeDifference;

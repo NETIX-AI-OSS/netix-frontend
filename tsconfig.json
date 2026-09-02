@@ -11,7 +11,19 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "paths": {
+      "@/components/ui/*": ["./registry/netix/ui/*"],
+      "@/lib/utils": ["./registry/_fixtures/lib/utils"],
+      "netix-frontend/auth": ["./src/auth/index.ts"],
+      "netix-frontend/hooks": ["./src/hooks/index.ts"],
+      "netix-frontend/api": ["./src/api/index.ts"],
+      "netix-frontend/i18n": ["./src/i18n/index.ts"],
+      "netix-frontend/theme": ["./src/theme/index.ts"],
+      "netix-frontend/tokens": ["./src/tokens/index.ts"],
+      "netix-frontend/utils": ["./src/utils/index.ts"]
+    }
   },
-  "include": ["src", "scripts", "presets", "*.ts"]
+  "include": ["src", "scripts", "presets", "registry", "*.ts"],
+  "exclude": ["registry/netix/blocks"]
 }

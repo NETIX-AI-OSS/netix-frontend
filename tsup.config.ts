@@ -1,19 +1,4 @@
-import { readdirSync } from 'node:fs'
-
 import { defineConfig } from 'tsup'
-
-// Per-component entries so an app importing one component never resolves another's peers.
-const uiEntries = () => {
-  const entries: Record<string, string> = {}
-  for (const dir of ['primitives', 'composites'])
-    for (const file of readdirSync(`src/ui/${dir}`)) {
-      if (!file.endsWith('.tsx') || file.includes('.test.')) continue
-      const name = file.replace(/\.tsx$/, '')
-      if (entries[`ui/${name}`]) throw new Error(`ui module name collision: ${name}`)
-      entries[`ui/${name}`] = `src/ui/${dir}/${file}`
-    }
-  return entries
-}
 
 // Peers stay external; tiny class utilities are bundled so cn() behaves identically everywhere.
 const external = [
@@ -25,16 +10,7 @@ const external = [
   'react-i18next',
   'envoy-ts-auth',
   '@tanstack/react-query',
-  '@tanstack/react-table',
-  '@tanstack/react-table/legacy',
   'swr',
-  'react-router',
-  'react-hook-form',
-  'sonner',
-  'lucide-react',
-  'recharts',
-  'react-day-picker',
-  /^@radix-ui\//,
 ]
 const noExternal = ['clsx', 'tailwind-merge', 'class-variance-authority']
 const shared = { dts: true, treeshake: true, sourcemap: false, clean: false, external, noExternal }
@@ -43,6 +19,7 @@ export default defineConfig([
   {
     entry: {
       api: 'src/api/index.ts',
+      auth: 'src/auth/index.ts',
       hooks: 'src/hooks/index.ts',
       utils: 'src/utils/index.ts',
       i18n: 'src/i18n/index.ts',
@@ -52,12 +29,33 @@ export default defineConfig([
     ...shared,
   },
   {
+    // The netix CLI: a self-contained node bin; prompt deps are bundled so the
+    // package keeps zero runtime dependencies.
+    entry: { 'cli/index': 'src/cli/index.ts' },
+    format: ['esm'],
+    platform: 'node',
+    target: 'node22',
+    // `yaml` resolves to a CJS build under the `node` condition, and esbuild's
+    // interop shim throws "Dynamic require ... is not supported" in an ESM bundle
+    // unless a real `require` is in scope. Give it one — the bundle must stay a
+    // single self-contained file with zero runtime dependencies.
+    banner: {
+      js: [
+        '#!/usr/bin/env node',
+        "import { createRequire as __netixCreateRequire } from 'node:module'",
+        'const require = __netixCreateRequire(import.meta.url)',
+      ].join('\n'),
+    },
+    dts: false,
+    treeshake: true,
+    sourcemap: false,
+    clean: false,
+    noExternal: ['@clack/prompts', 'picocolors', 'yaml'],
+  },
+  {
     entry: {
       'utils/dom': 'src/utils/dom/index.ts',
-      'hooks/router': 'src/hooks/router.ts',
-      ui: 'src/ui/index.ts',
-      'ui/theme': 'src/ui/theme/index.ts',
-      ...uiEntries(),
+      theme: 'src/theme/index.ts',
     },
     format: ['esm'],
     splitting: true,

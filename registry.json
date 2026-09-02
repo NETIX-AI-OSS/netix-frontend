@@ -1,0 +1,280 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "netix",
+  "homepage": "https://github.com/NETIX-AI-OSS/netix-frontend",
+  "items": [
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "NETIX base-nova badge (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "NETIX base-nova button (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "NETIX base-nova dialog (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "NETIX base-nova field (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "NETIX base-nova input (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "NETIX base-nova label (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "NETIX base-nova popover (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "NETIX base-nova select (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "NETIX base-nova separator (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "NETIX base-nova skeleton (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "files": [
+        {
+          "path": "registry/netix/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "NETIX base-nova table primitive mirrored from frontend-template.",
+      "files": [
+        {
+          "path": "registry/netix/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "loading-state",
+      "type": "registry:component",
+      "title": "LoadingState",
+      "description": "Skeleton/section/inline loading placeholder with variant inference.",
+      "registryDependencies": ["@netix/skeleton"],
+      "files": [
+        {
+          "path": "registry/netix/components/loading-state/index.tsx",
+          "target": "@/components/composites/loading-state/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "empty-state",
+      "type": "registry:component",
+      "title": "EmptyState",
+      "description": "Empty results placeholder.",
+      "dependencies": ["lucide-react"],
+      "files": [
+        {
+          "path": "registry/netix/components/empty-state/index.tsx",
+          "target": "@/components/composites/empty-state/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "option-list",
+      "type": "registry:component",
+      "title": "OptionList",
+      "description": "Searchable option list used by the combobox and column filter.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["@netix/input"],
+      "files": [
+        {
+          "path": "registry/netix/components/option-list/index.tsx",
+          "target": "@/components/composites/option-list/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "data-table",
+      "type": "registry:component",
+      "title": "DataTable",
+      "description": "TanStack Table v9 data table with pinning, filters, pagination, loading and empty states.",
+      "dependencies": ["@tanstack/react-table", "lucide-react", "react-hook-form"],
+      "registryDependencies": [
+        "@netix/button",
+        "@netix/input",
+        "@netix/popover",
+        "@netix/select",
+        "@netix/skeleton",
+        "@netix/table",
+        "@netix/empty-state",
+        "@netix/loading-state",
+        "@netix/option-list"
+      ],
+      "files": [
+        {
+          "path": "registry/netix/components/data-table/index.tsx",
+          "target": "@/components/composites/data-table/index.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/netix/components/data-table/column-filter.tsx",
+          "target": "@/components/composites/data-table/column-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/netix/components/data-table/pagination.tsx",
+          "target": "@/components/composites/data-table/pagination.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "confirm-modal",
+      "type": "registry:component",
+      "title": "ConfirmModal",
+      "description": "Confirmation dialog with async-safe confirm handling.",
+      "registryDependencies": ["@netix/button", "@netix/dialog", "@netix/loading-state"],
+      "files": [
+        {
+          "path": "registry/netix/components/confirm-modal/index.tsx",
+          "target": "@/components/composites/confirm-modal/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "form-modal",
+      "type": "registry:component",
+      "title": "FormModal",
+      "description": "Dialog shell for forms with permission-gated trigger and async submit.",
+      "registryDependencies": ["@netix/button", "@netix/dialog", "@netix/loading-state"],
+      "files": [
+        {
+          "path": "registry/netix/components/form-modal/index.tsx",
+          "target": "@/components/composites/form-modal/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "fancy-combobox",
+      "type": "registry:component",
+      "title": "FancyCombobox",
+      "description": "Multi-select combobox with badges, search and load-more.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [
+        "@netix/badge",
+        "@netix/button",
+        "@netix/popover",
+        "@netix/separator",
+        "@netix/option-list"
+      ],
+      "files": [
+        {
+          "path": "registry/netix/components/fancy-combobox/index.tsx",
+          "target": "@/components/composites/fancy-combobox/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "tree-view",
+      "type": "registry:component",
+      "title": "TreeView",
+      "description": "Async-loading tree with keyboard navigation.",
+      "dependencies": ["lucide-react"],
+      "files": [
+        {
+          "path": "registry/netix/components/tree-view/index.tsx",
+          "target": "@/components/composites/tree-view/index.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

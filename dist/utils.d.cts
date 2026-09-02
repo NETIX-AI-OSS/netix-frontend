@@ -31,19 +31,6 @@ declare function getEnumOptions(obj: Record<string, string | number>, getLabel: 
     as: 'string';
 }): EnumOption<string>[];
 
-declare const STATUS_COLORS: {
-    readonly PURPLE: "#C26EE9";
-    readonly PINK: "#EE5FAB";
-    readonly YELLOW: "#E3CC00";
-    readonly ORANGE: "#F19100";
-    readonly GREEN: "#04CD25";
-    readonly DARK_GREEN: "#109121";
-    readonly GRAY: "#C6C6C6";
-    readonly RED: "#FF3636";
-    readonly BLUE: "#6CA6FE";
-};
-type StatusColor = keyof typeof STATUS_COLORS;
-
 type DateArg = Date | number | string;
 type Duration = {
     years: number;
@@ -56,6 +43,12 @@ type Duration = {
 /** Formats with the date-fns token subset the fleet's format constants use; `'…'` quotes literals. */
 declare function format(value: DateArg, pattern: string): string;
 declare function addDays(value: DateArg, amount: number): Date;
+declare const startOfMonth: (value: DateArg) => Date;
+declare const startOfDay: (value: DateArg) => Date;
+declare const endOfDay: (value: DateArg) => Date;
+declare const startOfHour: (value: DateArg) => Date;
+declare const subHours: (value: DateArg, amount: number) => Date;
+declare const subDays: (value: DateArg, amount: number) => Date;
 /** Calendar breakdown of an interval, sign-preserving, as date-fns `intervalToDuration` returns it. */
 declare function intervalToDuration(interval: {
     start: DateArg;
@@ -146,4 +139,4 @@ type FormatCurrencyOptions = {
 };
 declare function formatCurrency(value: number, options: FormatCurrencyOptions): string;
 
-export { DATE_FORMAT, DEFAULT_EMAIL_ERROR, type DateArg, type Duration, type EnumOption, FULL_DATE_FORMAT, FULL_DATE_FORMAT_EXPANDED_MONTH, FULL_DATE_TIME_FORMAT, FULL_DATE_WITHOUT_WEEK_FORMAT, type FileMetadata, type FormatCurrencyOptions, GMT_FORMAT, type IdKind, MONTH_OPTIONS, STANDARD_TIME_FORMAT, STANDARD_TIME_FORMAT_WITHOUT_SECONDS, STATUS_COLORS, type SelectOption, type StatusColor, TIMEZONE, TIME_FORMAT, UPPERCASE_DATE_FORMAT, UPPERCASE_DATE_TIME_FORMAT, UTC_TIME_FORMAT, type UserNameFields, YEAR_OPTIONS, addDays, arrayToCommaSeparated, buildYearOptions, cn, commaSeparatedToArray, configureDates, emailValidator, filterIntersection, format, formatCurrency, formatDateAsEndOfDayUpperCase, formatDurationHMS, formatFileSize, formatTimerClock, getEnumOptions, getFileMetadata, getFormattedShiftTime, getFullDate, getFullDateByYear, getFullDateTime, getFullDateWithoutTime, getFullGmtTime, getFullUserName, getHourDifference, getMonthName, getMonthStartAndEnd, getNumberOfDaysInMonth, getStandardTime, getStandardTimeWithSecond, getTime, getTimeEstimate, getUpperCaseDate, getUpperCaseDateTime, getUserNameInitials, getWeekStartDate, intervalToDuration, isScheduleDayVaild, isScheduleDayValid, milliSecondsToDuration, normalizeClockString, parseLocalDate, removeDuplicates, removeEmptyAttributes, timeDifference };
+export { DATE_FORMAT, DEFAULT_EMAIL_ERROR, type DateArg, type Duration, type EnumOption, FULL_DATE_FORMAT, FULL_DATE_FORMAT_EXPANDED_MONTH, FULL_DATE_TIME_FORMAT, FULL_DATE_WITHOUT_WEEK_FORMAT, type FileMetadata, type FormatCurrencyOptions, GMT_FORMAT, type IdKind, MONTH_OPTIONS, STANDARD_TIME_FORMAT, STANDARD_TIME_FORMAT_WITHOUT_SECONDS, type SelectOption, TIMEZONE, TIME_FORMAT, UPPERCASE_DATE_FORMAT, UPPERCASE_DATE_TIME_FORMAT, UTC_TIME_FORMAT, type UserNameFields, YEAR_OPTIONS, addDays, arrayToCommaSeparated, buildYearOptions, cn, commaSeparatedToArray, configureDates, emailValidator, endOfDay, filterIntersection, format, formatCurrency, formatDateAsEndOfDayUpperCase, formatDurationHMS, formatFileSize, formatTimerClock, getEnumOptions, getFileMetadata, getFormattedShiftTime, getFullDate, getFullDateByYear, getFullDateTime, getFullDateWithoutTime, getFullGmtTime, getFullUserName, getHourDifference, getMonthName, getMonthStartAndEnd, getNumberOfDaysInMonth, getStandardTime, getStandardTimeWithSecond, getTime, getTimeEstimate, getUpperCaseDate, getUpperCaseDateTime, getUserNameInitials, getWeekStartDate, intervalToDuration, isScheduleDayVaild, isScheduleDayValid, milliSecondsToDuration, normalizeClockString, parseLocalDate, removeDuplicates, removeEmptyAttributes, startOfDay, startOfHour, startOfMonth, subDays, subHours, timeDifference };

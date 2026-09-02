@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { cn } from './cn'
-import { STATUS_COLORS } from './colors'
 import { getFileMetadata } from './file-metadata'
 
 afterEach(() => vi.unstubAllGlobals())
@@ -9,13 +8,6 @@ afterEach(() => vi.unstubAllGlobals())
 describe('cn', () => {
   it('merges conditional classes and resolves tailwind conflicts', () => {
     expect(cn('p-2', { hidden: false }, 'p-4')).toBe('p-4')
-  })
-})
-
-describe('STATUS_COLORS', () => {
-  it('carries the viz superset including DARK_GREEN', () => {
-    expect(STATUS_COLORS.DARK_GREEN).toBe('#109121')
-    expect(Object.keys(STATUS_COLORS)).toHaveLength(9)
   })
 })
 

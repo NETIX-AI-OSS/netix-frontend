@@ -1,6 +1,6 @@
 export type SetSearchParams = (next: URLSearchParams, options?: { replace?: boolean }) => void
 
-/** Structurally what react-router's `useSearchParams()` returns, so apps can pass it straight through. */
+/** The smallest binding needed by URL-backed hooks; adapters can come from any router. */
 export type SearchParamsBinding = readonly [URLSearchParams, SetSearchParams]
 
 export type Updater<T> = T | ((old: T) => T)

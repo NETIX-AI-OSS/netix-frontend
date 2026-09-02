@@ -1,4 +1,15 @@
-export { createDevTokenManager, type DevTokenConfig, type DevTokenManager } from './dev-token'
+export {
+  type AuthConfig,
+  buildAuthConfig,
+  type BuildAuthConfigOptions,
+  COOKIE_REFRESH_TTL,
+  COOKIE_SECURE,
+  COOKIE_TOKEN_TTL,
+  REFRESH_ENDPOINT,
+  TOKEN_ENDPOINT,
+  VERIFY_ENDPOINT,
+} from './auth-config'
+export { createDevLoginPrompt, type DevLoginPrompt, type DevLoginPromptOptions } from './dev-login'
 export { parseEnvelope } from './envelope'
 export {
   createErrorInterceptor,
@@ -66,12 +77,3 @@ export {
   type SentryEventHint,
   shouldCaptureHttpStatus,
 } from './sentry'
-export {
-  computeSwrBackoffDelayMs,
-  createSwrOnErrorRetry,
-  isRetryableSwrError,
-  SWR_MAX_RETRIES,
-  type SwrOnErrorRetry,
-  type SwrRetryOptions,
-  type SwrRevalidatorOptions,
-} from './swr-retry'

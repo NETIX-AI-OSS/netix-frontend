@@ -1,58 +1,139 @@
 import Axios from 'axios';
 
-// src/api/dev-token.ts
-function createDevTokenManager(config) {
-  const {
-    devMode,
-    username,
-    password,
-    isTest = false,
-    baseURL,
-    tokenEndpoint = "/auth/token/",
-    onWarn
-  } = config;
-  let client = config.http;
-  let cachedToken = null;
-  let pending = null;
-  const isEnabled = () => Boolean(devMode && username && password && !isTest);
-  const getClient = () => client ??= Axios.create({ baseURL, headers: { "Content-Type": "application/json" } });
-  const obtain = async () => {
-    try {
-      const response = await getClient().post(tokenEndpoint, { username, password });
-      const token = response.data?.access;
-      if (!token) {
-        onWarn?.(`No access token in the ${tokenEndpoint} response`);
-        return null;
-      }
-      return token;
-    } catch (error) {
-      onWarn?.("Failed to obtain a dev token", error);
-      return null;
-    }
-  };
+// src/api/auth-config.ts
+var TOKEN_ENDPOINT = "/auth/token/";
+var REFRESH_ENDPOINT = "/auth/token/refresh/";
+var VERIFY_ENDPOINT = "/auth/token/verify/";
+var COOKIE_TOKEN_TTL = "300";
+var COOKIE_REFRESH_TTL = "172800";
+var COOKIE_SECURE = true;
+function buildAuthConfig({
+  baseDomain,
+  authBaseUrl,
+  dev = false,
+  hostname = "",
+  onLogin,
+  onLogout
+}) {
   return {
-    isEnabled,
-    shouldUseDevToken: (request = {}) => {
-      if (!isEnabled()) return false;
-      const url = request.url ?? "";
-      return !url.includes("/auth/login/") && !url.includes("/auth/token/");
-    },
-    getToken: async () => {
-      if (!isEnabled()) return null;
-      if (cachedToken) return cachedToken;
-      pending ??= obtain().then((token) => {
-        cachedToken = token;
-        pending = null;
-        return token;
-      });
-      return pending;
-    },
-    getCachedToken: () => cachedToken,
-    reset: () => {
-      cachedToken = null;
-      pending = null;
-    }
+    COOKIE_TOKEN_TTL,
+    COOKIE_REFRESH_TTL,
+    COOKIE_SECURE,
+    // The bare domain covers every subdomain (RFC 6265), which is what shares the session.
+    COOKIE_DOMAIN: dev ? "localhost" : baseDomain,
+    LOGIN_PAGE_URL: `https://${baseDomain}/`,
+    AUTH_BASE_URL: authBaseUrl,
+    LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
+    BASE_DOMAIN: dev ? "localhost" : baseDomain,
+    CURRENT_APP_DOMAIN: dev ? "localhost" : hostname,
+    TOKEN_ENDPOINT,
+    REFRESH_ENDPOINT,
+    VERIFY_ENDPOINT,
+    ON_LOGIN: onLogin,
+    ON_LOGOUT: onLogout
   };
+}
+
+// src/api/dev-login.ts
+var OVERLAY_STYLE = "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,17,21,0.55);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
+var CARD_STYLE = "box-sizing:border-box;width:100%;max-width:320px;margin:0;padding:20px;color:#111418;background:#fff;border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,0.28)";
+var TITLE_STYLE = "margin:0 0 16px;font-size:15px;font-weight:600";
+var LABEL_STYLE = "display:block;margin-bottom:4px;font-size:12px;font-weight:600;color:#4a5058";
+var INPUT_STYLE = "box-sizing:border-box;width:100%;margin:0 0 12px;padding:8px 10px;font:inherit;color:#111418;background:#fff;border:1px solid #c9ced6;border-radius:6px";
+var ERROR_STYLE = "margin:0 0 12px;font-size:12px;color:#b42318";
+var BUTTON_STYLE = "box-sizing:border-box;width:100%;padding:9px 12px;font:inherit;font-weight:600;color:#fff;background:#1f6feb;border:0;border-radius:6px;cursor:pointer";
+var createField = (doc, name, label, type, autocomplete) => {
+  const id = `netix-dev-login-${name}`;
+  const labelEl = doc.createElement("label");
+  labelEl.htmlFor = id;
+  labelEl.textContent = label;
+  labelEl.setAttribute("style", LABEL_STYLE);
+  const input = doc.createElement("input");
+  input.id = id;
+  input.name = name;
+  input.type = type;
+  input.required = true;
+  input.setAttribute("autocomplete", autocomplete);
+  input.setAttribute("style", INPUT_STYLE);
+  return { labelEl, input };
+};
+var storeCredential = async (id, password) => {
+  const ctor = globalThis.PasswordCredential;
+  if (!ctor || !navigator.credentials) return;
+  try {
+    await navigator.credentials.store(new ctor({ id, password }));
+  } catch {
+  }
+};
+function createDevLoginPrompt({ login, onSuccess }) {
+  let overlay = null;
+  const close = () => {
+    overlay?.remove();
+    overlay = null;
+  };
+  const open = () => {
+    const doc = globalThis.document;
+    if (overlay || !doc?.body) return;
+    const host = doc.createElement("div");
+    host.setAttribute("style", OVERLAY_STYLE);
+    const form = doc.createElement("form");
+    form.method = "post";
+    form.setAttribute("style", CARD_STYLE);
+    const title = doc.createElement("h2");
+    title.textContent = "Sign in - Development Mode";
+    title.setAttribute("style", TITLE_STYLE);
+    const username = createField(doc, "username", "Username", "text", "username");
+    const password = createField(doc, "password", "Password", "password", "current-password");
+    const error = doc.createElement("p");
+    error.setAttribute("role", "alert");
+    error.setAttribute("style", ERROR_STYLE);
+    error.hidden = true;
+    const button = doc.createElement("button");
+    button.type = "submit";
+    button.textContent = "Sign in";
+    button.setAttribute("style", BUTTON_STYLE);
+    form.append(
+      title,
+      username.labelEl,
+      username.input,
+      password.labelEl,
+      password.input,
+      error,
+      button
+    );
+    host.append(form);
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const id = username.input.value;
+      const secret = password.input.value;
+      error.hidden = true;
+      button.disabled = true;
+      button.textContent = "Signing in\u2026";
+      void (async () => {
+        let result;
+        try {
+          result = await login(id, secret);
+        } catch {
+          result = false;
+        }
+        if (result !== true) {
+          error.textContent = "Sign-in failed \u2014 check the credentials and that staging is reachable.";
+          error.hidden = false;
+          button.disabled = false;
+          button.textContent = "Sign in";
+          password.input.select();
+          return;
+        }
+        await storeCredential(id, secret);
+        close();
+        (onSuccess ?? (() => window.location.reload()))();
+      })();
+    });
+    doc.body.append(host);
+    overlay = host;
+    username.input.focus();
+  };
+  return { open, close };
 }
 
 // src/api/predicates.ts
@@ -409,11 +490,10 @@ function attachRetryInterceptor(instance, options = {}) {
 
 // src/api/http-client.ts
 function createAuthRequestInterceptor(config) {
-  const { getBaseURL, getToken, devTokens } = config;
+  const { getBaseURL, getToken } = config;
   return async (request) => {
     if (getBaseURL) request.baseURL = getBaseURL();
-    const devToken = devTokens?.shouldUseDevToken(request) ? await devTokens.getToken() : null;
-    const token = devToken ?? await getToken?.();
+    const token = await getToken?.();
     if (token) request.headers.Authorization = `Bearer ${token}`;
     return request;
   };
@@ -465,32 +545,4 @@ function createQueryRetryPolicy(options = {}) {
   };
 }
 
-// src/api/swr-retry.ts
-var SWR_MAX_RETRIES = 3;
-var BASE_DELAY_MS3 = 500;
-var MAX_DELAY_MS2 = 4e3;
-function computeSwrBackoffDelayMs(attempt) {
-  const capped = Math.min(BASE_DELAY_MS3 * 2 ** Math.max(0, attempt), MAX_DELAY_MS2);
-  return Math.round(capped * (0.5 + Math.random() * 0.5));
-}
-function isRetryableSwrError(error) {
-  if (isCanceledRequest(error)) return false;
-  return isRetryableStatus(getErrorStatusCode(error));
-}
-function createSwrOnErrorRetry(options = {}) {
-  const {
-    maxRetries = SWR_MAX_RETRIES,
-    scheduleRetry = scheduleWithTimeout,
-    isRetryable = isRetryableSwrError
-  } = options;
-  return (error, _key, _config, revalidate, revalidateOptions) => {
-    if (isCanceledRequest(error)) return;
-    const attempt = Math.max(0, (revalidateOptions.retryCount ?? 1) - 1);
-    if (attempt >= maxRetries) return;
-    if (!isRetryable(error)) return;
-    const delayMs = getErrorRetryAfterMs(error) ?? computeSwrBackoffDelayMs(attempt);
-    scheduleRetry(() => revalidate(revalidateOptions), delayMs);
-  };
-}
-
-export { ApiError, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, SWR_MAX_RETRIES, asStatusCode, attachRetryInterceptor, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+export { ApiError, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

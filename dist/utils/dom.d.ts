@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as react from 'react';
 import { ComponentType } from 'react';
 
 type DownloadFileOptions = {
@@ -35,7 +35,7 @@ declare const recordChunkReload: (now?: number) => void;
 /** Reloads once onto fresh HTML when a script tag fails for a stale build-output file. */
 declare const installChunkErrorReloadHandler: (target?: Window) => void;
 /** Wraps React.lazy so a chunk that went stale across a deploy reloads instead of white-screening. */
-declare function lazyWithRetry<T extends AnyComponent>(importFn: ComponentImport<T>): React.LazyExoticComponent<T>;
+declare function lazyWithRetry<T extends AnyComponent>(importFn: ComponentImport<T>): react.LazyExoticComponent<T>;
 
 declare const MISSING_TOKEN_ERROR = "Unable to retrieve authentication token. Please sign in and try again.";
 type UploadOptions = {

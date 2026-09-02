@@ -1,8 +1,0 @@
-import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
-import * as React from 'react';
-
-declare function HoverCard({ ...props }: React.ComponentProps<typeof HoverCardPrimitive.Root>): React.JSX.Element;
-declare function HoverCardTrigger({ ...props }: React.ComponentProps<typeof HoverCardPrimitive.Trigger>): React.JSX.Element;
-declare function HoverCardContent({ className, align, sideOffset, ...props }: React.ComponentProps<typeof HoverCardPrimitive.Content>): React.JSX.Element;
-
-export { HoverCard, HoverCardContent, HoverCardTrigger };

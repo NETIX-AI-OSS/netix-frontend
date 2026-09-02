@@ -1,7 +1,6 @@
 import type { AxiosAdapter, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import { createDevTokenManager } from './dev-token'
 import { ApiError } from './errors'
 import { createHttpClient, createMutator, type HttpClientConfig } from './http-client'
 
@@ -60,35 +59,6 @@ describe('createHttpClient', () => {
       (await sent(echoing({ getToken: async () => null }))).headers.Authorization,
     ).toBeUndefined()
     expect((await sent(echoing())).headers.Authorization).toBeUndefined()
-  })
-
-  it('prefers a dev token, falling back to the real one', async () => {
-    const devTokens = createDevTokenManager({
-      devMode: true,
-      username: 'dev',
-      password: 'dev',
-      baseURL: 'http://localhost:8001/',
-      http: { post: vi.fn().mockResolvedValue({ data: { access: 'dev-tok' } }) },
-    })
-    const instance = echoing({ devTokens, getToken: () => 'real-tok' })
-
-    expect((await sent(instance, '/things')).headers.Authorization).toBe('Bearer dev-tok')
-    // The auth endpoints themselves must not carry the dev token.
-    expect((await sent(instance, '/auth/token/')).headers.Authorization).toBe('Bearer real-tok')
-  })
-
-  it('falls back when the dev token cannot be obtained', async () => {
-    const devTokens = createDevTokenManager({
-      devMode: true,
-      username: 'dev',
-      password: 'dev',
-      baseURL: 'http://localhost:8001/',
-      http: { post: vi.fn().mockResolvedValue({ data: {} }) },
-    })
-
-    expect(
-      (await sent(echoing({ devTokens, getToken: () => 'real-tok' }))).headers.Authorization,
-    ).toBe('Bearer real-tok')
   })
 
   it('takes a wholesale request-interceptor override', async () => {
