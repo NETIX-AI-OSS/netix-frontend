@@ -27,7 +27,7 @@ This is the only agent guide in the repository. The root `AGENTS.md` and `CLAUDE
 
 ## Releases (humans decide, agents never tag/push)
 
-Tag order: `pnpm sync:template ../frontend-template` first (a scaffold must ship the components it renders), then tag frontend-template (`template-vX`), then update `src/cli/refs.ts` pins, then tag this repo `vX.Y.Z` (CI creates the GitHub release). Update `CHANGELOG.md` in the same commit as the version bump.
+Tag order: `pnpm sync:template ../frontend-template` first (a scaffold must ship the components it renders), then tag frontend-template (`vX.Y.Z`), then update `src/cli/refs.ts` pins, then tag this repo `vX.Y.Z` (CI creates the GitHub release). Update `CHANGELOG.md` in the same commit as the version bump.
 
 ## Documentation
 

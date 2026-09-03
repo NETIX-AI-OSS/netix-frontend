@@ -75,4 +75,4 @@ pnpm test:coverage    # gates: 100% (api/i18n/tokens/utils), 90% (theme/cli/regi
 pnpm typecheck && pnpm lint && pnpm format:check
 ```
 
-Commit regenerated `dist/` and `r/` with the change that caused them. Release: template tag first (`template-vX`), update `src/cli/refs.ts`, bump the version + `CHANGELOG.md`, tag `vX.Y.Z` (tags are immutable; CI publishes the GitHub release).
+Commit regenerated `dist/` and `r/` with the change that caused them. Release: template tag first (`vX.Y.Z` in that repo), update `src/cli/refs.ts`, bump the version + `CHANGELOG.md`, tag `vX.Y.Z` (tags are immutable; CI publishes the GitHub release).
