@@ -14,4 +14,4 @@ When adopting a new upstream Base UI, shadcn, or Tailwind pattern, compare its a
 
 Registry items must remain free of API, authentication, routing, page, and feature imports — the same rule the template enforces on `app/components/ui`. App-specific components belong in named folders under `app/components/application` or beside their feature; do not create a recipes/shared/common catch-all.
 
-Release order matters: tag the template first, update the CLI's pinned refs (`src/cli/refs.ts`), then tag this repo. Scaffolds inherit all three pins.
+Release order matters: update the CLI's pinned refs (`src/cli/refs.ts`) and tag this repo first, then point the template at the new library tag and tag the template. The template installs the library, so the library tag has to exist first; `refs.ts` only needs the template's tag name. Scaffolds inherit all three pins.
