@@ -64,9 +64,9 @@ describe('github tarball path', () => {
       calls.push(args.join(' '))
       return ok('ok')
     }
-    const { source } = await acquireTemplate({ dest, ref: 'template-v9', runner })
-    expect(source).toBe('NETIX-AI/frontend-template@template-v9')
-    expect(calls.at(-1)).toContain('gh api repos/NETIX-AI/frontend-template/tarball/template-v9')
+    const { source } = await acquireTemplate({ dest, ref: 'v9.9.9', runner })
+    expect(source).toBe('NETIX-AI/frontend-template@v9.9.9')
+    expect(calls.at(-1)).toContain('gh api repos/NETIX-AI/frontend-template/tarball/v9.9.9')
     expect(calls.at(-1)).toContain(`tar -xz --strip-components=1 -C '${dest}'`)
   })
 
@@ -112,8 +112,6 @@ describe('checkTemplateAvailable (preflight, before any prompt)', () => {
 
   it('passes when gh can see the ref', async () => {
     const runner: Runner = async () => ok('ok')
-    await expect(
-      checkTemplateAvailable({ ref: 'template-v2.0.0', runner }),
-    ).resolves.toBeUndefined()
+    await expect(checkTemplateAvailable({ ref: 'v1.0.0', runner })).resolves.toBeUndefined()
   })
 })

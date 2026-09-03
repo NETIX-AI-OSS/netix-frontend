@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.0.1 — 2026-09-03
+
+Fixes the template ref `netix init` scaffolds from. v2.0.0 pinned `template-v2.0.0`, a tag that
+never existed in `NETIX-AI/frontend-template`, so `init` failed at the template download with a 404. The template now carries ordinary semver tags and versions independently of this package
+instead of mirroring its number behind a `template-` prefix.
+
+- `src/cli/refs.ts`: `TEMPLATE_REF` is `v1.0.0`. `LIB_REF` and `REGISTRY_REF` move to `v2.0.1`
+  so scaffolds inherit the release they were cut from. No registry, token or runtime change —
+  `r/` and the importable surface are byte-identical to v2.0.0.
+
 ## v2.0.0 — 2026-09-03
 
 The platform release: the library shrinks to the contract that must never drift per-app, and
