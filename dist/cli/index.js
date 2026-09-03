@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module';
-import { readFileSync, existsSync, readdirSync, mkdirSync, writeFileSync, cpSync, renameSync } from 'fs';
+import { realpathSync, readFileSync, existsSync, readdirSync, mkdirSync, writeFileSync, cpSync, renameSync } from 'fs';
+import { pathToFileURL } from 'url';
 import { styleText, promisify, parseArgs } from 'util';
 import { execFile, spawn } from 'child_process';
 import { resolve, basename, join, dirname } from 'path';
@@ -9849,7 +9850,15 @@ async function main(argv) {
 ${HELP}`);
   return 1;
 }
-var invokedAsBin = process.argv[1]?.endsWith("cli/index.js");
-if (invokedAsBin) main(process.argv.slice(2)).then((code) => process.exit(code));
+function isEntryPoint(entry, moduleUrl) {
+  if (!entry) return false;
+  try {
+    return pathToFileURL(realpathSync(entry)).href === moduleUrl;
+  } catch {
+    return false;
+  }
+}
+if (isEntryPoint(process.argv[1], import.meta.url))
+  main(process.argv.slice(2)).then((code) => process.exit(code));
 
-export { main };
+export { isEntryPoint, main };

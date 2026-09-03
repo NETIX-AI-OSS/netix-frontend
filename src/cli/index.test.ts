@@ -1,5 +1,11 @@
 // @vitest-environment node
-import { main } from './index'
+import { execFileSync } from 'node:child_process'
+import { mkdtempSync, realpathSync, symlinkSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+import { isEntryPoint, main } from './index'
 
 const initMock = vi.hoisted(() => vi.fn(async () => 0))
 const addMock = vi.hoisted(() => vi.fn(async () => 0))
@@ -93,4 +99,33 @@ it('routes schema pull, prints warnings, and fails when a pull fails', async () 
   pullMock.mockResolvedValueOnce({ pulled: [], warnings: [], failures: ['data: fetch failed'] })
   await expect(main(['schema', 'pull', '--no-generate'])).resolves.toBe(1)
   expect(pullMock).toHaveBeenLastCalledWith(expect.objectContaining({ generate: false }))
+})
+
+describe('isEntryPoint', () => {
+  const self = realpathSync(resolve('src/cli/index.ts'))
+
+  test('matches when the entry path is this module', () => {
+    expect(isEntryPoint(self, pathToFileURL(self).href)).toBe(true)
+  })
+
+  test('matches through a symlink, which is how npm installs the bin', () => {
+    const link = join(mkdtempSync(join(tmpdir(), 'netix-bin-')), 'netix')
+    symlinkSync(self, link)
+    expect(isEntryPoint(link, pathToFileURL(self).href)).toBe(true)
+  })
+
+  test('does not match another module, or a missing path', () => {
+    expect(isEntryPoint(self, pathToFileURL(resolve('src/cli/refs.ts')).href)).toBe(false)
+    expect(isEntryPoint(join(tmpdir(), 'netix-absent'), pathToFileURL(self).href)).toBe(false)
+    expect(isEntryPoint(undefined, pathToFileURL(self).href)).toBe(false)
+  })
+})
+
+// The bug this guards: invoked through node_modules/.bin/netix the CLI exited 0
+// printing nothing, so every installed copy of v2.0.0 and v2.0.1 was inert.
+test('the built bin prints usage when run through a .bin symlink', () => {
+  const bin = realpathSync(resolve('dist/cli/index.js'))
+  const link = join(mkdtempSync(join(tmpdir(), 'netix-dist-')), 'netix')
+  symlinkSync(bin, link)
+  expect(execFileSync(process.execPath, [link], { encoding: 'utf8' })).toContain('netix init')
 })

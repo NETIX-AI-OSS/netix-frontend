@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, realpathSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 
 import pc from 'picocolors'
@@ -158,6 +159,20 @@ export async function main(argv: string[]): Promise<number> {
   return 1
 }
 
-/* v8 ignore next 2 -- the bin entry; everything it routes to is tested directly */
-const invokedAsBin = process.argv[1]?.endsWith('cli/index.js')
-if (invokedAsBin) main(process.argv.slice(2)).then((code) => process.exit(code))
+/**
+ * True when this module is the process entry point. `process.argv[1]` is the path
+ * as invoked, which for an installed package is the `node_modules/.bin/netix`
+ * symlink — so resolve it before comparing, or the bin silently does nothing.
+ */
+export function isEntryPoint(entry: string | undefined, moduleUrl: string): boolean {
+  if (!entry) return false
+  try {
+    return pathToFileURL(realpathSync(entry)).href === moduleUrl
+  } catch {
+    return false
+  }
+}
+
+/* v8 ignore next 2 -- the bin entry; isEntryPoint and everything it routes to are tested */
+if (isEntryPoint(process.argv[1], import.meta.url))
+  main(process.argv.slice(2)).then((code) => process.exit(code))

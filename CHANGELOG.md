@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.0.2 — 2026-09-03
+
+Makes the `netix` CLI work when installed. Every released copy of it was inert: the bin entry
+guarded on `process.argv[1]?.endsWith('cli/index.js')`, but npm installs the bin as a symlink at
+`node_modules/.bin/netix`, so the guard was false and the process exited 0 having printed
+nothing. `npx github:NETIX-AI-OSS/netix-frontend#v2.0.1 init my-app` did nothing at all.
+
+- `src/cli/index.ts`: the entry check resolves `process.argv[1]` through `realpathSync` and
+  compares it to `import.meta.url`, so it holds for a direct `node dist/cli/index.js`, for the
+  `.bin` symlink and for a global install. Covered by unit tests and by one that spawns the
+  built bin through a symlink, which is the case that was missing.
+- `LIB_REF` and `REGISTRY_REF` deliberately stay at `v2.0.1`. The importable surface and `r/`
+  are byte-identical at both tags, and holding them keeps a scaffold's lockfile matching the
+  template's exactly instead of re-resolving on first install.
+
 ## v2.0.1 — 2026-09-03
 
 Fixes the template ref `netix init` scaffolds from. v2.0.0 pinned `template-v2.0.0`, a tag that
