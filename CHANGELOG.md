@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.0.3 — 2026-09-04
+
+Bug-fix patch (organisation locale replacing the bundled catalogue).
+
+- i18n (fixed): `applyEffectiveLocale` merges the organisation's effective locale over the app's
+  bundled catalogue instead of replacing it. Server values win per key; bundled text is the floor
+  for keys the server catalogue does not carry yet (e.g. keys added in a design-system merge the
+  backend has not caught up on); a key dropped server-side reverts to its bundled value on the next
+  refresh instead of keeping the stale server value. Forward-port of the v1.0.3 fix (#5) onto v2.
+- CLI: `LIB_REF` → `v2.0.3` so `netix init` scaffolds new apps on this release (with the locale
+  fix); `TEMPLATE_REF` → `v1.0.1` for the matching frontend-template tag. `REGISTRY_REF` stays
+  `v2.0.1` — the `r/` registry is byte-identical.
+
 ## v2.0.2 — 2026-09-03
 
 Makes the `netix` CLI work when installed. Every released copy of it was inert: the bin entry

@@ -99,6 +99,10 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   let runtime: LocaleRuntimeLike | null = null
   let runtimeOrigin = ''
   let activeIdentity: LocaleIdentity | null = null
+  // The shipped catalog per language, captured before the first server merge touches it, so every
+  // apply resets to that floor and layers the server over it (server wins per key, bundled fills
+  // gaps, a key dropped server-side reverts on the next apply instead of lingering).
+  const bundled = new Map<string, LocaleTranslations>()
 
   const pendingLanguageKey = (identity: LocaleIdentity) =>
     `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`
@@ -136,7 +140,12 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
 
   async function applyEffectiveLocale(locale: EffectiveLocale): Promise<void> {
     const language = locale.resolved_language
+    const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {}
+    bundled.set(language, floor)
+    // Reset to the bundled floor, then merge: server values win per key, keys the server does not
+    // carry keep their bundled text, and keys dropped server-side do not linger.
     i18n.removeResourceBundle(language, namespace)
+    i18n.addResourceBundle(language, namespace, floor, true, true)
     i18n.addResourceBundle(language, namespace, locale.translations, true, true)
     await renderLanguage(language, false)
   }

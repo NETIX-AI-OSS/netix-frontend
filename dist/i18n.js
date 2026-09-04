@@ -215,6 +215,7 @@ function createOrganizationLocale(config) {
   let runtime = null;
   let runtimeOrigin = "";
   let activeIdentity = null;
+  const bundled = /* @__PURE__ */ new Map();
   const pendingLanguageKey = (identity) => `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`;
   function getLocaleRuntime() {
     const apiBaseUrl = getApiBaseUrl()?.replace(/\/+$/, "");
@@ -243,7 +244,10 @@ function createOrganizationLocale(config) {
   }
   async function applyEffectiveLocale(locale) {
     const language = locale.resolved_language;
+    const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {};
+    bundled.set(language, floor);
     i18n.removeResourceBundle(language, namespace);
+    i18n.addResourceBundle(language, namespace, floor, true, true);
     i18n.addResourceBundle(language, namespace, locale.translations, true, true);
     await renderLanguage(language, false);
   }

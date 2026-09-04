@@ -1,4 +1,4 @@
-import type { i18n as I18nInstance } from 'i18next'
+import { createInstance, type i18n as I18nInstance, type Resource } from 'i18next'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -8,6 +8,7 @@ import {
   type LocaleIdentity,
   localeIdentity,
   type LocaleRuntimeLike,
+  type LocaleTranslations,
 } from './organization-locale'
 
 const PENDING = 'organization-locale:pending-language:v1:7:9'
@@ -34,6 +35,7 @@ const makeStorage = (initial: Record<string, string> = {}) => {
 const makeI18n = () => {
   const i18n = {
     changeLanguage: vi.fn(() => Promise.resolve()),
+    getResourceBundle: vi.fn(),
     removeResourceBundle: vi.fn(),
     addResourceBundle: vi.fn(),
   }
@@ -153,11 +155,11 @@ describe('bundled language', () => {
 })
 
 describe('applyEffectiveLocale', () => {
-  it('replaces the bundle and switches language without persisting', async () => {
+  it('merges the server catalogue over the bundle and switches language without persisting', async () => {
     const { locale, store, i18n } = setup()
     await locale.applyEffectiveLocale(effective('ar'))
     expect(i18n.removeResourceBundle).toHaveBeenCalledWith('ar', 'translation')
-    expect(i18n.addResourceBundle).toHaveBeenCalledWith(
+    expect(i18n.addResourceBundle).toHaveBeenLastCalledWith(
       'ar',
       'translation',
       { hello: 'ar' },
@@ -165,6 +167,75 @@ describe('applyEffectiveLocale', () => {
       true,
     )
     expect(store.has('language')).toBe(false)
+  })
+
+  describe('against a real i18next instance', () => {
+    // i18next adopts the resources object as its live store, so each instance needs its own.
+    const resources = (): Resource => ({
+      en: { translation: { hello: 'Hello', copilot: { title: 'Copilot' } } },
+      ar: { translation: { hello: 'مرحبا', copilot: { title: 'مساعد' } } },
+    })
+    const served = (language: string, translations: LocaleTranslations): EffectiveLocale => ({
+      ...effective(language),
+      translations,
+    })
+    const real = (runtime = makeRuntime()) => {
+      const i18n = createInstance()
+      void i18n.init({ resources: resources(), lng: 'en', fallbackLng: 'en' })
+      const locale = createOrganizationLocale({
+        i18n,
+        storage: makeStorage().storage,
+        createRuntime: () => runtime,
+        getApiBaseUrl: () => 'https://um',
+      })
+      return { i18n, locale }
+    }
+
+    it('keeps bundled keys the server catalogue lacks and lets server values win', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale(served('en', { hello: 'Hi' }))
+      expect(i18n.t('hello')).toBe('Hi')
+      expect(i18n.t('copilot.title')).toBe('Copilot')
+    })
+
+    it('reverts a key the server dropped on refresh to its bundled value', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale(served('en', { hello: 'Hi', extra: 'Extra' }))
+      await locale.applyEffectiveLocale(served('en', { copilot: { title: 'Assistant' } }))
+      expect(i18n.t('hello')).toBe('Hello')
+      expect(i18n.t('copilot.title')).toBe('Assistant')
+      expect(i18n.exists('extra')).toBe(false)
+    })
+
+    it('does not bleed one language into another', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale(served('ar', { hello: 'أهلا' }))
+      await locale.applyEffectiveLocale(served('en', { hello: 'Hi' }))
+      expect(i18n.getResourceBundle('ar', 'translation')).toEqual({
+        hello: 'أهلا',
+        copilot: { title: 'مساعد' },
+      })
+      expect(i18n.getResourceBundle('en', 'translation')).toEqual({
+        hello: 'Hi',
+        copilot: { title: 'Copilot' },
+      })
+    })
+
+    it('applies the cached catalogue then the refreshed one without leaking cached keys', async () => {
+      const runtime = makeRuntime({
+        hydrate: vi.fn(() =>
+          Promise.resolve({ locale: served('en', { hello: 'Cached', stale: 'x' }) }),
+        ),
+        refreshEffective: vi.fn(() =>
+          Promise.resolve({ locale: served('en', { hello: 'Fresh' }) }),
+        ),
+      })
+      const { i18n, locale } = real(runtime)
+      await locale.refreshOrganizationLocale(user, 'en')
+      expect(i18n.t('hello')).toBe('Fresh')
+      expect(i18n.t('copilot.title')).toBe('Copilot')
+      expect(i18n.exists('stale')).toBe(false)
+    })
   })
 })
 
@@ -185,7 +256,7 @@ describe('refreshOrganizationLocale', () => {
     const { locale, i18n, store } = setup({ initial: { [PENDING]: 'ar' }, runtime })
     await expect(locale.refreshOrganizationLocale(user)).resolves.toEqual(effective('ar'))
     expect(runtime.setActiveIdentity).toHaveBeenCalledWith({ userId: 7, organizationId: 9 })
-    expect(i18n.addResourceBundle).toHaveBeenCalledTimes(2)
+    expect(i18n.removeResourceBundle).toHaveBeenCalledTimes(2)
     expect(store.has(PENDING)).toBe(false)
   })
 
@@ -248,7 +319,7 @@ describe('identity races', () => {
     )
     await vi.advanceTimersByTimeAsync(60)
     await Promise.all([first, second])
-    const applied = i18n.addResourceBundle.mock.calls.map((call) => call[0])
+    const applied = i18n.removeResourceBundle.mock.calls.map((call) => call[0])
     expect(applied).toEqual(['es', 'es'])
   })
 

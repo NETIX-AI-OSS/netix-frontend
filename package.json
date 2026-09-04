@@ -1,6 +1,6 @@
 {
   "name": "netix-frontend",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "NETIX frontend platform: the importable runtime contract (api, tokens, theme, i18n, utils, presets), the @netix component registry, and the netix scaffolding CLI",
   "license": "AGPL-3.0-only",
   "author": "NETIX.AI OSS",
