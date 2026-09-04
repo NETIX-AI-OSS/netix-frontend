@@ -4,10 +4,10 @@
  */
 
 /** Git ref of netix-frontend that scaffolded apps depend on. */
-export const LIB_REF = 'v2.0.1'
+export const LIB_REF = 'v2.0.3'
 
 /** Git ref of NETIX-AI/frontend-template that `netix init` scaffolds from (versioned independently of this package). */
-export const TEMPLATE_REF = 'v1.0.0'
+export const TEMPLATE_REF = 'v1.0.1'
 
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
 export const REGISTRY_REF = 'v2.0.1'
