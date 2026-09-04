@@ -41,6 +41,23 @@ describe('createHttpClient', () => {
     expect(config.headers['X-App']).toBe('viz')
   })
 
+  it('sends no cookies by default, so a native cookie jar cannot ride along', async () => {
+    const instance = echoing()
+
+    const config = await sent(instance)
+
+    expect(instance.defaults.withCredentials).toBe(false)
+    expect(config.withCredentials).toBe(false)
+  })
+
+  it('lets a cookie-based caller opt back in', async () => {
+    const instance = echoing({ withCredentials: true })
+
+    const config = await sent(instance)
+
+    expect(config.withCredentials).toBe(true)
+  })
+
   it('resolves the base URL per request when a resolver is given', async () => {
     const getBaseURL = vi.fn().mockReturnValue('https://staging.example.com/')
     const instance = echoing({ baseURL: 'https://api.example.com/', getBaseURL })

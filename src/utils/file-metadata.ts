@@ -6,7 +6,7 @@ export type FileMetadata = {
 /** HEAD-probes a static URL; null means the probe failed and the caller should fall back. */
 export async function getFileMetadata(url: string): Promise<FileMetadata | null> {
   try {
-    const response = await fetch(url, { method: 'HEAD' })
+    const response = await fetch(url, { method: 'HEAD', credentials: 'omit' })
     if (!response.ok) {
       throw new Error('Failed to fetch file information')
     }

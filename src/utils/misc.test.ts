@@ -30,6 +30,15 @@ describe('getFileMetadata', () => {
     })
   })
 
+  it('probes without cookies, so a native cookie jar cannot ride along', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, headers: headers({}) })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await getFileMetadata('/f.pdf')
+
+    expect(fetchMock).toHaveBeenCalledWith('/f.pdf', { method: 'HEAD', credentials: 'omit' })
+  })
+
   it('leaves missing headers undefined', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, headers: headers({}) }))
     await expect(getFileMetadata('/f.pdf')).resolves.toEqual({

@@ -503,7 +503,9 @@ function createHttpClient(config = {}) {
     baseURL: config.baseURL,
     timeout: config.timeout,
     headers: { "Content-Type": "application/json", ...config.headers },
-    paramsSerializer: createParamsSerializer(config.paramsSerializer)
+    paramsSerializer: createParamsSerializer(config.paramsSerializer),
+    // Explicit: axios leaves this undefined, and only a defined value reaches XMLHttpRequest.
+    withCredentials: config.withCredentials ?? false
   });
   instance.interceptors.request.use(
     config.requestInterceptor ?? createAuthRequestInterceptor(config)
