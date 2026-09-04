@@ -65,7 +65,10 @@ DOM-only (`utils/dom`): `downloadFile`/`saveFile`/`uploadFile`/`uploadStaticFile
 `createI18n(options)` boots i18next (debug off, `i18n.dir()`-based RTL, RN language handling,
 SSR-guarded document dir). `createOrganizationLocale` is the per-identity org-locale runtime
 (pending-key + race guards, `clearActiveIdentity` on logout). The shared `common` catalog
-(en/ar/es) mounts as a real namespace: `t('common:confirm')` — app catalogs win on merge.
+(en/ar/es) mounts as a real namespace: `t('common:confirm')` — app catalogs win on merge. The
+organisation's effective locale merges over the app's bundled catalog: server values win per key,
+bundled text is the floor for keys the server does not carry, and a key dropped server-side reverts
+to its bundled value on the next refresh.
 
 ## ui
 

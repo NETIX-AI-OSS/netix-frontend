@@ -134,9 +134,17 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     return language
   }
 
+  /** Each language's app catalogue, captured before the first server merge touches it. */
+  const bundled = new Map<string, LocaleTranslations>()
+
   async function applyEffectiveLocale(locale: EffectiveLocale): Promise<void> {
     const language = locale.resolved_language
+    const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {}
+    bundled.set(language, floor)
+    // Reset to the bundled floor, then merge: server values win per key, keys the server does
+    // not carry keep their bundled text, and keys dropped server-side do not linger.
     i18n.removeResourceBundle(language, namespace)
+    i18n.addResourceBundle(language, namespace, floor, true, true)
     i18n.addResourceBundle(language, namespace, locale.translations, true, true)
     await renderLanguage(language, false)
   }

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.3 — 2026-09-04
+
+Bug-fix patch (viz-ui copilot keys rendering as raw key names).
+
+- i18n (fixed): `applyEffectiveLocale` merges the organisation's effective locale over the app's
+  bundled catalogue instead of replacing it. Server values still win per key; bundled text is the
+  floor for keys the server catalogue does not carry yet; a key dropped server-side reverts to its
+  bundled value on the next refresh instead of keeping the stale server value.
+
 ## v1.0.2 — 2026-08-26
 
 Fleet-wave feedback patch (viz-ui adoption).
