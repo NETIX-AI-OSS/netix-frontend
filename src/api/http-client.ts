@@ -24,6 +24,8 @@ export type HttpClientConfig = {
   ) => MaybePromise<InternalAxiosRequestConfig>
   error?: ErrorInterceptorConfig | false
   retry?: RetryOptions | false
+  /** Defaults to false. React Native's XHR defaults it to true, which attaches the native cookie jar. */
+  withCredentials?: boolean
 }
 
 function createAuthRequestInterceptor(config: HttpClientConfig) {
@@ -46,6 +48,8 @@ export function createHttpClient(config: HttpClientConfig = {}): AxiosInstance {
     timeout: config.timeout,
     headers: { 'Content-Type': 'application/json', ...config.headers },
     paramsSerializer: createParamsSerializer(config.paramsSerializer),
+    // Explicit: axios leaves this undefined, and only a defined value reaches XMLHttpRequest.
+    withCredentials: config.withCredentials ?? false,
   })
 
   instance.interceptors.request.use(

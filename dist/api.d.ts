@@ -192,6 +192,8 @@ type HttpClientConfig = {
     requestInterceptor?: (config: InternalAxiosRequestConfig) => MaybePromise<InternalAxiosRequestConfig>;
     error?: ErrorInterceptorConfig | false;
     retry?: RetryOptions | false;
+    /** Defaults to false. React Native's XHR defaults it to true, which attaches the native cookie jar. */
+    withCredentials?: boolean;
 };
 declare function createHttpClient(config?: HttpClientConfig): AxiosInstance;
 /** Orval mutator: `<T>(config, options?) => Promise<T>`, client-agnostic for SWR and react-query alike. */

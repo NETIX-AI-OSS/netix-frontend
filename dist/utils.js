@@ -3638,7 +3638,7 @@ function getMonthStartAndEnd(monthYear, dateFormat = DATE_FORMAT) {
 // src/utils/file-metadata.ts
 async function getFileMetadata(url) {
   try {
-    const response = await fetch(url, { method: "HEAD" });
+    const response = await fetch(url, { method: "HEAD", credentials: "omit" });
     if (!response.ok) {
       throw new Error("Failed to fetch file information");
     }
