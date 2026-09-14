@@ -59,6 +59,20 @@
         "default": "./dist/hooks.cjs"
       }
     },
+    "./hooks/permissions": {
+      "react-native": {
+        "types": "./dist/hooks/permissions.d.cts",
+        "default": "./dist/hooks/permissions.cjs"
+      },
+      "import": {
+        "types": "./dist/hooks/permissions.d.ts",
+        "default": "./dist/hooks/permissions.js"
+      },
+      "require": {
+        "types": "./dist/hooks/permissions.d.cts",
+        "default": "./dist/hooks/permissions.cjs"
+      }
+    },
     "./utils": {
       "react-native": {
         "types": "./dist/utils.d.cts",

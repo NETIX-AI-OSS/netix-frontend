@@ -12,7 +12,9 @@ export function EmptyState({ text = 'No data found', icon, className }: EmptySta
   return (
     <div
       className={cn(
-        'mt-32 flex items-center justify-center gap-2 text-secondary-foreground',
+        // Fill the space the parent gives us and centre in it; a hard `mt-32` dropped the
+        // message 8rem below the header however tall the body actually was.
+        'flex w-full flex-1 items-center justify-center gap-2 p-6 text-secondary-foreground',
         className,
       )}
     >
