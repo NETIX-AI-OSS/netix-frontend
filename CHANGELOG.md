@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
+  exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
+  `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
+  the new `./hooks/permissions` subpath: `./hooks` statically imports `@tanstack/react-query`
+  (through `useCurrentUser`), so the four v2 apps that fetch through SWR cannot import that entry
+  at all. The new subpath's bundle imports neither `@tanstack/react-query` nor `envoy-ts-auth`.
+  No new dependency.
+
 ## v2.0.3 — 2026-09-04
 
 Bug-fix patch (organisation locale replacing the bundled catalogue).
