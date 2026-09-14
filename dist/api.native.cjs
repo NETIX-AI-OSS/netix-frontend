@@ -6,6 +6,61 @@ function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
 var Axios__default = /*#__PURE__*/_interopDefault(Axios);
 
+// src/api/dev-token.ts
+function createDevTokenManager(config) {
+  const {
+    devMode,
+    username,
+    password,
+    isTest = false,
+    baseURL,
+    tokenEndpoint = "/auth/token/",
+    onWarn
+  } = config;
+  let client = config.http;
+  let cachedToken = null;
+  let pending = null;
+  const isEnabled = () => Boolean(devMode && username && password && !isTest);
+  const getClient = () => client ??= Axios__default.default.create({ baseURL, headers: { "Content-Type": "application/json" } });
+  const obtain = async () => {
+    try {
+      const response = await getClient().post(tokenEndpoint, { username, password });
+      const token = response.data?.access;
+      if (!token) {
+        onWarn?.(`No access token in the ${tokenEndpoint} response`);
+        return null;
+      }
+      return token;
+    } catch (error) {
+      onWarn?.("Failed to obtain a dev token", error);
+      return null;
+    }
+  };
+  return {
+    isEnabled,
+    shouldUseDevToken: (request = {}) => {
+      if (!isEnabled()) return false;
+      const url = request.url ?? "";
+      return !url.includes("/auth/login/") && !url.includes("/auth/token/");
+    },
+    getToken: async () => {
+      if (!isEnabled()) return null;
+      if (cachedToken) return cachedToken;
+      pending ??= obtain().then((token) => {
+        cachedToken = token;
+        pending = null;
+        return token;
+      });
+      return pending;
+    },
+    getCachedToken: () => cachedToken,
+    reset: () => {
+      cachedToken = null;
+      pending = null;
+    }
+  };
+}
+
 // src/api/auth-config.ts
 var TOKEN_ENDPOINT = "/auth/token/";
 var REFRESH_ENDPOINT = "/auth/token/refresh/";
@@ -550,59 +605,6 @@ function createQueryRetryPolicy(options = {}) {
   return {
     retry: (failureCount, error) => shouldRetryQuery(failureCount, error, maxRetries),
     retryDelay: queryRetryDelay
-  };
-}
-function createDevTokenManager(config) {
-  const {
-    devMode,
-    username,
-    password,
-    isTest = false,
-    baseURL,
-    tokenEndpoint = "/auth/token/",
-    onWarn
-  } = config;
-  let client = config.http;
-  let cachedToken = null;
-  let pending = null;
-  const isEnabled = () => Boolean(devMode && username && password && !isTest);
-  const getClient = () => client ??= Axios__default.default.create({ baseURL, headers: { "Content-Type": "application/json" } });
-  const obtain = async () => {
-    try {
-      const response = await getClient().post(tokenEndpoint, { username, password });
-      const token = response.data?.access;
-      if (!token) {
-        onWarn?.(`No access token in the ${tokenEndpoint} response`);
-        return null;
-      }
-      return token;
-    } catch (error) {
-      onWarn?.("Failed to obtain a dev token", error);
-      return null;
-    }
-  };
-  return {
-    isEnabled,
-    shouldUseDevToken: (request = {}) => {
-      if (!isEnabled()) return false;
-      const url = request.url ?? "";
-      return !url.includes("/auth/login/") && !url.includes("/auth/token/");
-    },
-    getToken: async () => {
-      if (!isEnabled()) return null;
-      if (cachedToken) return cachedToken;
-      pending ??= obtain().then((token) => {
-        cachedToken = token;
-        pending = null;
-        return token;
-      });
-      return pending;
-    },
-    getCachedToken: () => cachedToken,
-    reset: () => {
-      cachedToken = null;
-      pending = null;
-    }
   };
 }
 
