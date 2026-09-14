@@ -139,7 +139,11 @@ export function PaginationControls({
         </div>
       )}
       <div className="order-1 flex flex-wrap items-center justify-between gap-3 sm:order-2 sm:justify-end">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        {/* A picker offering one value is a control that cannot do anything. */}
+        <div
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+          hidden={pageSizeOptions.length < 2}
+        >
           <span className="text-sm text-muted-foreground">{copy.rowsPerPage}</span>
           <Select
             value={String(pageSize)}
