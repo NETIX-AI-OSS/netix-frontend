@@ -12,6 +12,36 @@
 - No new dependency: `swr-retry` imports nothing from `swr` (it is composed from `errors`,
   `predicates`, `retry` and `retry-after`), and the `swr` peer is already optional in
   `peerDependenciesMeta`.
+- hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
+  exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
+  `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
+  the new `./hooks/permissions` subpath: `./hooks` statically imports `@tanstack/react-query`
+  (through `useCurrentUser`), so the four v2 apps that fetch through SWR cannot import that entry
+  at all. The new subpath's bundle imports neither `@tanstack/react-query` nor `envoy-ts-auth`.
+  No new dependency.
+- registry `data-table` (fixed): `headerClassName` and `cellClassName` no longer _replace_ the
+  default background. A column passing only alignment (`text-end`) silently lost its `bg-card`
+  fill, because the default was written as `headerClassName || 'bg-card'` (and
+  `!rowClassName && !cellClassName && 'bg-card'`). The default is now listed first and
+  tailwind-merge lets a column that really does pass a background still override it.
+- registry `data-table` (fixed): column pinning offsets use `inset-inline-start` /
+  `inset-inline-end` instead of physical `left` / `right`, so an end-pinned column sticks to the
+  correct edge in Arabic.
+- registry `data-table` (fixed): `column-filter` renders no `PopoverTrigger` at all for a
+  sort-only column (`{ key: '', sort }`). The `!!key` guard used to sit _inside_ the trigger, so
+  every sort-only header carried an empty, unnamed button — a zero-size tab stop that opened a
+  popover whose actions all returned early.
+- registry `data-table` / `empty-state` (fixed): the empty message is placed by layout instead of
+  by a fixed `mt-32` plus `sticky inset-0`. The scroller is a column flex box and the message
+  block claims the leftover height (`flex-1`, `min-h-40`), so it centres in the body whatever the
+  table's height.
+- registry `data-table` (fixed): the rows-per-page picker is hidden when `pageSizeOptions` offers
+  a single value — a control that cannot do anything.
+
+These five fixes were already carried locally by `user-management-ui` and `prism-ui` under
+"LOCAL EDIT (re-apply on re-add)" comments; folding them in lets those apps drop the markers on
+their next `--overwrite` re-add. App-specific parts of those copies (prism's Rhea-theme radius
+override and its empty-header spacer rule) are deliberately **not** folded in.
 
 ## v2.0.3 — 2026-09-04
 
