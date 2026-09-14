@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- CLI: `SHADCN_VERSION` → `4.21.0`. `netix add` runs `pnpm dlx shadcn@<version>` inside the
+  scaffolded app, so it should match what frontend-template pins; it had been left on `4.19.1`
+  while the template moved to `4.21.0`. The `tests/fixtures/mini-template` copy of the template's
+  `package.json` is moved with it so the fixture stays verbatim.
+- CLI: `TEMPLATE_REF` stays `v1.0.1` — still frontend-template's newest tag — with a note that it
+  must move whenever the template is tagged.
+
 ## v2.0.3 — 2026-09-04
 
 Bug-fix patch (organisation locale replacing the bundled catalogue).

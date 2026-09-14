@@ -20,7 +20,7 @@ it('delegates to the pinned shadcn CLI and resolves with its exit code', async (
   await expect(pending).resolves.toBe(0)
   expect(spawnMock).toHaveBeenCalledWith(
     'pnpm',
-    ['dlx', 'shadcn@4.19.1', 'add', '@netix/confirm-modal', '--overwrite'],
+    ['dlx', 'shadcn@4.21.0', 'add', '@netix/confirm-modal', '--overwrite'],
     { stdio: 'inherit' },
   )
 })
