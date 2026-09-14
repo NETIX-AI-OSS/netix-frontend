@@ -27,8 +27,8 @@
   "exports": {
     "./api": {
       "react-native": {
-        "types": "./dist/api.d.cts",
-        "default": "./dist/api.cjs"
+        "types": "./dist/api.native.d.cts",
+        "default": "./dist/api.native.cjs"
       },
       "import": {
         "types": "./dist/api.d.ts",

@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- api (restored, react-native only): `createDevTokenManager` is exported again from `./api`, but
+  only through its `react-native` export condition, which now resolves to a new
+  `dist/api.native.cjs` (`./api` plus the dev-token manager). v2.0.0 removed the manager because
+  `createDevLoginPrompt` supersedes it — true on the web, where a real form can be mounted and
+  credentials stay out of `.env`; React Native has no DOM, so `createDevLoginPrompt` is a silent
+  no-op there (`src/api/dev-login.ts` reads `globalThis.document`) and the three Expo apps had no
+  local-dev path at all. The web `./api` surface is unchanged: `createDevTokenManager` is _not_
+  exported from `dist/api.js` / `dist/api.cjs`.
+
 ## v2.0.3 — 2026-09-04
 
 Bug-fix patch (organisation locale replacing the bundled catalogue).
