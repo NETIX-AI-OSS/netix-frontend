@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
+  review request automatically. No code change.
+
 ## v2.0.3 — 2026-09-04
 
 Bug-fix patch (organisation locale replacing the bundled catalogue).
