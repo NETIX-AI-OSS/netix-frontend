@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- registry `ui/select` (fixed): a closed `Select` shows the chosen item's **label**, not its raw
+  value. `Select` was a bare re-export of `SelectPrimitive.Root`, and Base UI cannot know the
+  label while `SelectContent` is unmounted, so every closed select rendered the enum
+  (`active`, `__all__`). `Select` now derives the value→label map from the `SelectItem` children
+  the caller already wrote; an explicit `items` prop still wins and skips the walk. No call-site
+  change.
+- registry `ui/dialog` (added): `DialogBody`, the scrollable middle region. `DialogContent` is a
+  bounded column (`max-h-[85dvh]`, `flex flex-col`, `overflow-hidden`) and header/footer are
+  `flex-none`, so long dialog content scrolls inside the dialog instead of growing it past the
+  viewport.
 - registry `data-table` (fixed): `headerClassName` and `cellClassName` no longer _replace_ the
   default background. A column passing only alignment (`text-end`) silently lost its `bg-card`
   fill, because the default was written as `headerClassName || 'bg-card'` (and
