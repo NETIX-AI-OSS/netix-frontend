@@ -66,6 +66,14 @@ describe('PaginationControls', () => {
     expect(onPageSizeChange).toHaveBeenCalledWith(25)
   })
 
+  it('hides the page-size picker when a single option is offered', () => {
+    const { rerender } = render(<PaginationControls {...props} pageSizeOptions={[10]} />)
+    expect(screen.getByText('Rows per page').parentElement).not.toBeVisible()
+
+    rerender(<PaginationControls {...props} pageSizeOptions={[10, 25]} />)
+    expect(screen.getByText('Rows per page').parentElement).toBeVisible()
+  })
+
   it('can hide the total summary', () => {
     render(<PaginationControls {...props} showTotal={false} />)
     expect(screen.queryByText('Showing 11–20 of 95')).not.toBeInTheDocument()
