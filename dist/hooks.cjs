@@ -1,11 +1,8 @@
 'use strict';
 
+var react = require('react');
 var reactQuery = require('@tanstack/react-query');
 var envoyTsAuth = require('envoy-ts-auth');
-var react = require('react');
-
-// src/hooks/search-params.ts
-var applyUpdater = (updater, previous) => typeof updater === "function" ? updater(previous) : updater;
 
 // src/auth/current-user.ts
 var strings = (value) => Array.isArray(value) ? value.filter((entry) => typeof entry === "string") : [];
@@ -41,8 +38,21 @@ function derivePermissions(user) {
   if (!user) return /* @__PURE__ */ new Set();
   return /* @__PURE__ */ new Set([...user.permissions, ...user.groups.flatMap((group) => group.permissions)]);
 }
+function usePermissionsFrom(user, isLoading = false) {
+  const resolved = user ?? null;
+  const permissions = react.useMemo(() => derivePermissions(resolved), [resolved]);
+  const isLoaded = !isLoading && !!resolved;
+  return {
+    user: resolved,
+    permissions,
+    isSuperuser: resolved?.isSuperuser === true,
+    isLoaded,
+    hasPermission: (code) => isLoaded && (resolved?.isSuperuser === true || permissions.has(code))
+  };
+}
 
-// src/hooks/use-current-user.ts
+// src/hooks/search-params.ts
+var applyUpdater = (updater, previous) => typeof updater === "function" ? updater(previous) : updater;
 function useCurrentUser() {
   const { data, isPending } = reactQuery.useQuery({
     queryKey: ["auth", "me"],
@@ -52,17 +62,11 @@ function useCurrentUser() {
   });
   return { user: data ?? null, isLoading: isPending };
 }
+
+// src/hooks/use-permissions.ts
 function usePermissions() {
   const { user, isLoading } = useCurrentUser();
-  const permissions = react.useMemo(() => derivePermissions(user), [user]);
-  const isLoaded = !isLoading && !!user;
-  return {
-    user,
-    permissions,
-    isSuperuser: user?.isSuperuser === true,
-    isLoaded,
-    hasPermission: (code) => isLoaded && (user?.isSuperuser === true || permissions.has(code))
-  };
+  return usePermissionsFrom(user, isLoading);
 }
 var positiveInteger = (value, fallback) => {
   const parsed = value === null ? NaN : Number(value);
@@ -128,5 +132,6 @@ function useUrlTab(binding, options = {}) {
 exports.applyUpdater = applyUpdater;
 exports.useCurrentUser = useCurrentUser;
 exports.usePermissions = usePermissions;
+exports.usePermissionsFrom = usePermissionsFrom;
 exports.useUrlPagination = useUrlPagination;
 exports.useUrlTab = useUrlTab;

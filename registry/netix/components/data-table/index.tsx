@@ -172,8 +172,9 @@ function getCommonPinningStyles<TData extends RowData>(
       : isFirstRightPinnedColumn
         ? `-8px ${isShadowTranslatedUpwards ? -6 : 8}px 15px 0px #0C71AC14`
         : undefined,
-    left: isPinned === 'start' ? leftValue : undefined,
-    right: isPinned === 'end' ? `${column.getAfter('end')}px` : undefined,
+    // Logical, not physical: an end-pinned column belongs on the left edge in RTL.
+    insetInlineStart: isPinned === 'start' ? leftValue : undefined,
+    insetInlineEnd: isPinned === 'end' ? `${column.getAfter('end')}px` : undefined,
     position: isPinned ? 'sticky' : 'relative',
     width: column.getSize(),
     zIndex: isPinned ? pinnedIndex : pinnedIndex - 1,
@@ -232,7 +233,10 @@ function TableHead<TData extends RowData>({ table, filtering, translateHeader }:
                 style={{ ...getCommonPinningStyles(header.column, parent ? 9 : 10, true) }}
                 className={cn(
                   'p-0 text-start text-sm font-light text-foreground',
-                  headerClassName || 'bg-card',
+                  // Default first: cn() is tailwind-merge, so a column passing only alignment
+                  // keeps the fill while one passing a background still replaces it.
+                  'bg-card',
+                  headerClassName,
                   (index === 0 || isFirstRightPinnedColumn) && !parent && 'rounded-ss-panel ps-2',
                   (index === totalColumns - 1 || isLastLeftPinnedColumn) &&
                     !parent &&
@@ -249,7 +253,8 @@ function TableHead<TData extends RowData>({ table, filtering, translateHeader }:
                       isLastLeftPinnedColumn ||
                       isLastUnpinnedColumn) &&
                       'rounded-e-control',
-                    !parent && (headerClassName || 'bg-background'),
+                    !parent && 'bg-background',
+                    !parent && headerClassName,
                     isFirstUnpinnedColumn && index !== 0 && 'ms-2',
                     isLastUnpinnedColumn && index !== totalColumns - 1 && 'me-2',
                   )}
@@ -342,7 +347,7 @@ function TableBody<TData extends RowData>({
               style={{ ...getCommonPinningStyles(cell.column, 4) }}
               className={cn(
                 'relative min-h-20 p-0',
-                !rowClassName && !cellClassName && 'bg-card',
+                !rowClassName && 'bg-card',
                 cellClassName,
                 index === pageSize - 1 && isLastLeftPinnedColumn && 'rounded-ee-panel',
                 index === pageSize - 1 && isFirstRightPinnedColumn && 'rounded-bl-panel',
@@ -534,7 +539,14 @@ export function DataTable<TData extends RowData>({
           a fixed-height table hands the box the leftover space above the footer, and an
           auto-height one lets the rows size it. */}
       <div className={cn('relative', !heightAuto && 'min-h-0 flex-1')}>
-        <div className={cn('isolate overflow-auto', !heightAuto && 'h-full')}>
+        {/* A column box so the empty-state block below can claim the space the rows would
+            have filled, instead of being nudged down by a fixed margin. */}
+        <div
+          className={cn(
+            'isolate flex flex-col overflow-auto [&>[data-slot=table-container]]:shrink-0',
+            !heightAuto && 'h-full',
+          )}
+        >
           <TablePrimitive
             style={{ width: table.getTotalSize(), minWidth: '100%', ...style }}
             className="isolate border-separate"
@@ -554,7 +566,9 @@ export function DataTable<TData extends RowData>({
             {showSkeletonRows && <TableLoadingBody table={table} rowCount={loadingRowCount} />}
           </TablePrimitive>
           {!loading && !table.getRowModel().rows.length && (
-            <div className="pointer-events-none sticky inset-0 flex flex-col items-center gap-2">
+            // Centre in the leftover body height rather than pinning to the scroller;
+            // min-h-40 keeps an auto-height table from collapsing it onto the header.
+            <div className="pointer-events-none flex min-h-40 flex-1 flex-col items-center justify-center gap-2">
               <EmptyComponent />
               {!pagination && clearFiltersButton}
             </div>

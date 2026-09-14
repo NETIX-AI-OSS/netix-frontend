@@ -173,13 +173,15 @@ export function ColumnFilter<TData extends RowData>({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex items-center justify-end gap-1">
-        <PopoverTrigger>
-          {!!key && (
+        {/* No filter key means nothing to search. Rendering the trigger anyway put an empty,
+            unnamed button in every sort-only header: a zero-size tab stop opening a dead popover. */}
+        {!!key && (
+          <PopoverTrigger>
             <SearchIcon
               className={cn('size-4 text-foreground hover:text-primary', value && 'text-primary')}
             />
-          )}
-        </PopoverTrigger>
+          </PopoverTrigger>
+        )}
         {!!sort && (
           <div
             data-testid="column-filter-sort"

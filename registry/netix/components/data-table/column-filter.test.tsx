@@ -87,15 +87,16 @@ describe('ColumnFilter', () => {
     await waitFor(() => expect(results).toEqual([{ other: 'keep' }]))
   })
 
-  it('does nothing without a filter key', async () => {
-    const { column } = makeColumn()
-    const { filtering, results } = makeFiltering({})
+  it('renders no popover trigger at all without a filter key', () => {
+    // The sort-only shape apps actually pass: a sort key and no filter key.
+    const { column } = makeColumn({ key: '', sort: 'name' })
+    const { filtering } = makeFiltering({})
     const { container } = render(<ColumnFilter column={column} filtering={filtering} />)
 
-    await openPopover(container)
-    await userEvent.click(screen.getByRole('button', { name: 'Search' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Reset' }))
-    expect(results).toEqual([])
+    // A sort-only header used to carry an empty, unnamed trigger: a tab stop with no name
+    // that opened a popover whose every action returned early.
+    expect(container.querySelector('[data-slot="popover-trigger"]')).toBeNull()
+    expect(screen.getByTestId('column-filter-sort')).toBeInTheDocument()
   })
 
   it('mirrors an existing ordering onto the column', () => {
