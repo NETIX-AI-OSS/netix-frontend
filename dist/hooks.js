@@ -1,7 +1,9 @@
-import { normalizeCurrentUser, derivePermissions } from './chunk-NHLN2CPH.js';
+import { usePermissionsFrom } from './chunk-QPCEFYEW.js';
+export { usePermissionsFrom } from './chunk-QPCEFYEW.js';
+import { normalizeCurrentUser } from './chunk-NHLN2CPH.js';
 import { useQuery } from '@tanstack/react-query';
 import { Auth } from 'envoy-ts-auth';
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // src/hooks/search-params.ts
 var applyUpdater = (updater, previous) => typeof updater === "function" ? updater(previous) : updater;
@@ -14,17 +16,11 @@ function useCurrentUser() {
   });
   return { user: data ?? null, isLoading: isPending };
 }
+
+// src/hooks/use-permissions.ts
 function usePermissions() {
   const { user, isLoading } = useCurrentUser();
-  const permissions = useMemo(() => derivePermissions(user), [user]);
-  const isLoaded = !isLoading && !!user;
-  return {
-    user,
-    permissions,
-    isSuperuser: user?.isSuperuser === true,
-    isLoaded,
-    hasPermission: (code) => isLoaded && (user?.isSuperuser === true || permissions.has(code))
-  };
+  return usePermissionsFrom(user, isLoading);
 }
 var positiveInteger = (value, fallback) => {
   const parsed = value === null ? NaN : Number(value);

@@ -98,9 +98,11 @@ describe('DataTable', () => {
     const [nameCell, statusCell, ownerCell] = screen.getAllByRole('row')[1]!.querySelectorAll('td')
 
     expect(nameCell!.style.position).toBe('sticky')
-    expect(nameCell!.style.left).toBe('0px')
+    expect(nameCell!.style.insetInlineStart).toBe('0px')
+    expect(nameCell!.style.left).toBe('')
     expect(ownerCell!.style.position).toBe('sticky')
-    expect(ownerCell!.style.right).toBe('0px')
+    expect(ownerCell!.style.insetInlineEnd).toBe('0px')
+    expect(ownerCell!.style.right).toBe('')
     expect(statusCell!.style.position).toBe('relative')
   })
 
@@ -199,6 +201,27 @@ describe('DataTable', () => {
     expect(screen.getByTestId('pagination-state')).toHaveTextContent('2/1')
     expect(screen.getByText('Pump')).toBeInTheDocument()
     expect(screen.queryByText('Chiller')).not.toBeInTheDocument()
+  })
+
+  it('keeps the default backgrounds when a column passes only alignment classes', () => {
+    const columns: DataTableColumn<Row>[] = [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        meta: { headerClassName: 'text-end', cellClassName: 'text-end' },
+      },
+    ]
+    render(<Harness columns={columns} />)
+    expect(screen.getAllByRole('columnheader')[0]).toHaveClass('bg-card', 'text-end')
+    expect(screen.getAllByRole('row')[1]!.querySelector('td')).toHaveClass('bg-card', 'text-end')
+  })
+
+  it('hides the rows-per-page picker when only one page size is offered', () => {
+    const { rerender } = render(<Harness pagination={{ pageSizeOptions: [10] }} />)
+    expect(screen.getByText('Rows per page').parentElement).not.toBeVisible()
+
+    rerender(<Harness pagination={{ pageSizeOptions: [10, 25] }} />)
+    expect(screen.getByText('Rows per page').parentElement).toBeVisible()
   })
 
   it('renders a column filter only when a filter context is supplied', () => {
