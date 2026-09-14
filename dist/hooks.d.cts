@@ -1,3 +1,5 @@
+import { PermissionsState } from './hooks/permissions.cjs';
+export { usePermissionsFrom } from './hooks/permissions.cjs';
 import { C as CurrentUser } from './current-user-B0Z0_kAv.cjs';
 
 type SetSearchParams = (next: URLSearchParams, options?: {
@@ -15,13 +17,7 @@ declare function useCurrentUser(): {
 };
 
 /** Permission state derived from the shared current-user contract; loading is fail-closed. */
-declare function usePermissions(): {
-    user: CurrentUser | null;
-    permissions: Set<string>;
-    isSuperuser: boolean;
-    isLoaded: boolean;
-    hasPermission: (code: string) => boolean;
-};
+declare function usePermissions(): PermissionsState;
 
 type PaginationState = {
     pageIndex: number;
@@ -49,4 +45,4 @@ declare function useUrlTab(binding: SearchParamsBinding, options?: UrlTabOptions
     updateTab: (updater: Updater<string | undefined>) => void;
 };
 
-export { type PaginationState, type SearchParamsBinding, type SetSearchParams, type Updater, type UrlPaginationOptions, type UrlTabOptions, applyUpdater, useCurrentUser, usePermissions, useUrlPagination, useUrlTab };
+export { type PaginationState, PermissionsState, type SearchParamsBinding, type SetSearchParams, type Updater, type UrlPaginationOptions, type UrlTabOptions, applyUpdater, useCurrentUser, usePermissions, useUrlPagination, useUrlTab };

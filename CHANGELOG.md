@@ -12,6 +12,13 @@
   bounded column (`max-h-[85dvh]`, `flex flex-col`, `overflow-hidden`) and header/footer are
   `flex-none`, so long dialog content scrolls inside the dialog instead of growing it past the
   viewport.
+- hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
+  exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
+  `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
+  the new `./hooks/permissions` subpath: `./hooks` statically imports `@tanstack/react-query`
+  (through `useCurrentUser`), so the four v2 apps that fetch through SWR cannot import that entry
+  at all. The new subpath's bundle imports neither `@tanstack/react-query` nor `envoy-ts-auth`.
+  No new dependency.
 - registry `data-table` (fixed): `headerClassName` and `cellClassName` no longer _replace_ the
   default background. A column passing only alignment (`text-end`) silently lost its `bg-card`
   fill, because the default was written as `headerClassName || 'bg-card'` (and
