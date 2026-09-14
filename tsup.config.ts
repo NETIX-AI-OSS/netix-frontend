@@ -21,6 +21,7 @@ export default defineConfig([
       api: 'src/api/index.ts',
       auth: 'src/auth/index.ts',
       hooks: 'src/hooks/index.ts',
+      'hooks/permissions': 'src/hooks/permissions.ts',
       utils: 'src/utils/index.ts',
       i18n: 'src/i18n/index.ts',
       tokens: 'src/tokens/index.ts',
