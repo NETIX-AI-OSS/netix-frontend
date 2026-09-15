@@ -7430,7 +7430,6 @@ var import_picocolors3 = __toESM(require_picocolors());
 
 // src/cli/refs.ts
 var LIB_REF = "v2.0.3";
-var TEMPLATE_REF = "v1.0.1";
 var REGISTRY_REF = "v2.0.1";
 var SHADCN_VERSION = "4.21.0";
 var TEMPLATE_REPO = "NETIX-AI/frontend-template";
@@ -9322,6 +9321,14 @@ function validateService(key, service) {
     throw new Error(`services.json: ${key} listEndpoint must start with "/"`);
 }
 var COPY_EXCLUDES = /* @__PURE__ */ new Set([".git", "node_modules", "dist", "coverage"]);
+async function requireGh(runner) {
+  if ((await runner("/bin/sh", ["-c", "command -v gh"])).code !== 0)
+    return `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).
+Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`;
+  if ((await runner("gh", ["auth", "status"])).code !== 0)
+    return "gh is installed but not authenticated \u2014 run `gh auth login` first.";
+  return void 0;
+}
 async function acquireTemplate({ dest, ref, templatePath, runner = run }) {
   mkdirSync(dest, { recursive: true });
   if (templatePath) {
@@ -9332,15 +9339,8 @@ async function acquireTemplate({ dest, ref, templatePath, runner = run }) {
     });
     return { source: templatePath };
   }
-  const gh = await runner("/bin/sh", ["-c", "command -v gh"]);
-  if (gh.code !== 0)
-    throw new Error(
-      `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).
-Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`
-    );
-  const auth = await runner("gh", ["auth", "status"]);
-  if (auth.code !== 0)
-    throw new Error("gh is installed but not authenticated \u2014 run `gh auth login` first.");
+  const missing = await requireGh(runner);
+  if (missing) throw new Error(missing);
   const tarball = await runShell(
     `gh api repos/${TEMPLATE_REPO}/tarball/${ref} | tar -xz --strip-components=1 -C '${dest}'`,
     {},
@@ -9351,22 +9351,52 @@ Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`
 ${tarball.stderr}`);
   return { source: `${TEMPLATE_REPO}@${ref}` };
 }
-async function checkTemplateAvailable({
+var RELEASE_TAG = /^v(\d+)\.(\d+)\.(\d+)$/;
+function newestReleaseTag(names) {
+  const releases = names.flatMap((name) => {
+    const match = RELEASE_TAG.exec(name.trim());
+    if (!match) return [];
+    const parts = [Number(match[1]), Number(match[2]), Number(match[3])];
+    return [{ name: match[0], parts }];
+  });
+  releases.sort(
+    (a2, b) => a2.parts[0] - b.parts[0] || a2.parts[1] - b.parts[1] || a2.parts[2] - b.parts[2]
+  );
+  return releases.at(-1)?.name;
+}
+async function resolveTemplate({
   ref,
   templatePath,
   runner = run
 }) {
   if (templatePath)
-    return existsSync(templatePath) ? void 0 : `template path not found: ${templatePath}`;
-  if ((await runner("/bin/sh", ["-c", "command -v gh"])).code !== 0)
-    return `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).
-Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`;
-  if ((await runner("gh", ["auth", "status"])).code !== 0)
-    return "gh is installed but not authenticated \u2014 run `gh auth login` first.";
-  if ((await runner("gh", ["api", `repos/${TEMPLATE_REPO}/commits/${ref}`, "--silent"])).code !== 0)
-    return `${TEMPLATE_REPO}@${ref} is not reachable \u2014 the ref may not exist yet, or you may not have access.
-Pass --template-ref <existing ref> or --template-path <local checkout>.`;
-  return void 0;
+    return existsSync(templatePath) ? { ref: ref ?? "local" } : { error: `template path not found: ${templatePath}` };
+  const missing = await requireGh(runner);
+  if (missing) return { error: missing };
+  if (ref) {
+    const commit = await runner("gh", ["api", `repos/${TEMPLATE_REPO}/commits/${ref}`, "--silent"]);
+    return commit.code === 0 ? { ref } : {
+      error: `${TEMPLATE_REPO}@${ref} is not reachable \u2014 the ref may not exist yet, or you may not have access.
+Pass --template-ref <existing ref> or --template-path <local checkout>.`
+    };
+  }
+  const tags = await runner("gh", [
+    "api",
+    `repos/${TEMPLATE_REPO}/tags`,
+    "--paginate",
+    "--jq",
+    ".[].name"
+  ]);
+  if (tags.code !== 0)
+    return {
+      error: `listing ${TEMPLATE_REPO} tags failed \u2014 you may not have access.
+${tags.stderr}`.trimEnd() + "\nPass --template-ref <ref> or --template-path <local checkout>."
+    };
+  const newest = newestReleaseTag(tags.stdout.split("\n"));
+  return newest ? { ref: newest } : {
+    error: `${TEMPLATE_REPO} has no vX.Y.Z tag to scaffold from.
+Pass --template-ref <ref> or --template-path <local checkout>.`
+  };
 }
 var STALE_AFTER_DAYS = 90;
 var DAY_MS = 24 * 60 * 60 * 1e3;
@@ -9468,12 +9498,12 @@ async function init(flags, runner = run) {
   const manifest = loadManifest();
   const serviceKeys = Object.keys(manifest.services);
   intro(import_picocolors.default.inverse(" netix init "));
-  const unreachable = await checkTemplateAvailable({
-    ref: flags.templateRef ?? TEMPLATE_REF,
+  const template = await resolveTemplate({
+    ref: flags.templateRef,
     templatePath: flags.templatePath,
     runner
   });
-  if (unreachable) return fail(unreachable);
+  if (template.ref === void 0) return fail(template.error);
   const dir = flags.dir ?? (flags.yes ? void 0 : answer(
     await text({
       message: "Where should the app be created?",
@@ -9534,13 +9564,11 @@ async function init(flags, runner = run) {
   if (unknown.length) return fail(`unknown services: ${unknown.join(", ")}`);
   const services = ["user", ...chosen.filter((key) => key !== "user")];
   const spinner2 = spinner();
-  spinner2.start(
-    `Fetching template (${flags.templatePath ?? `${flags.templateRef ?? TEMPLATE_REF}`})`
-  );
+  spinner2.start(`Fetching template (${flags.templatePath ?? template.ref})`);
   try {
     const { source } = await acquireTemplate({
       dest,
-      ref: flags.templateRef ?? TEMPLATE_REF,
+      ref: template.ref,
       templatePath: flags.templatePath,
       runner
     });
@@ -9731,7 +9759,7 @@ init options:
   --services <a,b>      Extra services to wire (see services.json), e.g. data,cafm
                         The user service is always wired \u2014 every app authenticates.
   --template-path <p>   Scaffold from a local template checkout instead of GitHub
-  --template-ref <ref>  Template git ref to download
+  --template-ref <ref>  Template git ref to download (default: its newest vX.Y.Z tag)
   --no-git | --no-install | --no-schemas | --no-generate
   --yes                 Accept defaults, no prompts
 

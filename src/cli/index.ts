@@ -28,7 +28,7 @@ init options:
   --services <a,b>      Extra services to wire (see services.json), e.g. data,cafm
                         The user service is always wired — every app authenticates.
   --template-path <p>   Scaffold from a local template checkout instead of GitHub
-  --template-ref <ref>  Template git ref to download
+  --template-ref <ref>  Template git ref to download (default: its newest vX.Y.Z tag)
   --no-git | --no-install | --no-schemas | --no-generate
   --yes                 Accept defaults, no prompts
 

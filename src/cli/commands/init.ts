@@ -5,10 +5,10 @@ import * as p from '@clack/prompts'
 import pc from 'picocolors'
 
 import { run, type Runner } from '../exec'
-import { LIB_REF, REGISTRY_URL, TEMPLATE_REF } from '../refs'
+import { LIB_REF, REGISTRY_URL } from '../refs'
 import { applyScaffoldTransforms } from '../scaffold'
 import { loadManifest } from '../services'
-import { acquireTemplate, checkTemplateAvailable } from '../template'
+import { acquireTemplate, resolveTemplate } from '../template'
 import { type ScaffoldOptions, TEMPLATE_DEV_PORT } from '../transforms'
 import { schemaPull } from './schema-pull'
 
@@ -50,13 +50,14 @@ export async function init(flags: InitFlags, runner: Runner = run) {
 
   p.intro(pc.inverse(' netix init '))
 
-  // Fail before the questions, not after them: one API call beats six wasted answers.
-  const unreachable = await checkTemplateAvailable({
-    ref: flags.templateRef ?? TEMPLATE_REF,
+  // Fail before the questions, not after them: one API call beats six wasted answers. This
+  // also picks the template's newest release tag unless --template-ref says otherwise.
+  const template = await resolveTemplate({
+    ref: flags.templateRef,
     templatePath: flags.templatePath,
     runner,
   })
-  if (unreachable) return fail(unreachable)
+  if (template.ref === undefined) return fail(template.error)
 
   const dir =
     flags.dir ??
@@ -160,13 +161,11 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   const services = ['user', ...chosen.filter((key) => key !== 'user')]
 
   const spinner = p.spinner()
-  spinner.start(
-    `Fetching template (${flags.templatePath ?? `${flags.templateRef ?? TEMPLATE_REF}`})`,
-  )
+  spinner.start(`Fetching template (${flags.templatePath ?? template.ref})`)
   try {
     const { source } = await acquireTemplate({
       dest,
-      ref: flags.templateRef ?? TEMPLATE_REF,
+      ref: template.ref,
       templatePath: flags.templatePath,
       runner,
     })
