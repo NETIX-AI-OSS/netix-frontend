@@ -269,4 +269,25 @@ declare function createSentryBeforeSend(options?: SentryBeforeSendOptions): <TEv
 /** Zero-config `beforeSend` for the web apps. */
 declare const sentryBeforeSendDropHandledHttpErrors: <TEvent extends SentryEvent>(event: TEvent, hint?: SentryEventHint) => TEvent | null;
 
-export { ApiError, type ApiErrorOptions, type AuthConfig, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, type DevLoginPrompt, type DevLoginPromptOptions, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, REFRESH_ENDPOINT, type RetryOptions, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+/** Retries after the first attempt, not total attempts. */
+declare const SWR_MAX_RETRIES = 3;
+type SwrRevalidatorOptions = {
+    retryCount?: number;
+    dedupe?: boolean;
+};
+type SwrOnErrorRetry = (error: unknown, key: string, config: unknown, revalidate: (options?: SwrRevalidatorOptions) => void, options: SwrRevalidatorOptions) => void;
+type SwrRetryOptions = {
+    maxRetries?: number;
+    scheduleRetry?: ScheduleRetry;
+    isRetryable?: (error: unknown) => boolean;
+};
+/** Capped exponential backoff with equal jitter, over a 0-based attempt index. */
+declare function computeSwrBackoffDelayMs(attempt: number): number;
+declare function isRetryableSwrError(error: unknown): boolean;
+/**
+ * `onErrorRetry` for `<SWRConfig>`. SWR hands the handler an already-incremented `retryCount`
+ * (1 on the first failure), so it is normalized to a 0-based attempt before the cap and backoff.
+ */
+declare function createSwrOnErrorRetry(options?: SwrRetryOptions): SwrOnErrorRetry;
+
+export { ApiError, type ApiErrorOptions, type AuthConfig, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, type DevLoginPrompt, type DevLoginPromptOptions, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, REFRESH_ENDPOINT, type RetryOptions, SWR_MAX_RETRIES, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, type SwrOnErrorRetry, type SwrRetryOptions, type SwrRevalidatorOptions, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

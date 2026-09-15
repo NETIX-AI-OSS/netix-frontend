@@ -553,4 +553,32 @@ function createQueryRetryPolicy(options = {}) {
   };
 }
 
-export { ApiError, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+// src/api/swr-retry.ts
+var SWR_MAX_RETRIES = 3;
+var BASE_DELAY_MS3 = 500;
+var MAX_DELAY_MS2 = 4e3;
+function computeSwrBackoffDelayMs(attempt) {
+  const capped = Math.min(BASE_DELAY_MS3 * 2 ** Math.max(0, attempt), MAX_DELAY_MS2);
+  return Math.round(capped * (0.5 + Math.random() * 0.5));
+}
+function isRetryableSwrError(error) {
+  if (isCanceledRequest(error)) return false;
+  return isRetryableStatus(getErrorStatusCode(error));
+}
+function createSwrOnErrorRetry(options = {}) {
+  const {
+    maxRetries = SWR_MAX_RETRIES,
+    scheduleRetry = scheduleWithTimeout,
+    isRetryable = isRetryableSwrError
+  } = options;
+  return (error, _key, _config, revalidate, revalidateOptions) => {
+    if (isCanceledRequest(error)) return;
+    const attempt = Math.max(0, (revalidateOptions.retryCount ?? 1) - 1);
+    if (attempt >= maxRetries) return;
+    if (!isRetryable(error)) return;
+    const delayMs = getErrorRetryAfterMs(error) ?? computeSwrBackoffDelayMs(attempt);
+    scheduleRetry(() => revalidate(revalidateOptions), delayMs);
+  };
+}
+
+export { ApiError, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, HANDLED_HTTP_STATUSES, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, REFRESH_ENDPOINT, SWR_MAX_RETRIES, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

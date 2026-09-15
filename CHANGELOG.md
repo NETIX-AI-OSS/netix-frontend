@@ -10,6 +10,16 @@
   no-op there (`src/api/dev-login.ts` reads `globalThis.document`) and the three Expo apps had no
   local-dev path at all. The web `./api` surface is unchanged: `createDevTokenManager` is _not_
   exported from `dist/api.js` / `dist/api.cjs`.
+- api (restored): `createSwrOnErrorRetry`, `computeSwrBackoffDelayMs`, `isRetryableSwrError` and
+  `SWR_MAX_RETRIES` are exported from `./api` again, unchanged from v1.0.2 along with their
+  tests. v2.0.0 removed them on the premise that the fleet had standardised on TanStack Query,
+  but four of the five apps on v2 fetch through SWR and each rebuilt the same policy locally
+  (~211 LOC across `prism-ui`, `launchpad-ui`, `user-profile-ui` and `user-management-ui`; the
+  last two are byte-identical). `createQueryRetryPolicy` remains the policy for TanStack Query
+  apps — this only stops SWR apps from having to re-derive one.
+- No new dependency: `swr-retry` imports nothing from `swr` (it is composed from `errors`,
+  `predicates`, `retry` and `retry-after`), and the `swr` peer is already optional in
+  `peerDependenciesMeta`.
 - api (added): `buildAuthConfig` takes an opt-in `narrowBaseDomain` option. envoy-ts-auth's
   `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN` or exactly one
   level below it, so every app deployed at `*.nano.netixai.dev` — two levels down — had to
