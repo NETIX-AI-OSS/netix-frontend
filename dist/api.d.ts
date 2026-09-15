@@ -16,7 +16,7 @@ import { AxiosResponse, AxiosError, AxiosInstance, AxiosRequestConfig, InternalA
 declare const TOKEN_ENDPOINT = "/auth/token/";
 declare const REFRESH_ENDPOINT = "/auth/token/refresh/";
 declare const VERIFY_ENDPOINT = "/auth/token/verify/";
-declare const COOKIE_TOKEN_TTL = "300";
+declare const COOKIE_TOKEN_TTL = "43200";
 declare const COOKIE_REFRESH_TTL = "172800";
 /**
  * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes

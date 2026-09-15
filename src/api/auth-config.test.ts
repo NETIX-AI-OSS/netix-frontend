@@ -8,7 +8,7 @@ import {
 } from './auth-config'
 
 it('pins the fleet constants the seven app copies drifted around', () => {
-  expect(COOKIE_TOKEN_TTL).toBe('300')
+  expect(COOKIE_TOKEN_TTL).toBe('43200')
   expect(COOKIE_REFRESH_TTL).toBe('172800')
   expect(TOKEN_ENDPOINT).toBe('/auth/token/')
   expect(REFRESH_ENDPOINT).toBe('/auth/token/refresh/')

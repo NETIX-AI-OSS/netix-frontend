@@ -16,7 +16,8 @@ export const TOKEN_ENDPOINT = '/auth/token/'
 export const REFRESH_ENDPOINT = '/auth/token/refresh/'
 export const VERIFY_ENDPOINT = '/auth/token/verify/'
 
-export const COOKIE_TOKEN_TTL = '300'
+// Cookie TTLs match the JWTs they carry: TOKEN_LIFETIME_MINS 720, REFRESH_LIFETIME_DAYS 2.
+export const COOKIE_TOKEN_TTL = '43200'
 export const COOKIE_REFRESH_TTL = '172800'
 /**
  * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes
