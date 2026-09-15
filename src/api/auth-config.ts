@@ -41,6 +41,15 @@ export type BuildAuthConfigOptions = {
   onLogout?: () => void
   /** Local dev: suppress the post-login launchpad redirect (the prompt handles success). */
   onLogin?: () => void
+  /**
+   * Opt in when the app is deployed more than one level under `baseDomain` (`app.nano.<domain>`).
+   * envoy-ts-auth's `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN`
+   * or exactly one level below it, so a two-level host has to narrow `BASE_DOMAIN` to its own
+   * parent — which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
+   * stays on `baseDomain`: that is what shares the session with every other NETIX frontend.
+   * Off by default, so existing callers are unaffected.
+   */
+  narrowBaseDomain?: boolean
 }
 
 export type AuthConfig = {
@@ -60,6 +69,12 @@ export type AuthConfig = {
   ON_LOGOUT?: () => void
 }
 
+/** The app's own parent domain, when that still sits under `baseDomain`; otherwise `baseDomain`. */
+function appBaseDomain(hostname: string, baseDomain: string): string {
+  const parent = hostname.split('.').slice(1).join('.')
+  return parent.endsWith(baseDomain) && parent !== baseDomain ? parent : baseDomain
+}
+
 /** The AUTH_CONFIG object envoy-ts-auth expects, fully derived from the base domain. */
 export function buildAuthConfig({
   baseDomain,
@@ -68,7 +83,10 @@ export function buildAuthConfig({
   hostname = '',
   onLogin,
   onLogout,
+  narrowBaseDomain = false,
 }: BuildAuthConfigOptions): AuthConfig {
+  // Only consulted for a deployed build: dev pins BASE_DOMAIN to localhost below.
+  const redirectRoot = narrowBaseDomain ? appBaseDomain(hostname, baseDomain) : baseDomain
   return {
     COOKIE_TOKEN_TTL,
     COOKIE_REFRESH_TTL,
@@ -78,7 +96,7 @@ export function buildAuthConfig({
     LOGIN_PAGE_URL: `https://${baseDomain}/`,
     AUTH_BASE_URL: authBaseUrl,
     LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
-    BASE_DOMAIN: dev ? 'localhost' : baseDomain,
+    BASE_DOMAIN: dev ? 'localhost' : redirectRoot,
     CURRENT_APP_DOMAIN: dev ? 'localhost' : hostname,
     TOKEN_ENDPOINT,
     REFRESH_ENDPOINT,

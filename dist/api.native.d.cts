@@ -1,4 +1,29 @@
-import { AxiosResponse, AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+
+type DevTokenConfig = {
+    /** Injected, never read from import.meta — the RN-safe entries must stay bundler-agnostic. */
+    devMode: boolean;
+    username?: string;
+    password?: string;
+    /** Test runs must never fire the dev-token request (user-profile-ui's guard, folded in). */
+    isTest?: boolean;
+    baseURL: string;
+    tokenEndpoint?: string;
+    /** Injected in tests; defaults to a bare axios instance on `baseURL`. */
+    http?: Pick<AxiosInstance, 'post'>;
+    onWarn?: (message: string, error?: unknown) => void;
+};
+type DevTokenManager = {
+    isEnabled: () => boolean;
+    shouldUseDevToken: (request?: {
+        url?: string;
+    }) => boolean;
+    getToken: () => Promise<string | null>;
+    getCachedToken: () => string | null;
+    reset: () => void;
+};
+/** Local-development token issuer: one promise-locked copy replacing the fleet's seven. */
+declare function createDevTokenManager(config: DevTokenConfig): DevTokenManager;
 
 /**
  * The canonical envoy-ts-auth configuration every NETIX app shares. Seven apps used to carry
@@ -290,4 +315,4 @@ declare function isRetryableSwrError(error: unknown): boolean;
  */
 declare function createSwrOnErrorRetry(options?: SwrRetryOptions): SwrOnErrorRetry;
 
-export { ApiError, type ApiErrorOptions, type AuthConfig, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, type DevLoginPrompt, type DevLoginPromptOptions, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, REFRESH_ENDPOINT, type RetryOptions, SWR_MAX_RETRIES, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, type SwrOnErrorRetry, type SwrRetryOptions, type SwrRevalidatorOptions, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevLoginPrompt, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };
+export { ApiError, type ApiErrorOptions, type AuthConfig, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, type DevLoginPrompt, type DevLoginPromptOptions, type DevTokenConfig, type DevTokenManager, type ErrorCaptureMeta, type ErrorInterceptorConfig, HANDLED_HTTP_STATUSES, type HttpClientConfig, MAX_QUERY_RETRIES, MAX_RETRIES, MAX_RETRY_AFTER_MS, type MaybePromise, type ParamsSerializerStrategy, REFRESH_ENDPOINT, type RetryOptions, SWR_MAX_RETRIES, type ScheduleRetry, type SentryBeforeSendOptions, type SentryEvent, type SentryEventHint, type SwrOnErrorRetry, type SwrRetryOptions, type SwrRevalidatorOptions, TOKEN_ENDPOINT, VERIFY_ENDPOINT, asStatusCode, attachRetryInterceptor, buildAuthConfig, coerceNonErrorEvent, computeBackoffDelayMs, computeSwrBackoffDelayMs, createDevLoginPrompt, createDevTokenManager, createErrorInterceptor, createHttpClient, createMutator, createParamsSerializer, createQueryRetryPolicy, createSentryBeforeSend, createSwrOnErrorRetry, extractHttpStatus, extractStatusFromMessage, getErrorRetryAfterMs, getErrorStatusCode, isApiError, isCanceledOrNetworkError, isCanceledRequest, isHandledHttpStatus, isIdempotentMethod, isRecord, isRetryableAxiosError, isRetryableStatus, isRetryableSwrError, isTransientNetworkError, parseEnvelope, parseRetryAfterMs, queryRetryDelay, readRetryAfterMs, scheduleWithTimeout, sentryBeforeSendDropHandledHttpErrors, serializeParamsComma, serializeParamsRepeat, shouldCaptureHttpStatus, shouldRetryQuery };

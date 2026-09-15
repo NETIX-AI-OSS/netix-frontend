@@ -30,6 +30,13 @@ export default defineConfig([
     ...shared,
   },
   {
+    // The react-native condition of `./api` resolves to a .cjs artifact, so this entry is
+    // cjs-only: it is `./api` plus the dev-token manager, which has no web counterpart.
+    entry: { 'api.native': 'src/api/index.native.ts' },
+    format: ['cjs'],
+    ...shared,
+  },
+  {
     // The netix CLI: a self-contained node bin; prompt deps are bundled so the
     // package keeps zero runtime dependencies.
     entry: { 'cli/index': 'src/cli/index.ts' },
