@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- api (added): `buildAuthConfig` takes an opt-in `narrowBaseDomain` option. envoy-ts-auth's
+  `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN` or exactly one
+  level below it, so every app deployed at `*.nano.netixai.dev` — two levels down — had to
+  hand-patch `BASE_DOMAIN` after the call. With the option set, `BASE_DOMAIN` becomes the host's
+  own parent when that parent still sits under `baseDomain`, and stays `baseDomain` otherwise
+  (a one-level host, or a hostname from a different domain). `COOKIE_DOMAIN`, `LOGIN_PAGE_URL`
+  and `LAUNCHPAD_PAGE_URL` keep deriving from `baseDomain`, so the session stays shared
+  fleet-wide; only the redirect-allowlist root moves. Default is `false`: existing callers are
+  unaffected.
+- Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
+  review request automatically. No code change.
 - CLI: `SHADCN_VERSION` → `4.21.0`. `netix add` runs `pnpm dlx shadcn@<version>` inside the
   scaffolded app, so it should match what frontend-template pins; it had been left on `4.19.1`
   while the template moved to `4.21.0`. The `tests/fixtures/mini-template` copy of the template's
