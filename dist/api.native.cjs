@@ -82,17 +82,20 @@ function buildAuthConfig({
   narrowBaseDomain = false
 }) {
   const redirectRoot = narrowBaseDomain ? appBaseDomain(hostname, baseDomain) : baseDomain;
+  const devHost = hostname || "localhost";
   return {
     COOKIE_TOKEN_TTL,
     COOKIE_REFRESH_TTL,
-    COOKIE_SECURE,
-    // The bare domain covers every subdomain (RFC 6265), which is what shares the session.
-    COOKIE_DOMAIN: dev ? "localhost" : baseDomain,
+    COOKIE_SECURE: dev ? false : COOKIE_SECURE,
+    // Deployed: the bare domain covers every subdomain (RFC 6265), which is what shares the
+    // session. Dev: no Domain attribute at all — a host-only cookie, valid on an IP literal
+    // too, where a browser would drop `Domain=localhost`.
+    COOKIE_DOMAIN: dev ? "" : baseDomain,
     LOGIN_PAGE_URL: `https://${baseDomain}/`,
     AUTH_BASE_URL: authBaseUrl,
     LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
-    BASE_DOMAIN: dev ? "localhost" : redirectRoot,
-    CURRENT_APP_DOMAIN: dev ? "localhost" : hostname,
+    BASE_DOMAIN: dev ? devHost : redirectRoot,
+    CURRENT_APP_DOMAIN: dev ? devHost : hostname,
     TOKEN_ENDPOINT,
     REFRESH_ENDPOINT,
     VERIFY_ENDPOINT,

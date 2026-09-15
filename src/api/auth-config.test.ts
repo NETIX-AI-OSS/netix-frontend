@@ -34,7 +34,7 @@ it('derives the whole deployed config from the base domain', () => {
   expect(config.ON_LOGOUT).toBeUndefined()
 })
 
-it('scopes cookies and the redirect allowlist to localhost in dev, riding the proxy', () => {
+it('scopes a plain host-only cookie to the page host in dev, riding the proxy', () => {
   const config = buildAuthConfig({
     baseDomain: 'netixai.dev',
     authBaseUrl: '/user-api',
@@ -42,17 +42,36 @@ it('scopes cookies and the redirect allowlist to localhost in dev, riding the pr
     hostname: 'localhost',
   })
   expect(config).toMatchObject({
-    COOKIE_DOMAIN: 'localhost',
+    // No Domain attribute (host-only) and no Secure: stored on localhost, 127.0.0.1 and a
+    // plain-http VM address alike. envoy-ts-auth >= 2.0.2 writes SameSite=Lax for it.
+    COOKIE_DOMAIN: '',
+    COOKIE_SECURE: false,
     AUTH_BASE_URL: '/user-api',
     BASE_DOMAIN: 'localhost',
     CURRENT_APP_DOMAIN: 'localhost',
-    // SameSite=None (hard-coded in envoy-ts-auth) requires Secure even on localhost.
-    COOKIE_SECURE: true,
     // Derived but unused in dev: the hooks replace both navigations.
     LOGIN_PAGE_URL: 'https://netixai.dev/',
     LAUNCHPAD_PAGE_URL: 'https://launchpad.netixai.dev/',
   })
 })
+
+it.each(['127.0.0.1', '10.0.0.1', 'dev-box.local'])(
+  'names the page host %s in dev, so a remote dev server validates and stores its session',
+  (hostname) => {
+    const config = buildAuthConfig({
+      baseDomain: 'netixai.dev',
+      authBaseUrl: '/user-api',
+      dev: true,
+      hostname,
+    })
+    expect(config).toMatchObject({
+      COOKIE_DOMAIN: '',
+      COOKIE_SECURE: false,
+      BASE_DOMAIN: hostname,
+      CURRENT_APP_DOMAIN: hostname,
+    })
+  },
+)
 
 it('passes the dev sign-in prompt hooks through to envoy-ts-auth', () => {
   const onLogin = () => {}
@@ -66,7 +85,8 @@ it('passes the dev sign-in prompt hooks through to envoy-ts-auth', () => {
   })
   expect(config.ON_LOGIN).toBe(onLogin)
   expect(config.ON_LOGOUT).toBe(onLogout)
-  // hostname is irrelevant in dev; the allowlist is localhost either way.
+  // No hostname given: the page host falls back to localhost.
+  expect(config.BASE_DOMAIN).toBe('localhost')
   expect(config.CURRENT_APP_DOMAIN).toBe('localhost')
 })
 
@@ -108,7 +128,7 @@ it('ignores a hostname that does not sit under the base domain', () => {
   expect(config.BASE_DOMAIN).toBe('netixai.dev')
 })
 
-it('narrows nothing in dev, where both domains are already localhost', () => {
+it('narrows nothing in dev, where both domains are the page host', () => {
   const config = buildAuthConfig({
     baseDomain: 'netixai.dev',
     authBaseUrl: '/user-api',
@@ -116,6 +136,6 @@ it('narrows nothing in dev, where both domains are already localhost', () => {
     hostname: 'fire.nano.netixai.dev',
     narrowBaseDomain: true,
   })
-  expect(config.BASE_DOMAIN).toBe('localhost')
-  expect(config.CURRENT_APP_DOMAIN).toBe('localhost')
+  expect(config.BASE_DOMAIN).toBe('fire.nano.netixai.dev')
+  expect(config.CURRENT_APP_DOMAIN).toBe('fire.nano.netixai.dev')
 })
