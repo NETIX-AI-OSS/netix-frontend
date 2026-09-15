@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- cli (changed): `netix init` scaffolds from frontend-template's newest `vX.Y.Z` tag, resolved
+  at run time from the repo's tag list (numeric order, so `v1.10.0` beats `v1.9.0`), instead of
+  the `TEMPLATE_REF` pin in `src/cli/refs.ts`, which is gone. A template release no longer needs
+  a library release to be scaffolded from, and the pin can no longer go stale. `--template-ref`
+  still overrides, `--template-path` still copies a local checkout, and the resolution happens in
+  the same pre-prompt preflight that checked reachability before, so a missing gh, a bad ref or a
+  template with no release tag still fails before any question is asked.
 - api (changed): `buildAuthConfig` with `dev: true` scopes a plain host-only session cookie to
   the page the dev server is opened on — `COOKIE_DOMAIN: ''`, `COOKIE_SECURE: false`, and
   `BASE_DOMAIN` / `CURRENT_APP_DOMAIN` set to `hostname` (default `localhost`) — instead of

@@ -34,6 +34,8 @@ const makeRunner = (failing: string[] = []) => {
       return { code: 1, stdout: '', stderr: 'nope' }
     if (line.includes('/contents/')) return ok('openapi: 3.1.0\n')
     if (line.includes('/commits?')) return ok('2026-08-30T00:00:00Z\n')
+    // The preflight resolves the template's newest release tag from this list.
+    if (line.includes('/tags')) return ok('v1.0.0\nv1.0.1\n')
     return ok()
   }
   return { calls, runner }

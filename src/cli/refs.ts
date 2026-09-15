@@ -1,14 +1,11 @@
 /**
- * The pinned refs a scaffold is born with. Bumped deliberately as part of a release:
- * tag the template first, then update these, then tag the library.
+ * The pinned refs a scaffold is born with. Bumped deliberately as part of a release. The
+ * template itself is not pinned: `netix init` scaffolds from NETIX-AI/frontend-template's newest
+ * `vX.Y.Z` tag, resolved at run time (see `resolveTemplate` in template.ts).
  */
 
 /** Git ref of netix-frontend that scaffolded apps depend on. */
 export const LIB_REF = 'v2.0.3'
-
-/** Git ref of NETIX-AI/frontend-template that `netix init` scaffolds from (versioned independently of this package). */
-// Must move to the template's newest tag on every release; v1.0.1 is still its latest.
-export const TEMPLATE_REF = 'v1.0.1'
 
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
 export const REGISTRY_REF = 'v2.0.1'

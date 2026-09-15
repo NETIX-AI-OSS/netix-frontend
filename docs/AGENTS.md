@@ -27,7 +27,7 @@ This is the only agent guide in the repository. The root `AGENTS.md` and `CLAUDE
 
 ## Releases (humans decide, agents never tag/push)
 
-Tag order, library first: `pnpm sync:template ../frontend-template` (a scaffold must ship the components it renders), then update `src/cli/refs.ts` pins — `TEMPLATE_REF` names the template tag you are about to cut, `LIB_REF`/`REGISTRY_REF` this release — then bump the version + `CHANGELOG.md` in one commit and tag this repo `vX.Y.Z` (CI creates the GitHub release). Only then bump frontend-template's `netix-frontend` pin to the new tag, regenerate its lockfile, and tag it `vX.Y.Z`. The library must be tagged first because the template installs it, while `refs.ts` needs only the template's tag _name_ at build time; `netix init` is briefly broken between the two tags either way.
+Tag order, library first: `pnpm sync:template ../frontend-template` (a scaffold must ship the components it renders), then update the `src/cli/refs.ts` pins — `LIB_REF`/`REGISTRY_REF` name this release — then bump the version + `CHANGELOG.md` in one commit and tag this repo `vX.Y.Z` (CI creates the GitHub release). Only then bump frontend-template's `netix-frontend` pin to the new tag, regenerate its lockfile, and tag it `vX.Y.Z`. The library must be tagged first because the template installs it. The template is not pinned here: `netix init` resolves frontend-template's newest `vX.Y.Z` tag at run time (`--template-ref` overrides), so a template release needs no library release, and the library is never "briefly broken" between the two tags.
 
 ## Documentation
 
