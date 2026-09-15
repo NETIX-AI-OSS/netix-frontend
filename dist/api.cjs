@@ -13,14 +13,20 @@ var VERIFY_ENDPOINT = "/auth/token/verify/";
 var COOKIE_TOKEN_TTL = "300";
 var COOKIE_REFRESH_TTL = "172800";
 var COOKIE_SECURE = true;
+function appBaseDomain(hostname, baseDomain) {
+  const parent = hostname.split(".").slice(1).join(".");
+  return parent.endsWith(baseDomain) && parent !== baseDomain ? parent : baseDomain;
+}
 function buildAuthConfig({
   baseDomain,
   authBaseUrl,
   dev = false,
   hostname = "",
   onLogin,
-  onLogout
+  onLogout,
+  narrowBaseDomain = false
 }) {
+  const redirectRoot = narrowBaseDomain ? appBaseDomain(hostname, baseDomain) : baseDomain;
   return {
     COOKIE_TOKEN_TTL,
     COOKIE_REFRESH_TTL,
@@ -30,7 +36,7 @@ function buildAuthConfig({
     LOGIN_PAGE_URL: `https://${baseDomain}/`,
     AUTH_BASE_URL: authBaseUrl,
     LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
-    BASE_DOMAIN: dev ? "localhost" : baseDomain,
+    BASE_DOMAIN: dev ? "localhost" : redirectRoot,
     CURRENT_APP_DOMAIN: dev ? "localhost" : hostname,
     TOKEN_ENDPOINT,
     REFRESH_ENDPOINT,

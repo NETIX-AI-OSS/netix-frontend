@@ -69,3 +69,53 @@ it('passes the dev sign-in prompt hooks through to envoy-ts-auth', () => {
   // hostname is irrelevant in dev; the allowlist is localhost either way.
   expect(config.CURRENT_APP_DOMAIN).toBe('localhost')
 })
+
+it('leaves BASE_DOMAIN alone for a one-level host under narrowBaseDomain', () => {
+  const config = buildAuthConfig({
+    baseDomain: 'netixai.dev',
+    authBaseUrl: 'https://user.api.netixai.dev',
+    hostname: 'viz.netixai.dev',
+    narrowBaseDomain: true,
+  })
+  // The parent is the base domain itself, so there is nothing to narrow to.
+  expect(config.BASE_DOMAIN).toBe('netixai.dev')
+  expect(config.COOKIE_DOMAIN).toBe('netixai.dev')
+})
+
+it('narrows BASE_DOMAIN to the app parent for a two-level host', () => {
+  const config = buildAuthConfig({
+    baseDomain: 'netixai.dev',
+    authBaseUrl: 'https://user.api.netixai.dev',
+    hostname: 'fire.nano.netixai.dev',
+    narrowBaseDomain: true,
+  })
+  // envoy-ts-auth rejects a CURRENT_APP_DOMAIN more than one level under BASE_DOMAIN.
+  expect(config.BASE_DOMAIN).toBe('nano.netixai.dev')
+  expect(config.CURRENT_APP_DOMAIN).toBe('fire.nano.netixai.dev')
+  // The session is still shared fleet-wide: only the redirect root moves.
+  expect(config.COOKIE_DOMAIN).toBe('netixai.dev')
+  expect(config.LOGIN_PAGE_URL).toBe('https://netixai.dev/')
+  expect(config.LAUNCHPAD_PAGE_URL).toBe('https://launchpad.netixai.dev/')
+})
+
+it('ignores a hostname that does not sit under the base domain', () => {
+  const config = buildAuthConfig({
+    baseDomain: 'netixai.dev',
+    authBaseUrl: 'https://user.api.netixai.dev',
+    hostname: 'app.example.com',
+    narrowBaseDomain: true,
+  })
+  expect(config.BASE_DOMAIN).toBe('netixai.dev')
+})
+
+it('narrows nothing in dev, where both domains are already localhost', () => {
+  const config = buildAuthConfig({
+    baseDomain: 'netixai.dev',
+    authBaseUrl: '/user-api',
+    dev: true,
+    hostname: 'fire.nano.netixai.dev',
+    narrowBaseDomain: true,
+  })
+  expect(config.BASE_DOMAIN).toBe('localhost')
+  expect(config.CURRENT_APP_DOMAIN).toBe('localhost')
+})

@@ -10,6 +10,15 @@
   no-op there (`src/api/dev-login.ts` reads `globalThis.document`) and the three Expo apps had no
   local-dev path at all. The web `./api` surface is unchanged: `createDevTokenManager` is _not_
   exported from `dist/api.js` / `dist/api.cjs`.
+- api (added): `buildAuthConfig` takes an opt-in `narrowBaseDomain` option. envoy-ts-auth's
+  `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN` or exactly one
+  level below it, so every app deployed at `*.nano.netixai.dev` — two levels down — had to
+  hand-patch `BASE_DOMAIN` after the call. With the option set, `BASE_DOMAIN` becomes the host's
+  own parent when that parent still sits under `baseDomain`, and stays `baseDomain` otherwise
+  (a one-level host, or a hostname from a different domain). `COOKIE_DOMAIN`, `LOGIN_PAGE_URL`
+  and `LAUNCHPAD_PAGE_URL` keep deriving from `baseDomain`, so the session stays shared
+  fleet-wide; only the redirect-allowlist root moves. Default is `false`: existing callers are
+  unaffected.
 - Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
   review request automatically. No code change.
 - hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
