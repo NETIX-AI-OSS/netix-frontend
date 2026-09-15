@@ -31,8 +31,9 @@ declare function createDevTokenManager(config: DevTokenConfig): DevTokenManager;
  *
  * Everything derives from the one deploy input, the base domain: universal-login is served at
  * the domain root, the launchpad at `launchpad.<domain>`, and the session cookie is scoped to
- * the bare domain so every `<app>.<domain>` shares it. Local dev keeps the same shape scoped
- * to localhost, with auth riding the app's `/user-api` dev proxy against real staging.
+ * the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
+ * page the dev server is opened on instead — localhost, 127.0.0.1 or a VM address over plain
+ * http — with auth riding the app's `/user-api` dev proxy against real staging.
  *
  * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
  * stays safe for CJS/react-native builds and deterministic under test.
@@ -43,10 +44,10 @@ declare const VERIFY_ENDPOINT = "/auth/token/verify/";
 declare const COOKIE_TOKEN_TTL = "300";
 declare const COOKIE_REFRESH_TTL = "172800";
 /**
- * True even on http://localhost: envoy-ts-auth stamps every cookie `SameSite=None`, which
- * browsers only accept together with `Secure`. Chrome and Firefox treat localhost as a secure
- * context so the pair works in dev; Safari does not and silently drops the cookie — local
- * development is Chrome/Firefox.
+ * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes
+ * `false` instead (see `buildAuthConfig`): a browser stores a `Secure` cookie only in a secure
+ * context, so a dev server opened at a VM address over plain http could never keep one, and
+ * nothing in dev needs one — the token is read back by JavaScript and sent as a bearer.
  */
 declare const COOKIE_SECURE = true;
 type BuildAuthConfigOptions = {
@@ -57,9 +58,17 @@ type BuildAuthConfigOptions = {
      * staging auth, no CORS), `https://user.api.<domain>` in a build.
      */
     authBaseUrl: string;
-    /** `ENV.isDev`: scopes the cookie and the redirect allowlist to localhost. */
+    /**
+     * `ENV.isDev`: a plain host-only session cookie on the page the dev server is opened on,
+     * instead of the fleet-wide `Secure` cookie on `baseDomain`. Needs envoy-ts-auth ≥ 2.0.2,
+     * which writes `SameSite=Lax` for `COOKIE_SECURE: false`.
+     */
     dev?: boolean;
-    /** `window.location.hostname` — the deployed app's own domain, for the redirect allowlist. */
+    /**
+     * `window.location.hostname`. Deployed: the app's own domain, for the redirect allowlist.
+     * Dev: the page host — localhost, 127.0.0.1 or a VM address such as 10.0.0.1 — which
+     * envoy-ts-auth validates the config against; defaults to localhost.
+     */
     hostname?: string;
     /** Local dev: open the dev sign-in prompt instead of navigating to universal-login. */
     onLogout?: () => void;
