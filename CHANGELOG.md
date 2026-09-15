@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- api (changed): `buildAuthConfig` with `dev: true` scopes a plain host-only session cookie to
+  the page the dev server is opened on — `COOKIE_DOMAIN: ''`, `COOKIE_SECURE: false`, and
+  `BASE_DOMAIN` / `CURRENT_APP_DOMAIN` set to `hostname` (default `localhost`) — instead of
+  pinning `Domain=localhost` and `Secure`. A browser drops a cookie whose `Domain` does not match
+  the page host, and stores a `Secure` cookie only in a secure context, so a dev server opened on
+  `127.0.0.1` or at a VM address (`http://10.0.0.1:3003`) could never keep its session: sign-in
+  succeeded and the prompt came straight back. Deployed output is unchanged, and the exported
+  `COOKIE_SECURE` constant still carries the deployed value. Requires envoy-ts-auth ≥ 2.0.2,
+  which writes `SameSite=Lax` for `COOKIE_SECURE: false`; older versions
+  stamp `SameSite=None`, which browsers reject without `Secure` — bump envoy-ts-auth first, or
+  localhost sign-in breaks too. Apps no longer need to override the dev fields after the call.
 - api (restored, react-native only): `createDevTokenManager` is exported again from `./api`, but
   only through its `react-native` export condition, which now resolves to a new
   `dist/api.native.cjs` (`./api` plus the dev-token manager). v2.0.0 removed the manager because

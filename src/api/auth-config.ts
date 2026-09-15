@@ -4,8 +4,9 @@
  *
  * Everything derives from the one deploy input, the base domain: universal-login is served at
  * the domain root, the launchpad at `launchpad.<domain>`, and the session cookie is scoped to
- * the bare domain so every `<app>.<domain>` shares it. Local dev keeps the same shape scoped
- * to localhost, with auth riding the app's `/user-api` dev proxy against real staging.
+ * the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
+ * page the dev server is opened on instead — localhost, 127.0.0.1 or a VM address over plain
+ * http — with auth riding the app's `/user-api` dev proxy against real staging.
  *
  * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
  * stays safe for CJS/react-native builds and deterministic under test.
@@ -18,10 +19,10 @@ export const VERIFY_ENDPOINT = '/auth/token/verify/'
 export const COOKIE_TOKEN_TTL = '300'
 export const COOKIE_REFRESH_TTL = '172800'
 /**
- * True even on http://localhost: envoy-ts-auth stamps every cookie `SameSite=None`, which
- * browsers only accept together with `Secure`. Chrome and Firefox treat localhost as a secure
- * context so the pair works in dev; Safari does not and silently drops the cookie — local
- * development is Chrome/Firefox.
+ * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes
+ * `false` instead (see `buildAuthConfig`): a browser stores a `Secure` cookie only in a secure
+ * context, so a dev server opened at a VM address over plain http could never keep one, and
+ * nothing in dev needs one — the token is read back by JavaScript and sent as a bearer.
  */
 export const COOKIE_SECURE = true
 
@@ -33,9 +34,17 @@ export type BuildAuthConfigOptions = {
    * staging auth, no CORS), `https://user.api.<domain>` in a build.
    */
   authBaseUrl: string
-  /** `ENV.isDev`: scopes the cookie and the redirect allowlist to localhost. */
+  /**
+   * `ENV.isDev`: a plain host-only session cookie on the page the dev server is opened on,
+   * instead of the fleet-wide `Secure` cookie on `baseDomain`. Needs envoy-ts-auth ≥ 2.0.2,
+   * which writes `SameSite=Lax` for `COOKIE_SECURE: false`.
+   */
   dev?: boolean
-  /** `window.location.hostname` — the deployed app's own domain, for the redirect allowlist. */
+  /**
+   * `window.location.hostname`. Deployed: the app's own domain, for the redirect allowlist.
+   * Dev: the page host — localhost, 127.0.0.1 or a VM address such as 10.0.0.1 — which
+   * envoy-ts-auth validates the config against; defaults to localhost.
+   */
   hostname?: string
   /** Local dev: open the dev sign-in prompt instead of navigating to universal-login. */
   onLogout?: () => void
@@ -85,19 +94,25 @@ export function buildAuthConfig({
   onLogout,
   narrowBaseDomain = false,
 }: BuildAuthConfigOptions): AuthConfig {
-  // Only consulted for a deployed build: dev pins BASE_DOMAIN to localhost below.
+  // Only consulted for a deployed build: dev scopes BASE_DOMAIN to the page host below.
   const redirectRoot = narrowBaseDomain ? appBaseDomain(hostname, baseDomain) : baseDomain
+  // Dev: the session belongs to whatever page the dev server is opened on. Neither domain nor
+  // the redirect allowlist drives a navigation there (the ON_LOGIN / ON_LOGOUT hooks do), but
+  // envoy-ts-auth validates that BASE_DOMAIN and CURRENT_APP_DOMAIN agree.
+  const devHost = hostname || 'localhost'
   return {
     COOKIE_TOKEN_TTL,
     COOKIE_REFRESH_TTL,
-    COOKIE_SECURE,
-    // The bare domain covers every subdomain (RFC 6265), which is what shares the session.
-    COOKIE_DOMAIN: dev ? 'localhost' : baseDomain,
+    COOKIE_SECURE: dev ? false : COOKIE_SECURE,
+    // Deployed: the bare domain covers every subdomain (RFC 6265), which is what shares the
+    // session. Dev: no Domain attribute at all — a host-only cookie, valid on an IP literal
+    // too, where a browser would drop `Domain=localhost`.
+    COOKIE_DOMAIN: dev ? '' : baseDomain,
     LOGIN_PAGE_URL: `https://${baseDomain}/`,
     AUTH_BASE_URL: authBaseUrl,
     LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
-    BASE_DOMAIN: dev ? 'localhost' : redirectRoot,
-    CURRENT_APP_DOMAIN: dev ? 'localhost' : hostname,
+    BASE_DOMAIN: dev ? devHost : redirectRoot,
+    CURRENT_APP_DOMAIN: dev ? devHost : hostname,
     TOKEN_ENDPOINT,
     REFRESH_ENDPOINT,
     VERIFY_ENDPOINT,
