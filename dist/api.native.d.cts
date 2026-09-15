@@ -65,6 +65,15 @@ type BuildAuthConfigOptions = {
     onLogout?: () => void;
     /** Local dev: suppress the post-login launchpad redirect (the prompt handles success). */
     onLogin?: () => void;
+    /**
+     * Opt in when the app is deployed more than one level under `baseDomain` (`app.nano.<domain>`).
+     * envoy-ts-auth's `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN`
+     * or exactly one level below it, so a two-level host has to narrow `BASE_DOMAIN` to its own
+     * parent — which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
+     * stays on `baseDomain`: that is what shares the session with every other NETIX frontend.
+     * Off by default, so existing callers are unaffected.
+     */
+    narrowBaseDomain?: boolean;
 };
 type AuthConfig = {
     COOKIE_TOKEN_TTL: string;
@@ -83,7 +92,7 @@ type AuthConfig = {
     ON_LOGOUT?: () => void;
 };
 /** The AUTH_CONFIG object envoy-ts-auth expects, fully derived from the base domain. */
-declare function buildAuthConfig({ baseDomain, authBaseUrl, dev, hostname, onLogin, onLogout, }: BuildAuthConfigOptions): AuthConfig;
+declare function buildAuthConfig({ baseDomain, authBaseUrl, dev, hostname, onLogin, onLogout, narrowBaseDomain, }: BuildAuthConfigOptions): AuthConfig;
 
 /**
  * Local-development sign-in. When envoy-ts-auth reports a missing or expired session
