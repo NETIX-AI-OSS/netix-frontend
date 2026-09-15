@@ -5,10 +5,10 @@
  */
 
 /** Git ref of netix-frontend that scaffolded apps depend on. */
-export const LIB_REF = 'v2.0.3'
+export const LIB_REF = 'v2.1.0'
 
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
-export const REGISTRY_REF = 'v2.0.1'
+export const REGISTRY_REF = 'v2.1.0'
 
 /** shadcn CLI version `netix add` delegates to — the version frontend-template pins. */
 export const SHADCN_VERSION = '4.21.0'

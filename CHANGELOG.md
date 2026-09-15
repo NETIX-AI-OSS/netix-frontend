@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## v2.1.0 — 2026-09-15
 
+Minor release: dev sign-in on any host, `netix init` on the template's newest tag, restored SWR
+and react-native exports, `narrowBaseDomain`, `usePermissionsFrom`, and registry fixes.
+
+- CLI: `LIB_REF` → `v2.1.0` so `netix init` scaffolds new apps on this release; `REGISTRY_REF` →
+  `v2.1.0` because `r/` changed (`ui/select`, `ui/dialog`, `data-table`, `empty-state`). The
+  template is no longer pinned here: `netix init` resolves frontend-template's newest tag at run
+  time.
 - cli (changed): `netix init` scaffolds from frontend-template's newest `vX.Y.Z` tag, resolved
   at run time from the repo's tag list (numeric order, so `v1.10.0` beats `v1.9.0`), instead of
   the `TEMPLATE_REF` pin in `src/cli/refs.ts`, which is gone. A template release no longer needs
@@ -53,8 +60,6 @@
   scaffolded app, so it should match what frontend-template pins; it had been left on `4.19.1`
   while the template moved to `4.21.0`. The `tests/fixtures/mini-template` copy of the template's
   `package.json` is moved with it so the fixture stays verbatim.
-- CLI: `TEMPLATE_REF` stays `v1.0.1` — still frontend-template's newest tag — with a note that it
-  must move whenever the template is tagged.
 - hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
   exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
   `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
