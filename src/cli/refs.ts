@@ -7,13 +7,14 @@
 export const LIB_REF = 'v2.0.3'
 
 /** Git ref of NETIX-AI/frontend-template that `netix init` scaffolds from (versioned independently of this package). */
+// Must move to the template's newest tag on every release; v1.0.1 is still its latest.
 export const TEMPLATE_REF = 'v1.0.1'
 
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
 export const REGISTRY_REF = 'v2.0.1'
 
-/** shadcn CLI version `netix add` delegates to — same one the registry is built with. */
-export const SHADCN_VERSION = '4.19.1'
+/** shadcn CLI version `netix add` delegates to — the version frontend-template pins. */
+export const SHADCN_VERSION = '4.21.0'
 
 // The 4T5Labs org was renamed; GitHub redirects the old name, but pins stay canonical.
 export const TEMPLATE_REPO = 'NETIX-AI/frontend-template'
