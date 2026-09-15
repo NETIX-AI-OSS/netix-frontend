@@ -11,6 +11,8 @@
   and `LAUNCHPAD_PAGE_URL` keep deriving from `baseDomain`, so the session stays shared
   fleet-wide; only the redirect-allowlist root moves. Default is `false`: existing callers are
   unaffected.
+- Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
+  review request automatically. No code change.
 - hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
   exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
   `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
