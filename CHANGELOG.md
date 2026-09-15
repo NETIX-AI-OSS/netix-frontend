@@ -10,6 +10,8 @@
   no-op there (`src/api/dev-login.ts` reads `globalThis.document`) and the three Expo apps had no
   local-dev path at all. The web `./api` surface is unchanged: `createDevTokenManager` is _not_
   exported from `dist/api.js` / `dist/api.cjs`.
+- Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
+  review request automatically. No code change.
 - hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
   exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
   `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
