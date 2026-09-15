@@ -10,7 +10,7 @@ var Axios__default = /*#__PURE__*/_interopDefault(Axios);
 var TOKEN_ENDPOINT = "/auth/token/";
 var REFRESH_ENDPOINT = "/auth/token/refresh/";
 var VERIFY_ENDPOINT = "/auth/token/verify/";
-var COOKIE_TOKEN_TTL = "300";
+var COOKIE_TOKEN_TTL = "43200";
 var COOKIE_REFRESH_TTL = "172800";
 var COOKIE_SECURE = true;
 function appBaseDomain(hostname, baseDomain) {
