@@ -6,7 +6,42 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const Select = SelectPrimitive.Root
+/**
+ * Base UI renders the *value* in a closed trigger, not the chosen item's label — it has no way
+ * to know the label while `SelectContent` is unmounted. Its answer is an explicit `items` map,
+ * which would mean touching every call site; Radix read the label straight off the selected
+ * `SelectItem`, so without this every closed Select shows a raw enum ("active", "__all__")
+ * where it used to show human text.
+ *
+ * So the map is derived from the `SelectItem` children the caller already wrote. An explicit
+ * `items` prop still wins, and passing one skips the walk entirely.
+ */
+function collectItemLabels(
+  node: React.ReactNode,
+  into: Record<string, React.ReactNode>,
+): Record<string, React.ReactNode> {
+  React.Children.forEach(node, (child) => {
+    if (!React.isValidElement(child)) return
+    const props = child.props as { value?: unknown; children?: React.ReactNode }
+    if (child.type === SelectItem && typeof props.value === 'string') {
+      into[props.value] = props.children
+    }
+    if (props.children) collectItemLabels(props.children, into)
+  })
+  return into
+}
+
+function Select({ children, items, ...props }: SelectPrimitive.Root.Props<string>) {
+  const derived = React.useMemo(
+    () => (items ? undefined : collectItemLabels(children, {})),
+    [items, children],
+  )
+  return (
+    <SelectPrimitive.Root items={items ?? derived} {...props}>
+      {children}
+    </SelectPrimitive.Root>
+  )
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
