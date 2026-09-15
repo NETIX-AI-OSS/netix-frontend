@@ -77,3 +77,12 @@ export {
   type SentryEventHint,
   shouldCaptureHttpStatus,
 } from './sentry'
+export {
+  computeSwrBackoffDelayMs,
+  createSwrOnErrorRetry,
+  isRetryableSwrError,
+  SWR_MAX_RETRIES,
+  type SwrOnErrorRetry,
+  type SwrRetryOptions,
+  type SwrRevalidatorOptions,
+} from './swr-retry'

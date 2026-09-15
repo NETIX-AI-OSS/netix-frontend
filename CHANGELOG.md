@@ -2,6 +2,48 @@
 
 ## Unreleased
 
+- api (restored, react-native only): `createDevTokenManager` is exported again from `./api`, but
+  only through its `react-native` export condition, which now resolves to a new
+  `dist/api.native.cjs` (`./api` plus the dev-token manager). v2.0.0 removed the manager because
+  `createDevLoginPrompt` supersedes it — true on the web, where a real form can be mounted and
+  credentials stay out of `.env`; React Native has no DOM, so `createDevLoginPrompt` is a silent
+  no-op there (`src/api/dev-login.ts` reads `globalThis.document`) and the three Expo apps had no
+  local-dev path at all. The web `./api` surface is unchanged: `createDevTokenManager` is _not_
+  exported from `dist/api.js` / `dist/api.cjs`.
+- api (restored): `createSwrOnErrorRetry`, `computeSwrBackoffDelayMs`, `isRetryableSwrError` and
+  `SWR_MAX_RETRIES` are exported from `./api` again, unchanged from v1.0.2 along with their
+  tests. v2.0.0 removed them on the premise that the fleet had standardised on TanStack Query,
+  but four of the five apps on v2 fetch through SWR and each rebuilt the same policy locally
+  (~211 LOC across `prism-ui`, `launchpad-ui`, `user-profile-ui` and `user-management-ui`; the
+  last two are byte-identical). `createQueryRetryPolicy` remains the policy for TanStack Query
+  apps — this only stops SWR apps from having to re-derive one.
+- No new dependency: `swr-retry` imports nothing from `swr` (it is composed from `errors`,
+  `predicates`, `retry` and `retry-after`), and the `swr` peer is already optional in
+  `peerDependenciesMeta`.
+- api (added): `buildAuthConfig` takes an opt-in `narrowBaseDomain` option. envoy-ts-auth's
+  `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN` or exactly one
+  level below it, so every app deployed at `*.nano.netixai.dev` — two levels down — had to
+  hand-patch `BASE_DOMAIN` after the call. With the option set, `BASE_DOMAIN` becomes the host's
+  own parent when that parent still sits under `baseDomain`, and stays `baseDomain` otherwise
+  (a one-level host, or a hostname from a different domain). `COOKIE_DOMAIN`, `LOGIN_PAGE_URL`
+  and `LAUNCHPAD_PAGE_URL` keep deriving from `baseDomain`, so the session stays shared
+  fleet-wide; only the redirect-allowlist root moves. Default is `false`: existing callers are
+  unaffected.
+- Repository: added `.github/CODEOWNERS` (`* @prafiles`), so every pull request here gets a
+  review request automatically. No code change.
+- CLI: `SHADCN_VERSION` → `4.21.0`. `netix add` runs `pnpm dlx shadcn@<version>` inside the
+  scaffolded app, so it should match what frontend-template pins; it had been left on `4.19.1`
+  while the template moved to `4.21.0`. The `tests/fixtures/mini-template` copy of the template's
+  `package.json` is moved with it so the fixture stays verbatim.
+- CLI: `TEMPLATE_REF` stays `v1.0.1` — still frontend-template's newest tag — with a note that it
+  must move whenever the template is tagged.
+- hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
+  exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
+  `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
+  the new `./hooks/permissions` subpath: `./hooks` statically imports `@tanstack/react-query`
+  (through `useCurrentUser`), so the four v2 apps that fetch through SWR cannot import that entry
+  at all. The new subpath's bundle imports neither `@tanstack/react-query` nor `envoy-ts-auth`.
+  No new dependency.
 - registry `ui/select` (fixed): a closed `Select` shows the chosen item's **label**, not its raw
   value. `Select` was a bare re-export of `SelectPrimitive.Root`, and Base UI cannot know the
   label while `SelectContent` is unmounted, so every closed select rendered the enum
@@ -12,13 +54,6 @@
   bounded column (`max-h-[85dvh]`, `flex flex-col`, `overflow-hidden`) and header/footer are
   `flex-none`, so long dialog content scrolls inside the dialog instead of growing it past the
   viewport.
-- hooks (added): `usePermissionsFrom(user, isLoading?)` — the permission state `usePermissions`
-  exposes, over a user the caller fetched by any means. `usePermissions` is now this hook plus
-  `useCurrentUser`, so its behaviour is unchanged. Exported from `./hooks` and, additionally, from
-  the new `./hooks/permissions` subpath: `./hooks` statically imports `@tanstack/react-query`
-  (through `useCurrentUser`), so the four v2 apps that fetch through SWR cannot import that entry
-  at all. The new subpath's bundle imports neither `@tanstack/react-query` nor `envoy-ts-auth`.
-  No new dependency.
 - registry `data-table` (fixed): `headerClassName` and `cellClassName` no longer _replace_ the
   default background. A column passing only alignment (`text-end`) silently lost its `bg-card`
   fill, because the default was written as `headerClassName || 'bg-card'` (and
