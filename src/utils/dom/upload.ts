@@ -1,3 +1,5 @@
+import { toSafeUploadFilename } from '../filename'
+
 export const MISSING_TOKEN_ERROR =
   'Unable to retrieve authentication token. Please sign in and try again.'
 
@@ -21,7 +23,7 @@ export async function uploadStaticFile(
   const formData = new FormData()
   formData.append('name', name)
   formData.append('mime', mime)
-  formData.append('file', file)
+  formData.append('file', file, toSafeUploadFilename(name))
   const response = await fetch(options.endpoint, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },

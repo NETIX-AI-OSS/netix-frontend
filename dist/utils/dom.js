@@ -114,6 +114,14 @@ function lazyWithRetry(importFn) {
   });
 }
 
+// src/utils/filename.ts
+var FALLBACK_UPLOAD_FILENAME = "upload";
+var WAF_UNSAFE_FILENAME_CHARS = /["';=\\]|%(?:22|27|3b|3d|5c)/gi;
+function toSafeUploadFilename(name) {
+  const sanitized = (name ?? "").replace(WAF_UNSAFE_FILENAME_CHARS, "_").trim();
+  return sanitized || FALLBACK_UPLOAD_FILENAME;
+}
+
 // src/utils/dom/upload.ts
 var MISSING_TOKEN_ERROR = "Unable to retrieve authentication token. Please sign in and try again.";
 async function uploadStaticFile(name, mime, file, options) {
@@ -124,7 +132,7 @@ async function uploadStaticFile(name, mime, file, options) {
   const formData = new FormData();
   formData.append("name", name);
   formData.append("mime", mime);
-  formData.append("file", file);
+  formData.append("file", file, toSafeUploadFilename(name));
   const response = await fetch(options.endpoint, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
