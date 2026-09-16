@@ -75,3 +75,28 @@ describe('uploadFile', () => {
     expect(compress).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('multipart filename', () => {
+  it('sends a WAF-safe filename while the real name rides in the name field', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(201))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const raw = "Quotation for Children's City.pdf"
+    await uploadStaticFile(raw, 'application/pdf', new Blob(['x']), OPTIONS)
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const body = init.body as FormData
+    expect(body.get('name')).toBe(raw)
+    expect((body.get('file') as File).name).toBe('Quotation for Children_s City.pdf')
+  })
+
+  it('keeps the uncompressed File path from leaking its raw name', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(201))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await uploadFile(new File(['x'], "O'Brien HVAC.pdf", { type: 'application/pdf' }), OPTIONS)
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(((init.body as FormData).get('file') as File).name).toBe('O_Brien HVAC.pdf')
+  })
+})

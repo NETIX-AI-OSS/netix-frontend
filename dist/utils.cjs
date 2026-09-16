@@ -3655,6 +3655,14 @@ async function getFileMetadata(url) {
   }
 }
 
+// src/utils/filename.ts
+var FALLBACK_UPLOAD_FILENAME = "upload";
+var WAF_UNSAFE_FILENAME_CHARS = /["';=\\]|%(?:22|27|3b|3d|5c)/gi;
+function toSafeUploadFilename(name) {
+  const sanitized = (name ?? "").replace(WAF_UNSAFE_FILENAME_CHARS, "_").trim();
+  return sanitized || FALLBACK_UPLOAD_FILENAME;
+}
+
 // src/utils/formatters.ts
 var getFullUserName = (user) => {
   const firstName = user?.first_name;
@@ -3683,6 +3691,7 @@ function formatCurrency(value, options) {
 
 exports.DATE_FORMAT = DATE_FORMAT;
 exports.DEFAULT_EMAIL_ERROR = DEFAULT_EMAIL_ERROR;
+exports.FALLBACK_UPLOAD_FILENAME = FALLBACK_UPLOAD_FILENAME;
 exports.FULL_DATE_FORMAT = FULL_DATE_FORMAT;
 exports.FULL_DATE_FORMAT_EXPANDED_MONTH = FULL_DATE_FORMAT_EXPANDED_MONTH;
 exports.FULL_DATE_TIME_FORMAT = FULL_DATE_TIME_FORMAT;
@@ -3747,3 +3756,4 @@ exports.startOfMonth = startOfMonth;
 exports.subDays = subDays;
 exports.subHours = subHours;
 exports.timeDifference = timeDifference;
+exports.toSafeUploadFilename = toSafeUploadFilename;

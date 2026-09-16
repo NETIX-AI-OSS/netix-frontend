@@ -3653,6 +3653,14 @@ async function getFileMetadata(url) {
   }
 }
 
+// src/utils/filename.ts
+var FALLBACK_UPLOAD_FILENAME = "upload";
+var WAF_UNSAFE_FILENAME_CHARS = /["';=\\]|%(?:22|27|3b|3d|5c)/gi;
+function toSafeUploadFilename(name) {
+  const sanitized = (name ?? "").replace(WAF_UNSAFE_FILENAME_CHARS, "_").trim();
+  return sanitized || FALLBACK_UPLOAD_FILENAME;
+}
+
 // src/utils/formatters.ts
 var getFullUserName = (user) => {
   const firstName = user?.first_name;
@@ -3679,4 +3687,4 @@ function formatCurrency(value, options) {
   }).format(value);
 }
 
-export { DATE_FORMAT, DEFAULT_EMAIL_ERROR, FULL_DATE_FORMAT, FULL_DATE_FORMAT_EXPANDED_MONTH, FULL_DATE_TIME_FORMAT, FULL_DATE_WITHOUT_WEEK_FORMAT, GMT_FORMAT, MONTH_OPTIONS, STANDARD_TIME_FORMAT, STANDARD_TIME_FORMAT_WITHOUT_SECONDS, TIMEZONE, TIME_FORMAT, UPPERCASE_DATE_FORMAT, UPPERCASE_DATE_TIME_FORMAT, UTC_TIME_FORMAT, YEAR_OPTIONS, addDays, arrayToCommaSeparated, buildYearOptions, cn, commaSeparatedToArray, configureDates, emailValidator, endOfDay, filterIntersection, format, formatCurrency, formatDateAsEndOfDayUpperCase, formatDurationHMS, formatFileSize, formatTimerClock, getEnumOptions, getFileMetadata, getFormattedShiftTime, getFullDate, getFullDateByYear, getFullDateTime, getFullDateWithoutTime, getFullGmtTime, getFullUserName, getHourDifference, getMonthName, getMonthStartAndEnd, getNumberOfDaysInMonth, getStandardTime, getStandardTimeWithSecond, getTime, getTimeEstimate, getUpperCaseDate, getUpperCaseDateTime, getUserNameInitials, getWeekStartDate, intervalToDuration, isScheduleDayVaild, isScheduleDayValid, milliSecondsToDuration, normalizeClockString, parseLocalDate, removeDuplicates, removeEmptyAttributes, startOfDay, startOfHour, startOfMonth, subDays, subHours, timeDifference };
+export { DATE_FORMAT, DEFAULT_EMAIL_ERROR, FALLBACK_UPLOAD_FILENAME, FULL_DATE_FORMAT, FULL_DATE_FORMAT_EXPANDED_MONTH, FULL_DATE_TIME_FORMAT, FULL_DATE_WITHOUT_WEEK_FORMAT, GMT_FORMAT, MONTH_OPTIONS, STANDARD_TIME_FORMAT, STANDARD_TIME_FORMAT_WITHOUT_SECONDS, TIMEZONE, TIME_FORMAT, UPPERCASE_DATE_FORMAT, UPPERCASE_DATE_TIME_FORMAT, UTC_TIME_FORMAT, YEAR_OPTIONS, addDays, arrayToCommaSeparated, buildYearOptions, cn, commaSeparatedToArray, configureDates, emailValidator, endOfDay, filterIntersection, format, formatCurrency, formatDateAsEndOfDayUpperCase, formatDurationHMS, formatFileSize, formatTimerClock, getEnumOptions, getFileMetadata, getFormattedShiftTime, getFullDate, getFullDateByYear, getFullDateTime, getFullDateWithoutTime, getFullGmtTime, getFullUserName, getHourDifference, getMonthName, getMonthStartAndEnd, getNumberOfDaysInMonth, getStandardTime, getStandardTimeWithSecond, getTime, getTimeEstimate, getUpperCaseDate, getUpperCaseDateTime, getUserNameInitials, getWeekStartDate, intervalToDuration, isScheduleDayVaild, isScheduleDayValid, milliSecondsToDuration, normalizeClockString, parseLocalDate, removeDuplicates, removeEmptyAttributes, startOfDay, startOfHour, startOfMonth, subDays, subHours, timeDifference, toSafeUploadFilename };
