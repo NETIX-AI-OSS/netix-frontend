@@ -39,6 +39,20 @@
         "default": "./dist/api.cjs"
       }
     },
+    "./api/auth-config": {
+      "react-native": {
+        "types": "./dist/api/auth-config.d.cts",
+        "default": "./dist/api/auth-config.cjs"
+      },
+      "import": {
+        "types": "./dist/api/auth-config.d.ts",
+        "default": "./dist/api/auth-config.js"
+      },
+      "require": {
+        "types": "./dist/api/auth-config.d.cts",
+        "default": "./dist/api/auth-config.cjs"
+      }
+    },
     "./auth": {
       "import": {
         "types": "./dist/auth.d.ts",

@@ -25,7 +25,7 @@ it('derives the whole deployed config from the base domain', () => {
     COOKIE_DOMAIN: 'netixai.dev',
     LOGIN_PAGE_URL: 'https://netixai.dev/',
     AUTH_BASE_URL: 'https://user.api.netixai.dev',
-    LAUNCHPAD_PAGE_URL: 'https://launchpad.netixai.dev/',
+    LAUNCHPAD_PAGE_URL: 'https://netixai.dev/',
     BASE_DOMAIN: 'netixai.dev',
     CURRENT_APP_DOMAIN: 'cafm.netixai.dev',
     COOKIE_SECURE: true,
@@ -51,7 +51,7 @@ it('scopes a plain host-only cookie to the page host in dev, riding the proxy', 
     CURRENT_APP_DOMAIN: 'localhost',
     // Derived but unused in dev: the hooks replace both navigations.
     LOGIN_PAGE_URL: 'https://netixai.dev/',
-    LAUNCHPAD_PAGE_URL: 'https://launchpad.netixai.dev/',
+    LAUNCHPAD_PAGE_URL: 'https://netixai.dev/',
   })
 })
 
@@ -115,7 +115,7 @@ it('narrows BASE_DOMAIN to the app parent for a two-level host', () => {
   // The session is still shared fleet-wide: only the redirect root moves.
   expect(config.COOKIE_DOMAIN).toBe('netixai.dev')
   expect(config.LOGIN_PAGE_URL).toBe('https://netixai.dev/')
-  expect(config.LAUNCHPAD_PAGE_URL).toBe('https://launchpad.netixai.dev/')
+  expect(config.LAUNCHPAD_PAGE_URL).toBe('https://netixai.dev/')
 })
 
 it('ignores a hostname that does not sit under the base domain', () => {

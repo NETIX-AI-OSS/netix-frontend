@@ -30,13 +30,15 @@ declare function createDevTokenManager(config: DevTokenConfig): DevTokenManager;
  * hand-maintained copies of these constants; this module is the single source of truth.
  *
  * Everything derives from the one deploy input, the base domain: universal-login is served at
- * the domain root, the launchpad at `launchpad.<domain>`, and the session cookie is scoped to
- * the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
+ * the domain root — the sign-in form, and the launcher once signed in — and the session cookie
+ * is scoped to the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
  * page the dev server is opened on instead — localhost, 127.0.0.1 or a VM address over plain
  * http — with auth riding the app's `/user-api` dev proxy against real staging.
  *
  * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
- * stays safe for CJS/react-native builds and deterministic under test.
+ * stays safe for CJS/react-native builds and deterministic under test. It imports nothing, and
+ * is also shipped as `netix-frontend/api/auth-config` so a page that only needs this config
+ * (the sign-in page) does not pull axios in through `./api`.
  */
 declare const TOKEN_ENDPOINT = "/auth/token/";
 declare const REFRESH_ENDPOINT = "/auth/token/refresh/";
@@ -72,7 +74,7 @@ type BuildAuthConfigOptions = {
     hostname?: string;
     /** Local dev: open the dev sign-in prompt instead of navigating to universal-login. */
     onLogout?: () => void;
-    /** Local dev: suppress the post-login launchpad redirect (the prompt handles success). */
+    /** Local dev: suppress the post-login launcher redirect (the prompt handles success). */
     onLogin?: () => void;
     /**
      * Opt in when the app is deployed more than one level under `baseDomain` (`app.nano.<domain>`).
