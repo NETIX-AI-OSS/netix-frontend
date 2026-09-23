@@ -93,7 +93,8 @@ function buildAuthConfig({
     COOKIE_DOMAIN: dev ? "" : baseDomain,
     LOGIN_PAGE_URL: `https://${baseDomain}/`,
     AUTH_BASE_URL: authBaseUrl,
-    LAUNCHPAD_PAGE_URL: `https://launchpad.${baseDomain}/`,
+    // The launcher lives on universal-login's root page, shown there once signed in.
+    LAUNCHPAD_PAGE_URL: `https://${baseDomain}/`,
     BASE_DOMAIN: dev ? devHost : redirectRoot,
     CURRENT_APP_DOMAIN: dev ? devHost : hostname,
     TOKEN_ENDPOINT,

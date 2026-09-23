@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- api (changed): `buildAuthConfig` sets `LAUNCHPAD_PAGE_URL` to `https://<baseDomain>/` instead of
+  `https://launchpad.<baseDomain>/`. The launcher moved to universal-login's root page, which shows
+  it once the user is signed in, so a sign-in with no `?continue=` lands there. universal-login
+  already overrides both URLs to its own origin; every other app picks the new URL up on upgrade.
+- api (added): a `netix-frontend/api/auth-config` entry that exports `buildAuthConfig` and the
+  canonical auth constants alone. `./api` bundles them with `createHttpClient` in one module graph,
+  so a page that only needs the config — universal-login's sign-in page — loaded axios (~14 kB
+  gzip) as well. The new entry imports nothing. `./api` still exports the same names.
+
 ## v2.1.0 — 2026-09-15
 
 Minor release: dev sign-in on any host, `netix init` on the template's newest tag, restored SWR

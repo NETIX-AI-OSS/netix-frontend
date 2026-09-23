@@ -19,6 +19,8 @@ export default defineConfig([
   {
     entry: {
       api: 'src/api/index.ts',
+      // buildAuthConfig alone, for pages that must not load axios with it.
+      'api/auth-config': 'src/api/auth-config.ts',
       auth: 'src/auth/index.ts',
       hooks: 'src/hooks/index.ts',
       'hooks/permissions': 'src/hooks/permissions.ts',
