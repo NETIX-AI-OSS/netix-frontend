@@ -5,7 +5,7 @@
  */
 
 /** Git ref of netix-frontend that scaffolded apps depend on. */
-export const LIB_REF = 'v2.1.0'
+export const LIB_REF = 'v2.2.0'
 
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
 export const REGISTRY_REF = 'v2.1.0'

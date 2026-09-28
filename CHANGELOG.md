@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased
+## v2.2.0 — 2026-09-28
 
+Minor release: the launcher at the domain root, an axios-free `api/auth-config` entry, access
+cookies that live as long as the access JWT, and WAF-safe upload filenames.
+
+- CLI: `LIB_REF` → `v2.2.0` so `netix init` scaffolds new apps on this release. `REGISTRY_REF`
+  stays `v2.1.0`: `r/` has not changed since.
 - api (changed): `buildAuthConfig` sets `LAUNCHPAD_PAGE_URL` to `https://<baseDomain>/` instead of
   `https://launchpad.<baseDomain>/`. The launcher moved to universal-login's root page, which shows
   it once the user is signed in, so a sign-in with no `?continue=` lands there. universal-login
@@ -10,6 +15,18 @@
   canonical auth constants alone. `./api` bundles them with `createHttpClient` in one module graph,
   so a page that only needs the config — universal-login's sign-in page — loaded axios (~14 kB
   gzip) as well. The new entry imports nothing. `./api` still exports the same names.
+- api (fixed): `COOKIE_TOKEN_TTL` is `'43200'` (12 h) instead of `'300'` (5 min), the lifetime of
+  the access JWT it carries (user-management `TOKEN_LIFETIME_MINS` 720). The client threw a
+  still-valid token away every 5 minutes and refreshed on nearly every page load. At the boundary
+  an expired token fails verify and `reviveToken()` refreshes it silently, so the worst case is one
+  extra round-trip, not a sign-out. `COOKIE_REFRESH_TTL` already matched at `'172800'`.
+- utils (added, fixed): `toSafeUploadFilename(name)` and `FALLBACK_UPLOAD_FILENAME`, exported from
+  `./utils` so the React Native apps can use them too. `uploadStaticFile` and `uploadFile`
+  (`./utils/dom`) now send the multipart `filename=` through it. The edge WAF (OWASP CRS 920120)
+  refused any upload whose filename held `" ' ; = \` or their percent-escapes with a 403 before
+  it reached static-service — e.g. "Quotation for Children's City.pdf". static-service stores the
+  file under the separate `name` field, which keeps the original name, so only the multipart
+  filename changes.
 
 ## v2.1.0 — 2026-09-15
 
