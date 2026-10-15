@@ -105,6 +105,16 @@ describe('tokens.css', () => {
     expect(dark).not.toContain('--cat-1:')
     expect(dark).not.toContain('--space-4:')
     expect(dark).not.toContain('--primary:')
+    expect(dark).not.toContain('--status-success:')
+  })
+
+  it('gives the status inks and borders and the sequential ramp their own dark values', () => {
+    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('@theme inline'))
+    expect(dark).toContain('--status-neutral: oklch(0.54 0.012 247);')
+    expect(dark).toContain('--status-neutral-foreground: oklch(0.72 0.012 247);')
+    expect(dark).toContain('--status-info-border: oklch(0.4 0.07 250);')
+    expect(dark).toContain('--chart-sequential-1: oklch(0.29 0.02 241);')
+    expect(dark).toContain('--chart-sequential-5: oklch(0.77 0.12 241);')
   })
 
   it('maps every Tailwind colour, the fonts and the radius scale', () => {
