@@ -13,7 +13,7 @@ export type TokenName = keyof (typeof tokens)['light']
 export const STATUS_NAMES = ['success', 'warning', 'danger', 'info', 'neutral'] as const
 export type StatusName = (typeof STATUS_NAMES)[number]
 
-/** base = the ink/graph colour, foreground = text ink, surface/border = subtle containers. */
+/** base = fill/graph colour (3:1), foreground = text ink (4.5:1), surface/border = containers. */
 export type StatusSlot = 'base' | 'foreground' | 'surface' | 'border'
 
 export const NOTICE_SEVERITIES = ['advisory', 'attention', 'critical'] as const

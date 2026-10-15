@@ -1,5 +1,29 @@
 # Changelog
 
+## v2.2.1 — 2026-10-15
+
+Bug-fix patch: the Nova palette's dark-mode gaps in the status ladder and the sequential ramp.
+
+- CLI: `LIB_REF` → `v2.2.1` so `netix init` scaffolds new apps on this release. `REGISTRY_REF`
+  stays `v2.1.0`: `r/` has not changed since.
+- tokens (fixed): `--status-neutral` was `oklch(0.43 0.012 247)` in both modes, 2.16:1 on the
+  dark card and 1.95:1 on muted. Dark is now `oklch(0.54 0.012 247)` (3.47:1 / 3.12:1, and
+  `--text-inverse` on a solid neutral stays 4.77:1), and `--status-neutral-foreground` has its own
+  dark text ink, `oklch(0.72 0.012 247)` (7.07:1 / 6.37:1).
+- tokens (fixed): every `--status-*-foreground` aliased its base, so dark status text was
+  3.00–4.71:1 on the card, muted panel or its own surface. Each now has a dark value at
+  6.08–8.63:1. The light values also failed AA on muted or the surface (warning 3.26–3.72:1) and
+  are now a darker step at 5.03–6.17:1, so light status text renders slightly darker.
+- tokens (fixed): `--status-{success,warning,danger,info}-border` kept their light pastels in
+  dark (10:1 on the card, brighter than the ink). Dark borders are hairlines at 1.83–2.06:1.
+- tokens (fixed): `--chart-sequential-1..5` had no dark values, so in dark step 1 was the
+  brightest swatch (14.73:1 on the card, falling to 2.85:1 at step 5) and heatmaps read
+  inverted. The dark ramp runs `oklch(0.29 0.02 241)` → `oklch(0.77 0.12 241)` (1.24:1 rising to
+  8.58:1), so low is dim and high is bright in both themes.
+- Unchanged: the success/warning/danger/info base colours. They are the fill colour that carries
+  white on-solid ink (4.85–5.25:1) and already clear 3:1 on the dark card and muted panel. Read
+  status text from `text-status-*-foreground`, not the base; the design-system docs now say so.
+
 ## v2.2.0 — 2026-09-28
 
 Minor release: the launcher at the domain root, an axios-free `api/auth-config` entry, access
