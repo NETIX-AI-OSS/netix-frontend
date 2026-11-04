@@ -1,4 +1,4 @@
-import { C as CurrentUser } from '../current-user-B0Z0_kAv.cjs';
+import { CurrentUser } from '../auth.cjs';
 
 type PermissionsState = {
     user: CurrentUser | null;
@@ -15,4 +15,5 @@ type PermissionsState = {
  */
 declare function usePermissionsFrom(user: CurrentUser | null | undefined, isLoading?: boolean): PermissionsState;
 
-export { type PermissionsState, usePermissionsFrom };
+export { usePermissionsFrom };
+export type { PermissionsState };

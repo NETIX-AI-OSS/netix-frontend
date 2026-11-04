@@ -17,4 +17,5 @@ type CurrentUser = {
 /** `/auth/me/` may nest the user; malformed payloads are rejected rather than leaked. */
 declare function normalizeCurrentUser(payload: unknown): CurrentUser | null;
 
-export { type AccessGroup as A, type CurrentUser as C, normalizeCurrentUser as n };
+export { normalizeCurrentUser as n };
+export type { AccessGroup as A, CurrentUser as C };

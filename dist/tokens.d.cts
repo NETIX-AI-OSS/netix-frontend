@@ -2,7 +2,9 @@ declare const STYLE_NAMES: readonly ["nova", "rhea"];
 
 declare const __style_names_STYLE_NAMES: typeof STYLE_NAMES;
 declare namespace __style_names {
-  export { __style_names_STYLE_NAMES as STYLE_NAMES };
+  export {
+    __style_names_STYLE_NAMES as STYLE_NAMES,
+  };
 }
 
 declare const tokens: {
@@ -347,4 +349,5 @@ declare const noticeColor: (severity: NoticeSeverity, mode?: ThemeMode, slot?: "
 /** Okabe–Ito categorical ramp, in order — never use it to encode status. */
 declare const chartPalette: (mode?: ThemeMode) => string[];
 
-export { NOTICE_SEVERITIES, type NoticeSeverity, STATUS_NAMES, STYLE_NAMES, type StatusName, type StatusSlot, type StyleName, type ThemeMode, type TokenName, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };
+export { NOTICE_SEVERITIES, STATUS_NAMES, STYLE_NAMES, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };
+export type { NoticeSeverity, StatusName, StatusSlot, StyleName, ThemeMode, TokenName };
