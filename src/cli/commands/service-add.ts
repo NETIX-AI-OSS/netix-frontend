@@ -26,7 +26,8 @@ const bail = (value: unknown): never => {
   throw value
 }
 
-const answer = <T>(value: T | symbol): T => (p.isCancel(value) ? bail(value) : (value as T))
+const answer = <T>(value: T | symbol): Exclude<T, symbol> =>
+  p.isCancel(value) ? bail(value) : (value as Exclude<T, symbol>)
 
 /**
  * `netix service add` — wire backend services into an app that already exists:

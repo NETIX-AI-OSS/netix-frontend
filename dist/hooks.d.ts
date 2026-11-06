@@ -1,6 +1,6 @@
 import { PermissionsState } from './hooks/permissions.js';
 export { usePermissionsFrom } from './hooks/permissions.js';
-import { C as CurrentUser } from './current-user-B0Z0_kAv.js';
+import { CurrentUser } from './auth.js';
 
 type SetSearchParams = (next: URLSearchParams, options?: {
     replace?: boolean;
@@ -45,4 +45,5 @@ declare function useUrlTab(binding: SearchParamsBinding, options?: UrlTabOptions
     updateTab: (updater: Updater<string | undefined>) => void;
 };
 
-export { type PaginationState, PermissionsState, type SearchParamsBinding, type SetSearchParams, type Updater, type UrlPaginationOptions, type UrlTabOptions, applyUpdater, useCurrentUser, usePermissions, useUrlPagination, useUrlTab };
+export { PermissionsState, applyUpdater, useCurrentUser, usePermissions, useUrlPagination, useUrlTab };
+export type { PaginationState, SearchParamsBinding, SetSearchParams, Updater, UrlPaginationOptions, UrlTabOptions };

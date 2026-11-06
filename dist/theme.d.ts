@@ -33,4 +33,5 @@ declare const STYLE_STORAGE_KEY = "netix-style";
 declare function ThemeProvider({ children, defaultTheme, defaultStyle, storageKey, styleStorageKey, }: ThemeProviderProps): react.JSX.Element;
 declare const useTheme: () => ThemeProviderState;
 
-export { type ResolvedTheme, STYLES, STYLE_STORAGE_KEY, type Style, THEME_STORAGE_KEY, type Theme, ThemeProvider, type ThemeProviderProps, type ThemeProviderState, useTheme };
+export { STYLES, STYLE_STORAGE_KEY, THEME_STORAGE_KEY, ThemeProvider, useTheme };
+export type { ResolvedTheme, Style, Theme, ThemeProviderProps, ThemeProviderState };

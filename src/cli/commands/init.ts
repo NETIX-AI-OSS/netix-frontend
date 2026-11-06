@@ -42,7 +42,8 @@ const bail = (value: unknown): never => {
 const isPort = (value: string) =>
   /^\d+$/.test(value.trim()) && Number(value) >= 1 && Number(value) <= 65535
 
-const answer = <T>(value: T | symbol): T => (p.isCancel(value) ? bail(value) : (value as T))
+const answer = <T>(value: T | symbol): Exclude<T, symbol> =>
+  p.isCancel(value) ? bail(value) : (value as Exclude<T, symbol>)
 
 export async function init(flags: InitFlags, runner: Runner = run) {
   const manifest = loadManifest()

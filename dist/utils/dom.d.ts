@@ -49,4 +49,5 @@ declare function uploadFile(file: File, options: UploadOptions & {
     compressImages?: boolean;
 }): Promise<unknown>;
 
-export { BUILD_OUTPUT_PREFIX, CHUNK_RELOAD_WINDOW_MS, type DownloadError, type DownloadFileOptions, MAX_CHUNK_RELOADS, MISSING_TOKEN_ERROR, SESSION_STORAGE_KEY, type UploadOptions, canReloadForChunkError, downloadFile, installChunkErrorReloadHandler, isChunkLoadError, isChunkLoadErrorEvent, isChunkLoadMessage, lazyWithRetry, recordChunkReload, saveFile, uploadFile, uploadStaticFile };
+export { BUILD_OUTPUT_PREFIX, CHUNK_RELOAD_WINDOW_MS, MAX_CHUNK_RELOADS, MISSING_TOKEN_ERROR, SESSION_STORAGE_KEY, canReloadForChunkError, downloadFile, installChunkErrorReloadHandler, isChunkLoadError, isChunkLoadErrorEvent, isChunkLoadMessage, lazyWithRetry, recordChunkReload, saveFile, uploadFile, uploadStaticFile };
+export type { DownloadError, DownloadFileOptions, UploadOptions };

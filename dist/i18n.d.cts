@@ -1,71 +1,72 @@
 import { Resource, i18n, InitOptions } from 'i18next';
 
-var active = "Active";
-var add = "Add";
-var asset = "Asset";
-var back = "Back";
-var cancel = "Cancel";
-var close = "Close";
-var confirm = "Confirm";
-var created_on = "Created on";
-var dark = "Dark";
-var edit = "Edit";
-var email = "Email";
-var home = "Home";
-var light = "Light";
-var loading = "Loading...";
-var logout = "Logout";
-var na = "NA";
-var name = "Name";
-var next = "Next";
-var no = "No";
-var no_data = "There is nothing here";
-var open = "Open";
-var profile = "Profile";
-var save = "Save";
-var search = "Search";
-var settings = "Settings";
-var status = "Status";
-var submit = "Submit";
-var support = "Support";
-var switch_organization = "Switch organization";
-var system = "System";
-var version = "Version";
-var yes = "Yes";
-var en = {
-	active: active,
-	add: add,
-	asset: asset,
-	back: back,
-	cancel: cancel,
-	close: close,
-	confirm: confirm,
-	created_on: created_on,
-	dark: dark,
-	"delete": "Delete",
-	edit: edit,
-	email: email,
-	home: home,
-	light: light,
-	loading: loading,
-	logout: logout,
-	na: na,
-	name: name,
-	next: next,
-	no: no,
-	no_data: no_data,
-	open: open,
-	profile: profile,
-	save: save,
-	search: search,
-	settings: settings,
-	status: status,
-	submit: submit,
-	support: support,
-	switch_organization: switch_organization,
-	system: system,
-	version: version,
-	yes: yes
+declare let active: string;
+declare let add: string;
+declare let asset: string;
+declare let back: string;
+declare let cancel: string;
+declare let close: string;
+declare let confirm: string;
+declare let created_on: string;
+declare let dark: string;
+declare let edit: string;
+declare let email: string;
+declare let home: string;
+declare let light: string;
+declare let loading: string;
+declare let logout: string;
+declare let na: string;
+declare let name: string;
+declare let next: string;
+declare let no: string;
+declare let no_data: string;
+declare let open: string;
+declare let profile: string;
+declare let save: string;
+declare let search: string;
+declare let settings: string;
+declare let status: string;
+declare let submit: string;
+declare let support: string;
+declare let switch_organization: string;
+declare let system: string;
+declare let version: string;
+declare let yes: string;
+
+
+declare const export_default: {
+  active: typeof active;
+  add: typeof add;
+  asset: typeof asset;
+  back: typeof back;
+  cancel: typeof cancel;
+  close: typeof close;
+  confirm: typeof confirm;
+  created_on: typeof created_on;
+  dark: typeof dark;
+  edit: typeof edit;
+  email: typeof email;
+  home: typeof home;
+  light: typeof light;
+  loading: typeof loading;
+  logout: typeof logout;
+  na: typeof na;
+  name: typeof name;
+  next: typeof next;
+  no: typeof no;
+  no_data: typeof no_data;
+  open: typeof open;
+  profile: typeof profile;
+  save: typeof save;
+  search: typeof search;
+  settings: typeof settings;
+  status: typeof status;
+  submit: typeof submit;
+  support: typeof support;
+  switch_organization: typeof switch_organization;
+  system: typeof system;
+  version: typeof version;
+  yes: typeof yes;
 };
 
 declare const COMMON_NAMESPACE = "common";
@@ -177,7 +178,7 @@ declare const commonTranslations: {
     };
 };
 type CommonLanguage = keyof typeof commonTranslations;
-type CommonKey = keyof typeof en;
+type CommonKey = keyof typeof export_default;
 /** Mergeable i18next resource bundle; apps deep-merge it under the `common` namespace. */
 declare const commonResources: {
     ar: {
@@ -397,4 +398,5 @@ declare function localeIdentity(user: LocaleUser | null | undefined): LocaleIden
 /** Identity-scoped organization locale coordinator; one instance per app. */
 declare function createOrganizationLocale(config: OrganizationLocaleConfig): OrganizationLocale;
 
-export { COMMON_NAMESPACE, type CommonKey, type CommonLanguage, type CreateI18nOptions, type Direction, type EffectiveLocale, type I18nPlugin, type I18nSyncStorage, type LocaleAsyncStorage, type LocaleIdentity, type LocaleRuntimeLike, type LocaleTranslations, type LocaleUser, type OrganizationLocale, type OrganizationLocaleConfig, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };
+export { COMMON_NAMESPACE, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };
+export type { CommonKey, CommonLanguage, CreateI18nOptions, Direction, EffectiveLocale, I18nPlugin, I18nSyncStorage, LocaleAsyncStorage, LocaleIdentity, LocaleRuntimeLike, LocaleTranslations, LocaleUser, OrganizationLocale, OrganizationLocaleConfig };

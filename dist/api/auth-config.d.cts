@@ -78,4 +78,5 @@ type AuthConfig = {
 /** The AUTH_CONFIG object envoy-ts-auth expects, fully derived from the base domain. */
 declare function buildAuthConfig({ baseDomain, authBaseUrl, dev, hostname, onLogin, onLogout, narrowBaseDomain, }: BuildAuthConfigOptions): AuthConfig;
 
-export { type AuthConfig, type BuildAuthConfigOptions, COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, buildAuthConfig };
+export { COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, buildAuthConfig };
+export type { AuthConfig, BuildAuthConfigOptions };
