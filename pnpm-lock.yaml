@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  shadcn>deepmerge: file:./tooling/shadcn-merge
+  '@shadcn/registry>deepmerge': file:./tooling/shadcn-merge
+
 importers:
 
   .:
@@ -21,6 +25,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.14.0(jiti@2.7.0))
+      '@netix/shadcn-merge':
+        specifier: file:./tooling/shadcn-merge
+        version: file:tooling/shadcn-merge
       '@tanstack/react-query':
         specifier: ^5.105.3
         version: 5.105.3(@types/react@19.3.0)(react@19.3.1)
@@ -584,6 +591,9 @@ packages:
       '@noble/hashes':
         optional: true
 
+  '@fastify/deepmerge@3.2.4':
+    resolution: {integrity: sha512-kc8GQq5gX9RRhw0rov3DMrN8wS8yRlxJRdDzsYwwdBV/wazuVgc/1K7CKL90tlvu3RlHan6Y0R0aE3nJtBz2eQ==}
+
   '@floating-ui/core@1.8.0':
     resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
 
@@ -715,6 +725,9 @@ packages:
     cpu: [x64]
     os: [linux]
     libc: [glibc]
+
+  '@netix/shadcn-merge@file:tooling/shadcn-merge':
+    resolution: {directory: tooling/shadcn-merge, type: directory}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1751,10 +1764,6 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
-
-  deepmerge@4.3.1:
-    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
-    engines: {node: '>=0.10.0'}
 
   default-browser-id@5.0.1:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
@@ -4132,6 +4141,8 @@ snapshots:
 
   '@exodus/bytes@1.16.0': {}
 
+  '@fastify/deepmerge@3.2.4': {}
+
   '@floating-ui/core@1.8.0':
     dependencies:
       '@floating-ui/utils': 0.2.12
@@ -4267,6 +4278,10 @@ snapshots:
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
+
+  '@netix/shadcn-merge@file:tooling/shadcn-merge':
+    dependencies:
+      '@fastify/deepmerge': 3.2.4
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4582,7 +4597,7 @@ snapshots:
       '@dotenvx/dotenvx': 1.75.1
       cn: 0.2.6
       code-block-writer: 13.0.3
-      deepmerge: 4.3.1
+      deepmerge: '@netix/shadcn-merge@file:tooling/shadcn-merge'
       execa: 9.6.1
       fast-glob: 3.3.3
       fs-extra: 11.4.0
@@ -5165,8 +5180,6 @@ snapshots:
   dedent@1.7.2: {}
 
   deep-is@0.1.4: {}
-
-  deepmerge@4.3.1: {}
 
   default-browser-id@5.0.1: {}
 
@@ -6725,7 +6738,7 @@ snapshots:
       cn: 0.2.6
       commander: 14.0.3
       dedent: 1.7.2
-      deepmerge: 4.3.1
+      deepmerge: '@netix/shadcn-merge@file:tooling/shadcn-merge'
       diff: 8.0.4
       execa: 9.6.1
       fast-glob: 3.3.3

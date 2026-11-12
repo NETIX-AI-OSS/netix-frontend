@@ -161,12 +161,13 @@
     "registry:build": "shadcn build registry.json --output r",
     "sync:template": "node scripts/sync-template-components.mjs",
     "sync:template:check": "node scripts/sync-template-components.mjs --check",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "pnpm test:shadcn-merge && vitest run",
+    "test:coverage": "pnpm test:shadcn-merge && vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:shadcn-merge": "node --test scripts/check-shadcn-merge.mjs"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.101.0",
@@ -240,6 +241,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1",
     "vitest": "^5.1.0",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "@netix/shadcn-merge": "file:./tooling/shadcn-merge"
   }
 }

@@ -4,3 +4,7 @@ allowBuilds:
   esbuild: true
   '@parcel/watcher': true
   msw: true
+overrides:
+  # Migrate the audited shadcn configuration callers to Fastify.
+  'shadcn>deepmerge': 'file:./tooling/shadcn-merge'
+  '@shadcn/registry>deepmerge': 'file:./tooling/shadcn-merge'
