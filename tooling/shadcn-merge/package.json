@@ -1,0 +1,20 @@
+{
+  "name": "@netix/shadcn-merge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scoped shadcn merge adapter backed by Fastify",
+  "main": "index.cjs",
+  "exports": {
+    ".": {
+      "require": "./index.cjs",
+      "import": "./index.cjs"
+    }
+  },
+  "files": [
+    "index.cjs",
+    "README.md"
+  ],
+  "dependencies": {
+    "@fastify/deepmerge": "3.2.4"
+  }
+}
