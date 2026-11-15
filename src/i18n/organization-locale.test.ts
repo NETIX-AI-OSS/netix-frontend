@@ -721,7 +721,7 @@ it('keeps the newer explicit choice when an older preference refresh completes l
   const runtime = makeRuntime({
     refreshEffective: vi.fn((_id, language) =>
       language === 'fr'
-        ? new Promise((resolve) => {
+        ? new Promise<{ locale: EffectiveLocale }>((resolve) => {
             finish = resolve
           })
         : Promise.resolve({ locale: effective(language) }),
