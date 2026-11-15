@@ -358,7 +358,8 @@ describe('identity races', () => {
     locale.clearActiveIdentity()
     await vi.advanceTimersByTimeAsync(60)
     await change
-    expect(runtime.refreshEffective).toHaveBeenCalledTimes(2)
+    expect(runtime.refreshEffective).toHaveBeenCalledTimes(1)
+    expect(runtime.setPreferredLanguage).not.toHaveBeenCalled()
   })
 })
 
@@ -516,4 +517,223 @@ describe('organization_default_language', () => {
     })
     expect(preferred.runtime.refreshEffective).toHaveBeenCalledWith(expect.anything(), 'en')
   })
+})
+
+describe('request generations and offline tenant isolation', () => {
+  const deferred = <T>() => {
+    let resolve!: (value: T) => void
+    const promise = new Promise<T>((done) => {
+      resolve = done
+    })
+    return { promise, resolve }
+  }
+  const real = async (runtime: ReturnType<typeof makeRuntime>, healthGate = false) => {
+    const i18n = createInstance()
+    await i18n.init({
+      lng: 'en',
+      fallbackLng: 'en',
+      resources: {
+        en: { translation: { hello: 'Hello', _common: { close: 'Close' } } },
+        fr: { translation: { hello: 'Bonjour', _common: { close: 'Fermer' } } },
+      },
+    })
+    const { storage } = makeStorage({ language: 'en' })
+    const locale = createOrganizationLocale({
+      i18n,
+      storage,
+      createRuntime: () => runtime,
+      getApiBaseUrl: () => 'https://um',
+      healthGate,
+    })
+    return { i18n, locale }
+  }
+
+  it('drops an older same-identity response after a newer explicit language choice', async () => {
+    const old = deferred<{ locale: EffectiveLocale }>()
+    const runtime = makeRuntime({
+      refreshEffective: vi.fn((_id, language) =>
+        language === 'en' ? old.promise : Promise.resolve({ locale: effective(language) }),
+      ),
+    })
+    const { i18n, locale } = await real(runtime)
+    const first = locale.refreshOrganizationLocale(user, 'en')
+    await vi.waitFor(() =>
+      expect(runtime.refreshEffective).toHaveBeenCalledWith(expect.anything(), 'en'),
+    )
+    await locale.changeOrganizationLanguage('fr')
+    old.resolve({ locale: effective('en') })
+    expect(await first).toBeNull()
+    expect(i18n.language).toBe('fr')
+    expect(i18n.t('hello')).toBe('fr')
+  })
+
+  it('restores every touched tenant catalog synchronously before unhealthy identity work', async () => {
+    const runtime = makeRuntime({ checkHealth: vi.fn(async () => false) })
+    const { i18n, locale } = await real(runtime, true)
+    await locale.applyEffectiveLocale({
+      ...effective('en'),
+      translations: {
+        hello: 'Tenant A',
+        _common: { close: 'Tenant A close' },
+        privateLabel: 'A only',
+      },
+    })
+    await locale.applyEffectiveLocale({
+      ...effective('fr'),
+      translations: { hello: 'Locataire A' },
+    })
+    const switched = locale.refreshOrganizationLocale({
+      user_id: 8,
+      organization_id: 10,
+      preferred_language: 'en',
+    })
+    expect(i18n.getResource('en', 'translation', 'hello')).toBe('Hello')
+    expect(i18n.getResource('en', 'translation', '_common.close')).toBe('Close')
+    expect(i18n.getResource('fr', 'translation', 'hello')).toBe('Bonjour')
+    expect(i18n.getResource('en', 'translation', 'privateLabel')).toBeUndefined()
+    await switched
+    expect(i18n.language).toBe('en')
+    locale.clearActiveIdentity()
+    expect(i18n.t('hello')).toBe('Hello')
+  })
+
+  it('selects authoritative preference from bundled resources when health fails', async () => {
+    const runtime = makeRuntime({ checkHealth: vi.fn(async () => false) })
+    const { i18n, locale } = await real(runtime, true)
+    expect(await locale.refreshOrganizationLocale({ ...user, preferred_language: 'fr' })).toBeNull()
+    expect(i18n.language).toBe('fr')
+    expect(i18n.t('hello')).toBe('Bonjour')
+    expect(runtime.refreshEffective).not.toHaveBeenCalled()
+  })
+})
+
+describe('logout during asynchronous locale work', () => {
+  it.each([
+    'initial',
+    'hydrate',
+    'cached-render',
+    'remote-render',
+    'reconcile',
+    'change-render',
+    'preference',
+    'pending-remove',
+  ])('does not resume stale work after logout at %s', async (phase) => {
+    const i18n = createInstance()
+    await i18n.init({
+      lng: 'en',
+      resources: {
+        en: { translation: { hello: 'Hello' } },
+        fr: { translation: { hello: 'Bonjour' } },
+      },
+    })
+    const { storage } = makeStorage()
+    let paused = false
+    let release!: () => void
+    const gate = new Promise<void>((done) => {
+      release = done
+    })
+    const suspend = async () => {
+      paused = true
+      await gate
+    }
+    let enabled = false
+    const served = (language: string) => ({
+      ...effective(language),
+      translations: { hello: 'Tenant', extra: 'Private' },
+    })
+    const runtime = makeRuntime({
+      hydrate: vi.fn(async (_id, language) => {
+        if (enabled && phase === 'hydrate') await suspend()
+        return enabled && ['hydrate', 'cached-render'].includes(phase)
+          ? { locale: served(language) }
+          : null
+      }),
+      refreshEffective: vi.fn(async (_id, language) => ({ locale: served(language) })),
+      reconcilePendingLanguage: vi.fn(async () => {
+        if (enabled && phase === 'reconcile') await suspend()
+        return true
+      }),
+      setPreferredLanguage: vi.fn(async () => {
+        if (enabled && phase === 'preference') await suspend()
+        return true
+      }),
+    })
+    const getItem = storage.getItem
+    storage.getItem = async (key) => {
+      if (enabled && phase === 'initial') await suspend()
+      return getItem(key)
+    }
+    const removeItem = storage.removeItem
+    storage.removeItem = async (key) => {
+      if (enabled && phase === 'pending-remove') await suspend()
+      return removeItem(key)
+    }
+    const locale = createOrganizationLocale({
+      i18n,
+      storage,
+      createRuntime: () => runtime,
+      getApiBaseUrl: () => 'https://um',
+    })
+    const isChoice = ['change-render', 'preference', 'pending-remove'].includes(phase)
+    if (isChoice) await locale.refreshOrganizationLocale(user, 'en')
+    let renders = 0
+    const changeLanguage = i18n.changeLanguage.bind(i18n)
+    vi.spyOn(i18n, 'changeLanguage').mockImplementation(async (language, callback) => {
+      const result = changeLanguage(language, callback)
+      renders += 1
+      if (
+        enabled &&
+        ((phase === 'change-render' && renders === 1) ||
+          (['cached-render', 'remote-render'].includes(phase) && renders === 2))
+      )
+        await suspend()
+      return result
+    })
+    enabled = true
+    const work = isChoice
+      ? locale.changeOrganizationLanguage('fr')
+      : locale.refreshOrganizationLocale({ ...user, preferred_language: 'en' })
+    await vi.waitFor(() => expect(paused).toBe(true))
+    locale.clearActiveIdentity()
+    release()
+    const result = await work
+    if (!isChoice) expect(result).toBeNull()
+    expect(i18n.getResource('en', 'translation', 'hello')).toBe('Hello')
+    expect(i18n.getResource('en', 'translation', 'extra')).toBeUndefined()
+    expect(i18n.getResource('fr', 'translation', 'hello')).toBe('Bonjour')
+    expect(i18n.getResource('fr', 'translation', 'extra')).toBeUndefined()
+  })
+
+  it('keeps this tenant terminology across a same-identity unhealthy refresh', async () => {
+    const runtime = makeRuntime({ checkHealth: vi.fn(async () => true) })
+    const { locale, i18n } = setup({ runtime, healthGate: true })
+    await locale.refreshOrganizationLocale(user, 'en')
+    const calls = i18n.removeResourceBundle.mock.calls.length
+    runtime.checkHealth.mockResolvedValue(false)
+    await locale.refreshOrganizationLocale(user, 'en')
+    expect(i18n.removeResourceBundle).toHaveBeenCalledTimes(calls)
+  })
+})
+
+it('keeps the newer explicit choice when an older preference refresh completes last', async () => {
+  let finish!: (value: { locale: EffectiveLocale }) => void
+  const runtime = makeRuntime({
+    refreshEffective: vi.fn((_id, language) =>
+      language === 'fr'
+        ? new Promise((resolve) => {
+            finish = resolve
+          })
+        : Promise.resolve({ locale: effective(language) }),
+    ),
+  })
+  const { locale, i18n } = setup({ runtime })
+  await locale.refreshOrganizationLocale(user, 'en')
+  const firstChoice = locale.changeOrganizationLanguage('fr')
+  await vi.waitFor(() =>
+    expect(runtime.refreshEffective).toHaveBeenCalledWith(expect.anything(), 'fr'),
+  )
+  await locale.changeOrganizationLanguage('en')
+  finish({ locale: effective('fr') })
+  await firstChoice
+  expect(i18n.changeLanguage).toHaveBeenLastCalledWith('en')
 })

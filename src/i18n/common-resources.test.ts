@@ -7,7 +7,7 @@ import {
   commonTranslations,
 } from './common-resources'
 
-const languages: CommonLanguage[] = ['en', 'ar', 'es']
+const languages: CommonLanguage[] = ['en', 'ar', 'fr', 'es', 'nl', 'de']
 
 describe('common resources', () => {
   it('ships the 32 fleet-common keys plus na in every language', () => {
@@ -32,5 +32,9 @@ describe('common resources', () => {
     expect(commonResources.ar[COMMON_NAMESPACE]).toBe(commonTranslations.ar)
     expect(commonResources.es[COMMON_NAMESPACE].yes).toBe('Sí')
     expect(commonResources.en[COMMON_NAMESPACE].na).toBe('NA')
+    for (const language of languages) {
+      expect(commonResources[language][COMMON_NAMESPACE]).toBe(commonTranslations[language])
+    }
+    expect(Object.keys(commonResources).sort()).toEqual([...languages].sort())
   })
 })

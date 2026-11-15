@@ -37,6 +37,43 @@ var common_ar_default = {
   yes: "\u0646\u0639\u0645"
 };
 
+// src/i18n/locales/common.de.json
+var common_de_default = {
+  active: "Aktiv",
+  add: "Hinzuf\xFCgen",
+  asset: "Anlage",
+  back: "Zur\xFCck",
+  cancel: "Abbrechen",
+  close: "Schlie\xDFen",
+  confirm: "Best\xE4tigen",
+  created_on: "Erstellt am",
+  dark: "Dunkel",
+  delete: "L\xF6schen",
+  edit: "Bearbeiten",
+  email: "E-Mail",
+  home: "Startseite",
+  light: "Hell",
+  loading: "Wird geladen...",
+  logout: "Abmelden",
+  na: "Nicht verf\xFCgbar",
+  name: "Name",
+  next: "Weiter",
+  no: "Nein",
+  no_data: "Keine Daten vorhanden",
+  open: "\xD6ffnen",
+  profile: "Profil",
+  save: "Speichern",
+  search: "Suchen",
+  settings: "Einstellungen",
+  status: "Status",
+  submit: "Absenden",
+  support: "Support",
+  switch_organization: "Organisation wechseln",
+  system: "System",
+  version: "Version",
+  yes: "Ja"
+};
+
 // src/i18n/locales/common.en.json
 var common_en_default = {
   active: "Active",
@@ -95,7 +132,7 @@ var common_es_default = {
   na: "NA",
   name: "Nombre",
   next: "Siguiente",
-  no: "No",
+  no: "Ninguno",
   no_data: "No hay nada aqu\xED",
   open: "Abierto",
   profile: "Perfil",
@@ -111,13 +148,90 @@ var common_es_default = {
   yes: "S\xED"
 };
 
+// src/i18n/locales/common.fr.json
+var common_fr_default = {
+  active: "Actif",
+  add: "Ajouter",
+  asset: "\xC9quipement",
+  back: "Retour",
+  cancel: "Annuler",
+  close: "Fermer",
+  confirm: "Confirmer",
+  created_on: "Cr\xE9\xE9 le",
+  dark: "Sombre",
+  delete: "Supprimer",
+  edit: "Modifier",
+  email: "E-mail",
+  home: "Accueil",
+  light: "Clair",
+  loading: "Chargement...",
+  logout: "Se d\xE9connecter",
+  na: "N/A",
+  name: "Nom",
+  next: "Suivant",
+  no: "Non",
+  no_data: "Aucun \xE9l\xE9ment \xE0 afficher",
+  open: "Ouvrir",
+  profile: "Profil",
+  save: "Enregistrer",
+  search: "Rechercher",
+  settings: "Param\xE8tres",
+  status: "Statut",
+  submit: "Envoyer",
+  support: "Assistance",
+  switch_organization: "Changer d\u2019organisation",
+  system: "Syst\xE8me",
+  version: "Version",
+  yes: "Oui"
+};
+
+// src/i18n/locales/common.nl.json
+var common_nl_default = {
+  active: "Actief",
+  add: "Toevoegen",
+  asset: "Bedrijfsmiddel",
+  back: "Terug",
+  cancel: "Annuleren",
+  close: "Sluiten",
+  confirm: "Bevestigen",
+  created_on: "Aangemaakt op",
+  dark: "Donker",
+  delete: "Verwijderen",
+  edit: "Bewerken",
+  email: "E-mail",
+  home: "Startpagina",
+  light: "Licht",
+  loading: "Laden...",
+  logout: "Uitloggen",
+  na: "N.v.t.",
+  name: "Naam",
+  next: "Volgende",
+  no: "Nee",
+  no_data: "Er zijn geen gegevens om weer te geven",
+  open: "Openen",
+  profile: "Profiel",
+  save: "Opslaan",
+  search: "Zoeken",
+  settings: "Instellingen",
+  status: "Status",
+  submit: "Verzenden",
+  support: "Ondersteuning",
+  switch_organization: "Van organisatie wisselen",
+  system: "Systeem",
+  version: "Versie",
+  yes: "Ja"
+};
+
 // src/i18n/common-resources.ts
 var COMMON_NAMESPACE = "common";
-var commonTranslations = { ar: common_ar_default, en: common_en_default, es: common_es_default };
+var commonTranslations = { ar: common_ar_default, en: common_en_default, es: common_es_default, fr: common_fr_default, nl: common_nl_default, de: common_de_default };
 var commonResources = {
   ar: { [COMMON_NAMESPACE]: common_ar_default },
   en: { [COMMON_NAMESPACE]: common_en_default },
-  es: { [COMMON_NAMESPACE]: common_es_default }
+  es: { [COMMON_NAMESPACE]: common_es_default },
+  fr: { [COMMON_NAMESPACE]: common_fr_default },
+  nl: { [COMMON_NAMESPACE]: common_nl_default },
+  de: { [COMMON_NAMESPACE]: common_de_default }
 };
 
 // src/i18n/normalize-language.ts
@@ -215,6 +329,7 @@ function createOrganizationLocale(config) {
   let runtime = null;
   let runtimeOrigin = "";
   let activeIdentity = null;
+  let generation = 0;
   const bundled = /* @__PURE__ */ new Map();
   const pendingLanguageKey = (identity) => `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`;
   function getLocaleRuntime() {
@@ -226,8 +341,16 @@ function createOrganizationLocale(config) {
     }
     return runtime;
   }
+  function restoreBundledCatalogs() {
+    for (const [language, floor] of bundled) {
+      i18n.removeResourceBundle(language, namespace);
+      i18n.addResourceBundle(language, namespace, floor, true, true);
+    }
+  }
   function clearActiveIdentity() {
+    generation += 1;
     activeIdentity = null;
+    restoreBundledCatalogs();
     getLocaleRuntime()?.setActiveIdentity(null);
   }
   async function renderLanguage(language, persistPreference) {
@@ -266,31 +389,44 @@ function createOrganizationLocale(config) {
     const identity = localeIdentity(user);
     const locales = getLocaleRuntime();
     if (!identity || !locales) return null;
+    const request = ++generation;
+    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalogs();
     activeIdentity = identity;
     locales.setActiveIdentity(identity);
-    if (!await isHealthy(locales)) return null;
+    const current = () => request === generation && sameIdentity(activeIdentity, identity);
     const language = requestedLanguage || await initialLanguage(identity, user);
+    if (!current()) return null;
+    await renderLanguage(language, false);
+    if (!current() || !await isHealthy(locales) || !current()) return null;
     const cached = await locales.hydrate(identity, language);
-    if (cached && sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(cached.locale);
+    if (!current()) return null;
+    if (cached) await applyEffectiveLocale(cached.locale);
+    if (!current()) return null;
     const result = await locales.refreshEffective(identity, language);
-    if (sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(result.locale);
-    if (await locales.reconcilePendingLanguage(identity)) {
-      await storage.removeItem(pendingLanguageKey(identity));
-    }
-    return result.locale;
+    if (!current()) return null;
+    await applyEffectiveLocale(result.locale);
+    if (!current()) return null;
+    const synchronized = await locales.reconcilePendingLanguage(identity);
+    if (current() && synchronized) await storage.removeItem(pendingLanguageKey(identity));
+    return current() ? result.locale : null;
   }
   async function changeOrganizationLanguage(language) {
+    const request = ++generation;
     const identity = activeIdentity;
+    const current = () => request === generation && (!identity || sameIdentity(activeIdentity, identity));
     if (identity) await storage.setItem(pendingLanguageKey(identity), language);
+    if (!current()) return;
     await applyLanguage(language);
+    if (!current()) return;
     const locales = getLocaleRuntime();
     if (!locales || !identity) return;
     const synchronized = await locales.setPreferredLanguage(identity, language);
+    if (!current()) return;
     if (synchronized) await storage.removeItem(pendingLanguageKey(identity));
-    if (!synchronized) return;
+    if (!current() || !synchronized) return;
     try {
       const refreshed = await locales.refreshEffective(identity, language);
-      if (sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(refreshed.locale);
+      if (current()) await applyEffectiveLocale(refreshed.locale);
     } catch {
     }
   }
