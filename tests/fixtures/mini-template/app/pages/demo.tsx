@@ -17,28 +17,28 @@ type DemoRecord = {
 }
 
 const DEMO_NAMES = [
-  'dokaae-site-abraj-al-bait',
-  'dokaae-bldg-twra',
-  'dokaae-bldg-twrb',
-  'dokaae-bldg-twrc',
-  'dokaae-bldg-twrd',
-  'dokaae-bldg-twrf',
-  'dokaae-bldg-twrk',
-  'dokaae-bldg-twrh',
-  'dokaae-bldg-pod',
-  'dokaae-twra-chwp001',
-  'dokaae-twra-chwp002',
-  'dokaae-twra-ahup001',
-  'dokaae-twra-ahup002',
-  'dokaae-twra-lift001',
-  'dokaae-twra-lift002',
+  'skyline-site-towers',
+  'skyline-bldg-twra',
+  'skyline-bldg-twrb',
+  'skyline-bldg-twrc',
+  'skyline-bldg-twrd',
+  'skyline-bldg-twrf',
+  'skyline-bldg-twrk',
+  'skyline-bldg-twrh',
+  'skyline-bldg-pod',
+  'skyline-twra-chwp001',
+  'skyline-twra-chwp002',
+  'skyline-twra-ahup001',
+  'skyline-twra-ahup002',
+  'skyline-twra-lift001',
+  'skyline-twra-lift002',
 ]
 
 const DEMO_ROWS: DemoRecord[] = Array.from({ length: 48 }, (_, index) => {
   const name = DEMO_NAMES[index] ?? `demo-record-${String(index + 1).padStart(3, '0')}`
   const title =
     index === 0
-      ? 'DOKAAE — Abraj Al Bait Clock Tower'
+      ? 'Skyline Towers'
       : index < 8
         ? `Tower ${String.fromCharCode(65 + index - 1)}`
         : `Asset ${String(index + 1).padStart(3, '0')}`
