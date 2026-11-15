@@ -705,11 +705,12 @@ describe('logout during asynchronous locale work', () => {
   })
 
   it('keeps this tenant terminology across a same-identity unhealthy refresh', async () => {
-    const runtime = makeRuntime({ checkHealth: vi.fn(async () => true) })
+    const checkHealth = vi.fn(async () => true)
+    const runtime = makeRuntime({ checkHealth })
     const { locale, i18n } = setup({ runtime, healthGate: true })
     await locale.refreshOrganizationLocale(user, 'en')
     const calls = i18n.removeResourceBundle.mock.calls.length
-    runtime.checkHealth.mockResolvedValue(false)
+    checkHealth.mockResolvedValue(false)
     await locale.refreshOrganizationLocale(user, 'en')
     expect(i18n.removeResourceBundle).toHaveBeenCalledTimes(calls)
   })
