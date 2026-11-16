@@ -5,7 +5,7 @@ const inputs = { VITE_BASE_DOMAIN: 'acme.dev', VITE_SENTRY_DSN: 'dsn' }
 
 describe('buildEnv', () => {
   // Asserted over ENV.api as a whole so these stay true whichever services this
-  // app wires — adding one to env.ts never needs a matching edit here.
+  // app wires, adding one to env.ts never needs a matching edit here.
   it('derives every api url from the base domain', () => {
     const env = buildEnv({ DEV: false, ...inputs })
     for (const url of Object.values(env.api))

@@ -1,13 +1,13 @@
 /**
  * Local-development sign-in. When envoy-ts-auth reports a missing or expired session
  * (ON_LOGOUT), it asks for staging credentials and stores real tokens, so `vite dev` talks to
- * the real staging APIs as a real user — no login page, no credentials in `.env`.
+ * the real staging APIs as a real user, no login page, no credentials in `.env`.
  *
  * It mounts a real `<form>` rather than calling `window.prompt`, because a native dialog is
  * invisible to password managers: nothing to autofill, nothing to offer to save, and the
  * typing is in cleartext. What every manager does recognise is a form carrying
  * `autocomplete="username"` / `"current-password"` fields and a submit button, followed by a
- * navigation — so this asks once, gets saved, and autofills from then on. Chromium is also
+ * navigation, so this asks once, gets saved, and autofills from then on. Chromium is also
  * asked outright via `navigator.credentials.store`. `http://localhost` is a secure context,
  * so saving works there.
  *
@@ -52,7 +52,7 @@ const BUTTON_STYLE =
   'box-sizing:border-box;width:100%;padding:9px 12px;font:inherit;font-weight:600;color:#fff;' +
   'background:#1f6feb;border:0;border-radius:6px;cursor:pointer'
 
-/** A labelled field. `name` + `autocomplete` are what a password manager matches on — without them this is just a text box. */
+/** A labelled field. `name` + `autocomplete` are what a password manager matches on, without them this is just a text box. */
 const createField = (
   doc: Document,
   name: string,
@@ -82,7 +82,7 @@ type PasswordCredentialCtor = new (data: { id: string; password: string }) => Cr
 
 /**
  * Chromium's explicit "offer to save this password". Firefox and Safari do not implement it
- * and watch the submit-then-navigate pair instead, so a missing API — or a declined save — is
+ * and watch the submit-then-navigate pair instead, so a missing API, or a declined save, is
  * not a failure: the session is signed in either way.
  */
 const storeCredential = async (id: string, password: string) => {
@@ -148,7 +148,7 @@ export function createDevLoginPrompt({ login, onSuccess }: DevLoginPromptOptions
       // Never let the form navigate: it has no action, and a reload mid-flight would abort
       // the sign-in. The password manager keys off the submit event, not the navigation.
       event.preventDefault()
-      // Read before awaiting — ON_LOGIN fires mid-flight and detaches these fields.
+      // Read before awaiting, ON_LOGIN fires mid-flight and detaches these fields.
       const id = username.input.value
       const secret = password.input.value
 
@@ -165,8 +165,7 @@ export function createDevLoginPrompt({ login, onSuccess }: DevLoginPromptOptions
         }
 
         if (result !== true) {
-          error.textContent =
-            'Sign-in failed — check the credentials and that staging is reachable.'
+          error.textContent = 'Sign-in failed, check the credentials and that staging is reachable.'
           error.hidden = false
           button.disabled = false
           button.textContent = 'Sign in'

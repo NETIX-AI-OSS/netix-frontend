@@ -25,7 +25,7 @@ async function requireGh(runner: Runner): Promise<string | undefined> {
       'Install it and run `gh auth login`, or pass --template-path <local checkout>.'
     )
   if ((await runner('gh', ['auth', 'status'])).code !== 0)
-    return 'gh is installed but not authenticated — run `gh auth login` first.'
+    return 'gh is installed but not authenticated, run `gh auth login` first.'
   return undefined
 }
 
@@ -108,7 +108,7 @@ export async function resolveTemplate({
       ? { ref }
       : {
           error:
-            `${TEMPLATE_REPO}@${ref} is not reachable — the ref may not exist yet, or you may not have access.\n` +
+            `${TEMPLATE_REPO}@${ref} is not reachable, the ref may not exist yet, or you may not have access.\n` +
             'Pass --template-ref <existing ref> or --template-path <local checkout>.',
         }
   }
@@ -123,7 +123,7 @@ export async function resolveTemplate({
   if (tags.code !== 0)
     return {
       error:
-        `listing ${TEMPLATE_REPO} tags failed — you may not have access.\n${tags.stderr}`.trimEnd() +
+        `listing ${TEMPLATE_REPO} tags failed, you may not have access.\n${tags.stderr}`.trimEnd() +
         '\nPass --template-ref <ref> or --template-path <local checkout>.',
     }
   const newest = newestReleaseTag(tags.stdout.split('\n'))

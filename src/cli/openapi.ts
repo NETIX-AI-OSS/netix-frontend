@@ -92,7 +92,7 @@ function rowSchema(spec: SchemaNode, endpoint: string): SchemaNode | undefined {
 }
 
 /**
- * The columns for `endpoint`, or an empty list when the spec cannot answer — a missing
+ * The columns for `endpoint`, or an empty list when the spec cannot answer, a missing
  * file, an unparseable one, or a route that is not a paginated collection. The caller
  * treats empty as "no schema", never as "no columns".
  */

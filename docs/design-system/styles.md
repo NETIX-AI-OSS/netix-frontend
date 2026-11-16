@@ -2,9 +2,10 @@
 
 A **style** is the shape half of the design system: how round controls are, how much air a
 control carries, how a panel differs from a popup. It is a second axis, orthogonal to light/dark
-— the same palette, typography and spacing scale in both. Switching is instant, needs no rebuild,
-and touches no component source, because every primitive expresses radius through _shape aliases_
-rather than literal `rounded-*` values.
+
+- the same palette, typography and spacing scale in both. Switching is instant, needs no rebuild,
+  and touches no component source, because every primitive expresses radius through _shape aliases_
+  rather than literal `rounded-*` values.
 
 Two styles ship:
 
@@ -33,7 +34,7 @@ custom properties. Because the default style is bound to `:root`, an app that ne
 attribute is unaffected, and a nested `[data-style='nova']` inside a Rhea page switches back.
 
 The radius aliases are also declared in the non-inline `@theme` block, so Tailwind generates them
-as ordinary utilities — corner and side variants included (`rounded-ss-panel`, `rounded-s-control`).
+as ordinary utilities, corner and side variants included (`rounded-ss-panel`, `rounded-s-control`).
 
 ## The shape aliases
 
@@ -54,13 +55,13 @@ Use these instead of the raw scale in any component that should follow the style
 | `--control-px-xs`     | `px-(--control-px-xs)` | `xs` control padding                                                                | `0.5rem`                 | `0.625rem`    |
 | `--control-px-lg`     | `px-(--control-px-lg)` | `lg` control padding                                                                | `0.625rem`               | `1rem`        |
 
-A pill is only ever right at a fixed single-line height. Anything that can grow vertically —
-a textarea, a multi-select that wraps chips, a field wrapper holding a label and a description —
+A pill is only ever right at a fixed single-line height. Anything that can grow vertically -
+a textarea, a multi-select that wraps chips, a field wrapper holding a label and a description -
 takes `rounded-field`, which stays bounded in every style. shadcn's own Rhea does the same: pill
 buttons, but `rounded-2xl` on `.cn-textarea`. Where one component is both (an input group is a
 pill until it wraps a textarea), condition it: `has-[>textarea]:rounded-field`.
 
-The raw scale (`rounded-sm`/`md`/`lg`/`xl`, `--radius-pill`) is still there and never moves — reach
+The raw scale (`rounded-sm`/`md`/`lg`/`xl`, `--radius-pill`) is still there and never moves, reach
 for it only where a shape must stay fixed across styles.
 
 ## Using it in an app

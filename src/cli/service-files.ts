@@ -12,7 +12,7 @@ import type { SchemaColumn } from './openapi'
 import type { ServiceConfig } from './transforms'
 import { pageNames, serviceNames } from './transforms'
 
-/** `app/client/http-<svc>-service-client.ts` — the orval mutator for one service. */
+/** `app/client/http-<svc>-service-client.ts`, the orval mutator for one service. */
 export function buildServiceClient(key: string): string {
   const { slug, screaming, camel, pascal } = serviceNames(key)
   return `import { createHttpClient, createMutator } from 'netix-frontend/api'
@@ -38,7 +38,7 @@ export default http${pascal}Client
 }
 
 /**
- * `app/client/http-<svc>-service-client.test.ts` — pins the shared interceptors
+ * `app/client/http-<svc>-service-client.test.ts`, pins the shared interceptors
  * (error envelope → ApiError, 403 without logout, response-less failure) to the
  * app's own wiring, so a lib upgrade that changes them fails here first.
  */
@@ -133,10 +133,10 @@ export function buildOrvalBlock(key: string): string {
 }
 
 /**
- * `app/pages/<key>.tsx` — an ordinary page, generated: a paginated `@netix/data-table`
+ * `app/pages/<key>.tsx`, an ordinary page, generated: a paginated `@netix/data-table`
  * over the service's client via TanStack Query. It is wired exactly like a hand-written
  * page (a lazy export, a route, a navigation entry), so removing it is deleting the file
- * and its three lines. It opens on the service's `listEndpoint` from services.json — a
+ * and its three lines. It opens on the service's `listEndpoint` from services.json, a
  * real paginated route, so a freshly scaffolded page renders rows instead of a 404.
  *
  * Columns come from the service's OpenAPI spec (`readSchemaColumns`), so the table
@@ -156,8 +156,8 @@ export function buildServicePage(
   const fromSchema = columns.length > 0
 
   const columnSource = fromSchema
-    ? `// Columns come from the API contract — schema/${slug}.yaml, the response schema of
-// ${service.listEndpoint} — not from the rows. That is what keeps the header row, the
+    ? `// Columns come from the API contract, schema/${slug}.yaml, the response schema of
+// ${service.listEndpoint}, not from the rows. That is what keeps the header row, the
 // column widths and the per-type formatting in place while the first page loads and when
 // the collection comes back empty. This is ordinary source: reorder it, drop fields, add
 // a \`meta.filter\` (see @netix/data-table), or regenerate with \`netix schema pull\`.
@@ -203,7 +203,7 @@ import { formatLabel } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 // The service's headline collection, from services.json. Swap it for the route this
-// service page is really about — schema/${slug}.yaml lists them, and the typed hooks for
+// service page is really about, schema/${slug}.yaml lists them, and the typed hooks for
 // every one live in app/client/gen/${slug}.
 const LIST_ENDPOINT = '${service.listEndpoint}'
 
@@ -220,7 +220,7 @@ const formatCell = (
   translate: (key: string) => string,
   locale: string,
 ): string => {
-  if (value === null || value === undefined || value === '') return '—'
+  if (value === null || value === undefined || value === '') return '-'
   if (kind === 'boolean') return translate(value ? 'yes' : 'no')
   if (kind === 'number')
     return typeof value === 'number' ? value.toLocaleString(locale) : String(value)
@@ -301,7 +301,7 @@ export default function ${component}() {
           >
             <StatTile
               label="Total records"
-              value={data ? data.count.toLocaleString(locale) : '—'}
+              value={data ? data.count.toLocaleString(locale) : '-'}
               detail="Across this service"
               icon={Database}
             />

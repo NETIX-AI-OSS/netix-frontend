@@ -29,7 +29,7 @@ export function isIdempotentMethod(config: AxiosRequestConfig): boolean {
 }
 
 export function isRetryableAxiosError(error: AxiosError, retryServerErrors = false): boolean {
-  // No HTTP response at all — network error or timeout.
+  // No HTTP response at all, network error or timeout.
   if (!error.response) return true
   const status = error.response.status
   return RETRYABLE_STATUSES.has(status) || (retryServerErrors && status >= 500)

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "skeleton",
   "title": "Skeleton",
-  "description": "NETIX base-nova skeleton (Base UI), the canon primitive — mirrors the frontend-template source.",
+  "description": "NETIX base-nova skeleton (Base UI), the canon primitive, mirrors the frontend-template source.",
   "files": [
     {
       "path": "registry/netix/ui/skeleton.tsx",

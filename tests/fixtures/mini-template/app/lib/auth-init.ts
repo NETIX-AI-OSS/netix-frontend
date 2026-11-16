@@ -1,11 +1,11 @@
 /**
- * envoy-ts-auth bootstrap — imported first in main.tsx, before anything fetches.
+ * envoy-ts-auth bootstrap, imported first in main.tsx, before anything fetches.
  *
  * Deployed: an unauthenticated visit redirects to universal-login on the base
  * domain and returns via ?continue=; every `<app>.<baseDomain>` shares the
  * session cookie. Local dev: ON_LOGOUT opens the headless dev sign-in prompt
  * instead, which stores real staging tokens as localhost cookies, so `vite dev`
- * talks to staging as a real user (Chrome/Firefox — Safari drops the
+ * talks to staging as a real user (Chrome/Firefox, Safari drops the
  * SameSite=None cookie on http://localhost).
  */
 import { Auth } from 'envoy-ts-auth'

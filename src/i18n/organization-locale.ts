@@ -100,6 +100,23 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   let runtimeOrigin = ''
   let activeIdentity: LocaleIdentity | null = null
   let generation = 0
+  const storageWrites = new Map<string, Promise<void>>()
+
+  // Serialize writes per key: a slow old preference must finish before the newer value is
+  // persisted. Generation checks skip work that became stale while waiting in the queue.
+  function writeStorage(key: string, value: string | null): Promise<void> {
+    const request = generation
+    const previous = storageWrites.get(key) ?? Promise.resolve()
+    const next = previous
+      .catch(() => undefined)
+      .then(async () => {
+        if (request !== generation) return
+        if (value === null) await storage.removeItem(key)
+        else await storage.setItem(key, value)
+      })
+    storageWrites.set(key, next)
+    return next
+  }
   // The shipped catalog per language, captured before the first server merge touches it, so every
   // apply resets to that floor and layers the server over it (server wins per key, bundled fills
   // gaps, a key dropped server-side reverts on the next apply instead of lingering).
@@ -134,7 +151,9 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   }
 
   async function renderLanguage(language: string, persistPreference: boolean): Promise<void> {
-    if (persistPreference) await storage.setItem(languageKey, language)
+    const request = generation
+    if (persistPreference) await writeStorage(languageKey, language)
+    if (request !== generation) return
     await i18n.changeLanguage(language)
   }
 
@@ -143,8 +162,9 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   }
 
   async function hydrateBundledLanguage(): Promise<string> {
+    const request = generation
     const language = (await storage.getItem(languageKey)) || defaultLanguage
-    await applyLanguage(language)
+    if (request === generation) await applyLanguage(language)
     return language
   }
 
@@ -206,7 +226,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     await applyEffectiveLocale(result.locale)
     if (!current()) return null
     const synchronized = await locales.reconcilePendingLanguage(identity)
-    if (current() && synchronized) await storage.removeItem(pendingLanguageKey(identity))
+    if (current() && synchronized) await writeStorage(pendingLanguageKey(identity), null)
     return current() ? result.locale : null
   }
 
@@ -215,7 +235,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     const identity = activeIdentity
     const current = () =>
       request === generation && (!identity || sameIdentity(activeIdentity, identity))
-    if (identity) await storage.setItem(pendingLanguageKey(identity), language)
+    if (identity) await writeStorage(pendingLanguageKey(identity), language)
     if (!current()) return
     await applyLanguage(language)
     if (!current()) return
@@ -223,7 +243,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     if (!locales || !identity) return
     const synchronized = await locales.setPreferredLanguage(identity, language)
     if (!current()) return
-    if (synchronized) await storage.removeItem(pendingLanguageKey(identity))
+    if (synchronized) await writeStorage(pendingLanguageKey(identity), null)
     if (!current() || !synchronized) return
     try {
       const refreshed = await locales.refreshEffective(identity, language)

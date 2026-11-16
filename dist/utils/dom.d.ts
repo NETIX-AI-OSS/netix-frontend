@@ -19,7 +19,7 @@ type ComponentImport<T extends AnyComponent> = () => Promise<{
     default: T;
 }>;
 declare const SESSION_STORAGE_KEY = "chunk_failed_refresh";
-/** Vite build.assetsDir — only files under this prefix can go stale after a deploy. */
+/** Vite build.assetsDir, only files under this prefix can go stale after a deploy. */
 declare const BUILD_OUTPUT_PREFIX = "/static/";
 /** Reloads allowed inside CHUNK_RELOAD_WINDOW_MS before the app gives up and surfaces the error. */
 declare const MAX_CHUNK_RELOADS = 2;

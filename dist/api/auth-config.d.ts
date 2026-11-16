@@ -3,12 +3,12 @@
  * hand-maintained copies of these constants; this module is the single source of truth.
  *
  * Everything derives from the one deploy input, the base domain: universal-login is served at
- * the domain root — the sign-in form, and the launcher once signed in — and the session cookie
+ * the domain root, the sign-in form, and the launcher once signed in, and the session cookie
  * is scoped to the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
- * page the dev server is opened on instead — localhost, 127.0.0.1 or a VM address over plain
- * http — with auth riding the app's `/user-api` dev proxy against real staging.
+ * page the dev server is opened on instead, localhost, 127.0.0.1 or a VM address over plain
+ * http, with auth riding the app's `/user-api` dev proxy against real staging.
  *
- * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
+ * The factory is pure, apps inject their `import.meta.env` reads and window facts, so it
  * stays safe for CJS/react-native builds and deterministic under test. It imports nothing, and
  * is also shipped as `netix-frontend/api/auth-config` so a page that only needs this config
  * (the sign-in page) does not pull axios in through `./api`.
@@ -22,14 +22,14 @@ declare const COOKIE_REFRESH_TTL = "172800";
  * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes
  * `false` instead (see `buildAuthConfig`): a browser stores a `Secure` cookie only in a secure
  * context, so a dev server opened at a VM address over plain http could never keep one, and
- * nothing in dev needs one — the token is read back by JavaScript and sent as a bearer.
+ * nothing in dev needs one, the token is read back by JavaScript and sent as a bearer.
  */
 declare const COOKIE_SECURE = true;
 type BuildAuthConfigOptions = {
     /** The one deploy input every URL derives from (`ENV.baseDomain`). */
     baseDomain: string;
     /**
-     * `ENV.authBaseUrl` — the same-origin `/user-api` dev-proxy prefix under `vite dev` (real
+     * `ENV.authBaseUrl`, the same-origin `/user-api` dev-proxy prefix under `vite dev` (real
      * staging auth, no CORS), `https://user.api.<domain>` in a build.
      */
     authBaseUrl: string;
@@ -41,7 +41,7 @@ type BuildAuthConfigOptions = {
     dev?: boolean;
     /**
      * `window.location.hostname`. Deployed: the app's own domain, for the redirect allowlist.
-     * Dev: the page host — localhost, 127.0.0.1 or a VM address such as 10.0.0.1 — which
+     * Dev: the page host, localhost, 127.0.0.1 or a VM address such as 10.0.0.1, which
      * envoy-ts-auth validates the config against; defaults to localhost.
      */
     hostname?: string;
@@ -53,7 +53,7 @@ type BuildAuthConfigOptions = {
      * Opt in when the app is deployed more than one level under `baseDomain` (`app.nano.<domain>`).
      * envoy-ts-auth's `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN`
      * or exactly one level below it, so a two-level host has to narrow `BASE_DOMAIN` to its own
-     * parent — which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
+     * parent, which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
      * stays on `baseDomain`: that is what shares the session with every other NETIX frontend.
      * Off by default, so existing callers are unaffected.
      */

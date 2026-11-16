@@ -1,7 +1,7 @@
 import { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
 type DevTokenConfig = {
-    /** Injected, never read from import.meta — the RN-safe entries must stay bundler-agnostic. */
+    /** Injected, never read from import.meta, the RN-safe entries must stay bundler-agnostic. */
     devMode: boolean;
     username?: string;
     password?: string;
@@ -30,12 +30,12 @@ declare function createDevTokenManager(config: DevTokenConfig): DevTokenManager;
  * hand-maintained copies of these constants; this module is the single source of truth.
  *
  * Everything derives from the one deploy input, the base domain: universal-login is served at
- * the domain root — the sign-in form, and the launcher once signed in — and the session cookie
+ * the domain root, the sign-in form, and the launcher once signed in, and the session cookie
  * is scoped to the bare domain so every `<app>.<domain>` shares it. Local dev scopes the session to whichever
- * page the dev server is opened on instead — localhost, 127.0.0.1 or a VM address over plain
- * http — with auth riding the app's `/user-api` dev proxy against real staging.
+ * page the dev server is opened on instead, localhost, 127.0.0.1 or a VM address over plain
+ * http, with auth riding the app's `/user-api` dev proxy against real staging.
  *
- * The factory is pure — apps inject their `import.meta.env` reads and window facts — so it
+ * The factory is pure, apps inject their `import.meta.env` reads and window facts, so it
  * stays safe for CJS/react-native builds and deterministic under test. It imports nothing, and
  * is also shipped as `netix-frontend/api/auth-config` so a page that only needs this config
  * (the sign-in page) does not pull axios in through `./api`.
@@ -49,14 +49,14 @@ declare const COOKIE_REFRESH_TTL = "172800";
  * The deployed value: `Secure; SameSite=None`, shared across the fleet over https. Dev passes
  * `false` instead (see `buildAuthConfig`): a browser stores a `Secure` cookie only in a secure
  * context, so a dev server opened at a VM address over plain http could never keep one, and
- * nothing in dev needs one — the token is read back by JavaScript and sent as a bearer.
+ * nothing in dev needs one, the token is read back by JavaScript and sent as a bearer.
  */
 declare const COOKIE_SECURE = true;
 type BuildAuthConfigOptions = {
     /** The one deploy input every URL derives from (`ENV.baseDomain`). */
     baseDomain: string;
     /**
-     * `ENV.authBaseUrl` — the same-origin `/user-api` dev-proxy prefix under `vite dev` (real
+     * `ENV.authBaseUrl`, the same-origin `/user-api` dev-proxy prefix under `vite dev` (real
      * staging auth, no CORS), `https://user.api.<domain>` in a build.
      */
     authBaseUrl: string;
@@ -68,7 +68,7 @@ type BuildAuthConfigOptions = {
     dev?: boolean;
     /**
      * `window.location.hostname`. Deployed: the app's own domain, for the redirect allowlist.
-     * Dev: the page host — localhost, 127.0.0.1 or a VM address such as 10.0.0.1 — which
+     * Dev: the page host, localhost, 127.0.0.1 or a VM address such as 10.0.0.1, which
      * envoy-ts-auth validates the config against; defaults to localhost.
      */
     hostname?: string;
@@ -80,7 +80,7 @@ type BuildAuthConfigOptions = {
      * Opt in when the app is deployed more than one level under `baseDomain` (`app.nano.<domain>`).
      * envoy-ts-auth's `validateAuthConfig` rejects a `CURRENT_APP_DOMAIN` that is not `BASE_DOMAIN`
      * or exactly one level below it, so a two-level host has to narrow `BASE_DOMAIN` to its own
-     * parent — which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
+     * parent, which is also the right `?continue=` allowlist root. `COOKIE_DOMAIN` deliberately
      * stays on `baseDomain`: that is what shares the session with every other NETIX frontend.
      * Off by default, so existing callers are unaffected.
      */
@@ -108,13 +108,13 @@ declare function buildAuthConfig({ baseDomain, authBaseUrl, dev, hostname, onLog
 /**
  * Local-development sign-in. When envoy-ts-auth reports a missing or expired session
  * (ON_LOGOUT), it asks for staging credentials and stores real tokens, so `vite dev` talks to
- * the real staging APIs as a real user — no login page, no credentials in `.env`.
+ * the real staging APIs as a real user, no login page, no credentials in `.env`.
  *
  * It mounts a real `<form>` rather than calling `window.prompt`, because a native dialog is
  * invisible to password managers: nothing to autofill, nothing to offer to save, and the
  * typing is in cleartext. What every manager does recognise is a form carrying
  * `autocomplete="username"` / `"current-password"` fields and a submit button, followed by a
- * navigation — so this asks once, gets saved, and autofills from then on. Chromium is also
+ * navigation, so this asks once, gets saved, and autofills from then on. Chromium is also
  * asked outright via `navigator.credentials.store`. `http://localhost` is a secure context,
  * so saving works there.
  *
@@ -186,7 +186,7 @@ type ErrorInterceptorConfig = {
     networkErrorMessage?: string;
 };
 /**
- * Unified response error handler. Every branch throws an ApiError — never returns — so the
+ * Unified response error handler. Every branch throws an ApiError, never returns, so the
  * react-query / SWR retry predicates still run, and a 403 never logs out.
  */
 declare function createErrorInterceptor(config?: ErrorInterceptorConfig): {
@@ -196,7 +196,7 @@ declare function createErrorInterceptor(config?: ErrorInterceptorConfig): {
 
 /**
  * `repeat` (?a=1&a=2) is what most backends' DRF filters expect; `comma` (?a=1,2) is what
- * django-filter's BaseInFilter needs — axios's default bracketed keys are silently dropped by both.
+ * django-filter's BaseInFilter needs, axios's default bracketed keys are silently dropped by both.
  */
 type ParamsSerializerStrategy = 'repeat' | 'comma' | 'default';
 declare function serializeParamsRepeat(params: Record<string, unknown>): string;

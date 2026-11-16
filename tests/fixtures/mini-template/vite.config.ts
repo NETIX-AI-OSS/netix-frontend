@@ -33,13 +33,13 @@ function serviceProxy(prefix: string, target: string): ProxyOptions {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Same input the app reads (app/config/env.ts) — from `.env`, or from a real
+  // Same input the app reads (app/config/env.ts), from `.env`, or from a real
   // env var, which wins (the Docker dev image has no `.env` and passes it in).
   const env = loadEnv(mode, import.meta.dirname)
   const baseDomain = env.VITE_BASE_DOMAIN || 'netixai.dev'
 
   // Where `pnpm dev` sends each service's prefix. Deployed builds never use this
-  // map — they call the real domains derived in app/config/env.ts. To run one
+  // map, they call the real domains derived in app/config/env.ts. To run one
   // service from your own machine instead, replace its target below; the app
   // needs no change, since it only ever calls the prefix.
   const devUpstreams: Record<string, string> = {

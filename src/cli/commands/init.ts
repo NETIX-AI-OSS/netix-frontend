@@ -202,7 +202,7 @@ export async function init(flags: InitFlags, runner: Runner = run) {
 
   // Schemas come BEFORE the transforms: a service-page starter derives its columns from the
   // service's OpenAPI spec, and a collection that happens to be empty would otherwise
-  // render a table with no headers at all. Pulling first also fails fast — it needs
+  // render a table with no headers at all. Pulling first also fails fast, it needs
   // only gh, so a missing login costs seconds rather than a full install.
   await runStep('schema pull', flags.schemas !== false && services.length > 0, async () => {
     const result = await schemaPull({ cwd: dest, manifest, services, runner, log: p.log.info })
@@ -214,8 +214,8 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   const notes = applyScaffoldTransforms(dest, options)
   for (const note of notes) p.log.info(note)
 
-  // The commit comes LAST so it captures everything init produced — the pulled
-  // schemas and pnpm-lock.yaml included — and a fresh app starts with a clean
+  // The commit comes LAST so it captures everything init produced, the pulled
+  // schemas and pnpm-lock.yaml included, and a fresh app starts with a clean
   // tree instead of untracked leftovers on top of the scaffold commit.
   const steps: Array<[label: string, enabled: boolean, action: () => Promise<boolean>]> = [
     [
@@ -249,7 +249,7 @@ export async function init(flags: InitFlags, runner: Runner = run) {
 
   // Every step that did not run has to be finished before `pnpm dev`, in the order a
   // person would run them: an app without node_modules, without the components its
-  // generated pages import, or without generated clients does not boot — and app/client/gen
+  // generated pages import, or without generated clients does not boot, and app/client/gen
   // is gitignored, so the clients never arrive with the scaffold. Steps that simply do
   // not apply to this app (no services, no generated page) are not chores; they stay out.
   const pending = (label: string) => skipped.includes(label) || failed.includes(label)

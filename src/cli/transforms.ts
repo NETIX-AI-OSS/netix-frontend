@@ -1,7 +1,7 @@
 /**
  * Pure text transforms `netix init` applies to a fresh copy of frontend-template.
  * Every function is (content, options) → content so the whole scaffold pipeline is
- * unit-testable against verbatim template fixtures — no fs, no network, no prompts.
+ * unit-testable against verbatim template fixtures, no fs, no network, no prompts.
  */
 
 import { LIB_REPO } from './refs'
@@ -28,7 +28,7 @@ export type ServiceConfig = {
 export type ServicesManifest = { services: Record<string, ServiceConfig> }
 
 export type ScaffoldOptions = {
-  /** kebab-case app name, e.g. "asset-console-ui" — also the deploy identity. */
+  /** kebab-case app name, e.g. "asset-console-ui", also the deploy identity. */
   name: string
   /** Human title for index.html and docs. */
   title: string
@@ -60,7 +60,7 @@ export function serviceNames(key: string) {
 }
 
 /**
- * Where a generated page lives and how it is named — the same shape a hand-written page
+ * Where a generated page lives and how it is named, the same shape a hand-written page
  * has: "ml-engine" → app/pages/ml-engine.tsx, MlEnginePage, /workspace/ml-engine.
  */
 export function pageNames(key: string) {
@@ -80,7 +80,7 @@ export const TEMPLATE_DEV_PORT = 5174
 export function rewritePackageJson(content: string, options: ScaffoldOptions): string {
   const pkg = JSON.parse(content) as Record<string, unknown>
   pkg.name = options.name
-  pkg.description = `${options.title} — a NETIX frontend`
+  pkg.description = `${options.title}, a NETIX frontend`
   for (const field of ['dependencies', 'devDependencies'] as const) {
     const deps = pkg[field] as Record<string, string> | undefined
     if (deps?.['netix-frontend']) deps['netix-frontend'] = `github:${LIB_REPO}#${options.libRef}`
@@ -120,7 +120,7 @@ export function deployRenames(options: ScaffoldOptions): Record<string, string> 
 }
 
 /**
- * `.env` is committed (template and app alike — CI resolves the deploy inputs from it), and
+ * `.env` is committed (template and app alike, CI resolves the deploy inputs from it), and
  * carries exactly one of them: the base domain every service URL derives from in
  * app/config/env.ts. The scaffold sets it to the app's domain.
  */
@@ -178,7 +178,7 @@ export function insertDevUpstream(content: string, key: string, service: Service
 /*
  * A generated page is wired the way a hand-written one is: a lazy export, a route and a
  * navigation entry. Each insert below owns one of those three files. The user service is
- * never given a page — the template's access pages are its UI.
+ * never given a page, the template's access pages are its UI.
  */
 
 const PAGES_ANCHOR = '// netix-pages:insert'

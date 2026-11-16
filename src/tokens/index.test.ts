@@ -148,7 +148,7 @@ it('reads the notice ladder by slot', () => {
   for (const severity of NOTICE_SEVERITIES) expect(noticeColor(severity, 'dark')).toMatch(/^#/)
 })
 
-it('returns the Okabe–Ito ramp in order and identical across themes', () => {
+it('returns the Okabe-Ito ramp in order and identical across themes', () => {
   expect(chartPalette()).toHaveLength(10)
   expect(chartPalette()[0]).toBe('#0072b2')
   expect(chartPalette('dark')).toEqual(chartPalette())

@@ -339,7 +339,7 @@ var themeInitSnippet = `// Applies the stored theme and style before first paint
     root.classList.add(resolved)
     root.style.colorScheme = resolved
   } catch {
-    // localStorage/matchMedia unavailable \u2014 fall back to the light default
+    // localStorage/matchMedia unavailable, fall back to the light default
   }
   try {
     var element = document.documentElement
@@ -350,7 +350,7 @@ var themeInitSnippet = `// Applies the stored theme and style before first paint
       localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',
     )
   } catch {
-    // storage blocked \u2014 the default style applies
+    // storage blocked, the default style applies
   }
 })()
 `;

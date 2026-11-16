@@ -27,7 +27,7 @@ export type ThemeProviderState = {
   /** The theme actually applied right now ("system" resolved against the OS). */
   resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
-  /** The applied design style — component shape, independent of light/dark. */
+  /** The applied design style, component shape, independent of light/dark. */
   style: Style
   setStyle: (style: Style) => void
 }
@@ -74,7 +74,7 @@ const persist = (key: string, value: string) => {
   try {
     localStorage.setItem(key, value)
   } catch {
-    // storage blocked (private mode) — the choice still applies for this session
+    // storage blocked (private mode), the choice still applies for this session
   }
 }
 

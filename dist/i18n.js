@@ -330,6 +330,18 @@ function createOrganizationLocale(config) {
   let runtimeOrigin = "";
   let activeIdentity = null;
   let generation = 0;
+  const storageWrites = /* @__PURE__ */ new Map();
+  function writeStorage(key, value) {
+    const request = generation;
+    const previous = storageWrites.get(key) ?? Promise.resolve();
+    const next = previous.catch(() => void 0).then(async () => {
+      if (request !== generation) return;
+      if (value === null) await storage.removeItem(key);
+      else await storage.setItem(key, value);
+    });
+    storageWrites.set(key, next);
+    return next;
+  }
   const bundled = /* @__PURE__ */ new Map();
   const pendingLanguageKey = (identity) => `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`;
   function getLocaleRuntime() {
@@ -354,15 +366,18 @@ function createOrganizationLocale(config) {
     getLocaleRuntime()?.setActiveIdentity(null);
   }
   async function renderLanguage(language, persistPreference) {
-    if (persistPreference) await storage.setItem(languageKey, language);
+    const request = generation;
+    if (persistPreference) await writeStorage(languageKey, language);
+    if (request !== generation) return;
     await i18n.changeLanguage(language);
   }
   async function applyLanguage(language) {
     await renderLanguage(language, true);
   }
   async function hydrateBundledLanguage() {
+    const request = generation;
     const language = await storage.getItem(languageKey) || defaultLanguage;
-    await applyLanguage(language);
+    if (request === generation) await applyLanguage(language);
     return language;
   }
   async function applyEffectiveLocale(locale) {
@@ -407,14 +422,14 @@ function createOrganizationLocale(config) {
     await applyEffectiveLocale(result.locale);
     if (!current()) return null;
     const synchronized = await locales.reconcilePendingLanguage(identity);
-    if (current() && synchronized) await storage.removeItem(pendingLanguageKey(identity));
+    if (current() && synchronized) await writeStorage(pendingLanguageKey(identity), null);
     return current() ? result.locale : null;
   }
   async function changeOrganizationLanguage(language) {
     const request = ++generation;
     const identity = activeIdentity;
     const current = () => request === generation && (!identity || sameIdentity(activeIdentity, identity));
-    if (identity) await storage.setItem(pendingLanguageKey(identity), language);
+    if (identity) await writeStorage(pendingLanguageKey(identity), language);
     if (!current()) return;
     await applyLanguage(language);
     if (!current()) return;
@@ -422,7 +437,7 @@ function createOrganizationLocale(config) {
     if (!locales || !identity) return;
     const synchronized = await locales.setPreferredLanguage(identity, language);
     if (!current()) return;
-    if (synchronized) await storage.removeItem(pendingLanguageKey(identity));
+    if (synchronized) await writeStorage(pendingLanguageKey(identity), null);
     if (!current() || !synchronized) return;
     try {
       const refreshed = await locales.refreshEffective(identity, language);

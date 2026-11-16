@@ -15,7 +15,7 @@ const props = {
 describe('PaginationControls', () => {
   it('shows a readable range, active page and page-size control', () => {
     render(<PaginationControls {...props} />)
-    expect(screen.getByText('Showing 11–20 of 95')).toBeInTheDocument()
+    expect(screen.getByText('Showing 11-20 of 95')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Go to page 2' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -76,12 +76,12 @@ describe('PaginationControls', () => {
 
   it('can hide the total summary', () => {
     render(<PaginationControls {...props} showTotal={false} />)
-    expect(screen.queryByText('Showing 11–20 of 95')).not.toBeInTheDocument()
+    expect(screen.queryByText('Showing 11-20 of 95')).not.toBeInTheDocument()
   })
 
   it('renders leading content beside the result summary', () => {
     render(<PaginationControls {...props} leadingContent={<button>Clear</button>} />)
-    expect(screen.getByText('Showing 11–20 of 95').parentElement).toContainElement(
+    expect(screen.getByText('Showing 11-20 of 95').parentElement).toContainElement(
       screen.getByRole('button', { name: 'Clear' }),
     )
   })

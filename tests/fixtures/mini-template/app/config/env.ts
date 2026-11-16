@@ -1,10 +1,10 @@
 /**
- * Centralized runtime configuration — the only place `import.meta.env` is read.
+ * Centralized runtime configuration, the only place `import.meta.env` is read.
  *
  * A deployment is described by one input, VITE_BASE_DOMAIN (netixai.dev for
  * staging, netixai.com for production, a customer domain for white-label
  * installs); every URL derives from it here. `.env` carries only that input and
- * genuine secrets — never per-service URLs.
+ * genuine secrets, never per-service URLs.
  *
  * Under `vite dev` every backend is reached through the dev-server proxy at a
  * same-origin `/<service>-api` prefix, so development runs against the real
@@ -24,7 +24,7 @@ export function buildEnv(meta: EnvInputs) {
     throw new Error('VITE_BASE_DOMAIN is missing; a production build cannot derive its API URLs')
   }
 
-  /** The service's public URL — or its same-origin dev-proxy prefix under `vite dev`. */
+  /** The service's public URL, or its same-origin dev-proxy prefix under `vite dev`. */
   const serviceUrl = (subdomain: string, devProxyPath: string) =>
     isDev ? devProxyPath : `https://${subdomain}.${baseDomain}`
 
@@ -35,7 +35,7 @@ export function buildEnv(meta: EnvInputs) {
     /**
      * One entry per backend service this app talks to, written by
      * `netix init --services`. Each is `<name>Service: serviceUrl('<sub>.api',
-     * '/<key>-api')` — the deployed URL in a build, the dev proxy prefix locally.
+     * '/<key>-api')`, the deployed URL in a build, the dev proxy prefix locally.
      */
     api: {},
 

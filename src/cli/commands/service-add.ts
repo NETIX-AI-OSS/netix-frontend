@@ -30,7 +30,7 @@ const answer = <T>(value: T | symbol): Exclude<T, symbol> =>
   p.isCancel(value) ? bail(value) : (value as Exclude<T, symbol>)
 
 /**
- * `netix service add` — wire backend services into an app that already exists:
+ * `netix service add`, wire backend services into an app that already exists:
  * the same client/orval/env/service-page fan-out `init --services` performs, applied
  * additively, then a schema pull and client generation for the named services.
  * Idempotent, so re-adding a wired service just refreshes its spec and client.
@@ -43,7 +43,7 @@ export async function serviceAdd(flags: ServiceAddFlags, runner: Runner = run): 
   p.intro(pc.inverse(' netix service add '))
 
   if (!existsSync(join(cwd, 'package.json')) || !existsSync(join(cwd, 'orval.config.ts')))
-    return fail('no package.json + orval.config.ts here — run this from a netix app root')
+    return fail('no package.json + orval.config.ts here, run this from a netix app root')
 
   const wired = detectServices(cwd, manifest)
   let services = flags.services
@@ -56,7 +56,7 @@ export async function serviceAdd(flags: ServiceAddFlags, runner: Runner = run): 
           value: key,
           label: manifest.services[key]?.title ?? key,
           hint: wired.includes(key)
-            ? 'already wired — refreshes its schema'
+            ? 'already wired, refreshes its schema'
             : manifest.services[key]?.backendRepo,
         })),
         required: true,
@@ -112,7 +112,7 @@ export async function serviceAdd(flags: ServiceAddFlags, runner: Runner = run): 
         .filter((key) => key !== 'user')
         .map(
           (key) =>
-            `${pageNames(key).file} — lists ${manifest.services[key]?.listEndpoint}; repoint LIST_ENDPOINT for another route`,
+            `${pageNames(key).file}, lists ${manifest.services[key]?.listEndpoint}; repoint LIST_ENDPOINT for another route`,
         ),
     ].join('\n'),
     'Next steps',

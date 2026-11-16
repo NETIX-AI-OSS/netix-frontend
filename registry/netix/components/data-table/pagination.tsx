@@ -25,7 +25,7 @@ export type PaginationControlsLabels = {
 }
 
 const defaultLabels: PaginationControlsLabels = {
-  showingResults: 'Showing {start}–{end} of {total}',
+  showingResults: 'Showing {start}-{end} of {total}',
   noResults: 'No results',
   rowsPerPage: 'Rows per page',
   firstPage: 'Go to first page',

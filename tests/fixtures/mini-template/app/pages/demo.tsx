@@ -38,7 +38,7 @@ const DEMO_ROWS: DemoRecord[] = Array.from({ length: 48 }, (_, index) => {
   const name = DEMO_NAMES[index] ?? `demo-record-${String(index + 1).padStart(3, '0')}`
   const title =
     index === 0
-      ? 'DOKAAE — Abraj Al Bait Clock Tower'
+      ? 'DOKAAE, Abraj Al Bait Clock Tower'
       : index < 8
         ? `Tower ${String.fromCharCode(65 + index - 1)}`
         : `Asset ${String(index + 1).padStart(3, '0')}`
@@ -65,7 +65,7 @@ const COLUMNS: DataTableColumn<DemoRecord>[] = [
 ]
 
 /**
- * Local-only module page for previewing the template's list composition — the same shape
+ * Local-only module page for previewing the template's list composition, the same shape
  * `netix init` generates per service, without a backend. Delete this file, its `lazy.ts`
  * export, its route in main.tsx and its NAVIGATION entry when starting a real application.
  */
