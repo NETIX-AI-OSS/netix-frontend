@@ -99,6 +99,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   let runtime: LocaleRuntimeLike | null = null
   let runtimeOrigin = ''
   let activeIdentity: LocaleIdentity | null = null
+  let generation = 0
   // The shipped catalog per language, captured before the first server merge touches it, so every
   // apply resets to that floor and layers the server over it (server wins per key, bundled fills
   // gaps, a key dropped server-side reverts on the next apply instead of lingering).
@@ -118,8 +119,17 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
   }
 
   /** Logout or organization switch: in-flight locale results for the old identity are dropped. */
+  function restoreBundledCatalogs(): void {
+    for (const [language, floor] of bundled) {
+      i18n.removeResourceBundle(language, namespace)
+      i18n.addResourceBundle(language, namespace, floor, true, true)
+    }
+  }
+
   function clearActiveIdentity(): void {
+    generation += 1
     activeIdentity = null
+    restoreBundledCatalogs()
     getLocaleRuntime()?.setActiveIdentity(null)
   }
 
@@ -176,33 +186,48 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     const identity = localeIdentity(user)
     const locales = getLocaleRuntime()
     if (!identity || !locales) return null
-    // The identity claim must stay synchronous so clearActiveIdentity can race it.
+    // Claims and invalidation are synchronous, including two requests for the same identity.
+    const request = ++generation
+    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalogs()
     activeIdentity = identity
     locales.setActiveIdentity(identity)
-    if (!(await isHealthy(locales))) return null
+    const current = () => request === generation && sameIdentity(activeIdentity, identity)
     const language = requestedLanguage || (await initialLanguage(identity, user))
+    if (!current()) return null
+    // Preference remains authoritative even while the locale service is unhealthy.
+    await renderLanguage(language, false)
+    if (!current() || !(await isHealthy(locales)) || !current()) return null
     const cached = await locales.hydrate(identity, language)
-    if (cached && sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(cached.locale)
+    if (!current()) return null
+    if (cached) await applyEffectiveLocale(cached.locale)
+    if (!current()) return null
     const result = await locales.refreshEffective(identity, language)
-    if (sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(result.locale)
-    if (await locales.reconcilePendingLanguage(identity)) {
-      await storage.removeItem(pendingLanguageKey(identity))
-    }
-    return result.locale
+    if (!current()) return null
+    await applyEffectiveLocale(result.locale)
+    if (!current()) return null
+    const synchronized = await locales.reconcilePendingLanguage(identity)
+    if (current() && synchronized) await storage.removeItem(pendingLanguageKey(identity))
+    return current() ? result.locale : null
   }
 
   async function changeOrganizationLanguage(language: string): Promise<void> {
+    const request = ++generation
     const identity = activeIdentity
+    const current = () =>
+      request === generation && (!identity || sameIdentity(activeIdentity, identity))
     if (identity) await storage.setItem(pendingLanguageKey(identity), language)
+    if (!current()) return
     await applyLanguage(language)
+    if (!current()) return
     const locales = getLocaleRuntime()
     if (!locales || !identity) return
     const synchronized = await locales.setPreferredLanguage(identity, language)
+    if (!current()) return
     if (synchronized) await storage.removeItem(pendingLanguageKey(identity))
-    if (!synchronized) return
+    if (!current() || !synchronized) return
     try {
       const refreshed = await locales.refreshEffective(identity, language)
-      if (sameIdentity(activeIdentity, identity)) await applyEffectiveLocale(refreshed.locale)
+      if (current()) await applyEffectiveLocale(refreshed.locale)
     } catch {
       // Keep bundled resources and the pending preference while offline.
     }
