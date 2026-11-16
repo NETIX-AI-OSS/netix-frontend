@@ -251,7 +251,7 @@ describe('style layer', () => {
     expect(css).toContain('--radius-control: var(--radius-pill);')
   })
 
-  it('re-points shape aliases only — never the radius scale or the palette', () => {
+  it('re-points shape aliases only, never the radius scale or the palette', () => {
     const rest = css.slice(css.indexOf("[data-style='rhea']"))
     const rhea = rest.slice(0, rest.indexOf('}'))
     expect(rhea).toContain('--radius-control: var(--radius-pill);')

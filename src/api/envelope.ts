@@ -11,7 +11,7 @@ function stripErrorDetail(value: string): string | undefined {
   return key ? `${key} : ${message}` : message
 }
 
-/** "['a', 'b']" is the NETIX_ERRORS_STRINGIFIED artifact — a Python list repr, not always JSON. */
+/** "['a', 'b']" is the NETIX_ERRORS_STRINGIFIED artifact, a Python list repr, not always JSON. */
 function parseStringifiedArray(value: string): string[] | undefined {
   try {
     // The value starts with '[', so anything that parses as JSON here is an array.

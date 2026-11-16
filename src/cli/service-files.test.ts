@@ -141,7 +141,7 @@ it('formats each cell by its declared type, not by sniffing the value', () => {
   const out = buildServicePage('cafm', cafm, [{ field: 'created_on', kind: 'date' }])
   expect(out).toContain("if (kind === 'boolean') return translate(value ? 'yes' : 'no')")
   expect(out).toContain('parsed.toLocaleDateString(locale)')
-  expect(out).toContain("if (value === null || value === undefined || value === '') return '—'")
+  expect(out).toContain("if (value === null || value === undefined || value === '') return '-'")
 })
 
 it('opens every generated service page on a real collection, never on the service root', () => {

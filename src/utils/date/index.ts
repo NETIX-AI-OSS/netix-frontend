@@ -155,7 +155,7 @@ export function isScheduleDayValid(date: string | Date, required?: boolean): boo
   return isBefore(startOfToday(), new Date(date))
 }
 
-/** @deprecated Typo alias — use isScheduleDayValid instead. */
+/** @deprecated Typo alias, use isScheduleDayValid instead. */
 export const isScheduleDayVaild = isScheduleDayValid
 
 export function milliSecondsToDuration(milliSeconds: number): Duration {

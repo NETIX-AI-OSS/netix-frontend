@@ -12,7 +12,7 @@ import '@/lib/auth-init'
 import '@/lib/i18n'
 import { initializeOrganizationLocale } from '@/lib/organization-locale'
 import { Toaster } from '@/components/ui/toaster'
-// Namespaced so adding a page is one <Route> below and one line in pages/lazy.ts —
+// Namespaced so adding a page is one <Route> below and one line in pages/lazy.ts -
 // there is no import list to keep in step.
 import * as Pages from '@/pages/lazy'
 

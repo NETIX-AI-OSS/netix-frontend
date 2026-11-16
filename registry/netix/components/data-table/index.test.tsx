@@ -92,7 +92,7 @@ describe('DataTable', () => {
   })
 
   it('sticks pinned columns to the start and end edges', () => {
-    // The v9 pinning API ('start'/'end', getStart/getAfter) drives real sticky offsets —
+    // The v9 pinning API ('start'/'end', getStart/getAfter) drives real sticky offsets -
     // an unpinned column stays in flow, so a passing render alone proves nothing.
     render(<Harness pinned heightAuto />)
     const [nameCell, statusCell, ownerCell] = screen.getAllByRole('row')[1]!.querySelectorAll('td')
@@ -184,7 +184,7 @@ describe('DataTable', () => {
 
   it('includes the standard controlled pagination footer when requested', () => {
     render(<Harness pagination={{ pageSizeOptions: [2, 10] }} />)
-    expect(screen.getByText('Showing 1–2 of 2')).toBeInTheDocument()
+    expect(screen.getByText('Showing 1-2 of 2')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Go to page 1' })).toHaveAttribute(
       'aria-current',
       'page',

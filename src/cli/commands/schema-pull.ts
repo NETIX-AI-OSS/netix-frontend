@@ -109,7 +109,7 @@ export async function schemaPull({
       const ageDays = Math.floor((now() - date) / DAY_MS)
       if (ageDays > STALE_AFTER_DAYS)
         result.warnings.push(
-          `${key}: spec last touched ${ageDays} days ago — the backend snapshot may be stale`,
+          `${key}: spec last touched ${ageDays} days ago, the backend snapshot may be stale`,
         )
     }
   }
@@ -120,7 +120,7 @@ export async function schemaPull({
     log('pnpm generate:client')
     const gen = await runner('pnpm', ['generate:client'], { cwd })
     if (gen.code === 0) result.generated = true
-    else result.failures.push('pnpm generate:client failed — rerun it once the cause is fixed')
+    else result.failures.push('pnpm generate:client failed, rerun it once the cause is fixed')
   }
   return result
 }

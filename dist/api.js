@@ -1,4 +1,4 @@
-export { COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, buildAuthConfig } from './chunk-X5CAXNVK.js';
+export { COOKIE_REFRESH_TTL, COOKIE_SECURE, COOKIE_TOKEN_TTL, REFRESH_ENDPOINT, TOKEN_ENDPOINT, VERIFY_ENDPOINT, buildAuthConfig } from './chunk-OTOPGCV5.js';
 import Axios from 'axios';
 
 // src/api/dev-login.ts
@@ -84,7 +84,7 @@ function createDevLoginPrompt({ login, onSuccess }) {
           result = false;
         }
         if (result !== true) {
-          error.textContent = "Sign-in failed \u2014 check the credentials and that staging is reachable.";
+          error.textContent = "Sign-in failed, check the credentials and that staging is reachable.";
           error.hidden = false;
           button.disabled = false;
           button.textContent = "Sign in";

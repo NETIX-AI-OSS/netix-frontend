@@ -102,7 +102,7 @@ export type RowWrapperProps<TData extends RowData> = React.HTMLAttributes<HTMLTa
 export type TranslateHeader = (header: string, columnId: string) => ReactNode
 
 // A real row click starts on one of the row's own cells. Anything else reaching
-// the row handler came from a portal — Base UI renders dialogs, popovers and menus
+// the row handler came from a portal, Base UI renders dialogs, popovers and menus
 // at <body>, but React events still bubble through the React tree, so a click
 // inside an overlay opened from a cell arrives here too.
 //

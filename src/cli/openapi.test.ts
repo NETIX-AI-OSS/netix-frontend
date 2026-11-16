@@ -79,7 +79,7 @@ it('leads with the fields that identify a record, then keeps spec order', () => 
   ])
 })
 
-it('drops fields with no sensible cell — objects, arrays and untyped blobs', () => {
+it('drops fields with no sensible cell, objects, arrays and untyped blobs', () => {
   const path = write(
     spec(`        name: { type: string }
         asset_details: { type: object }
@@ -119,7 +119,7 @@ it('caps the column count so a 48-field record does not render 48 columns', () =
   expect(readSchemaColumns(write(spec(fields)), '/api/thing/')).toHaveLength(7)
 })
 
-it('answers empty — never throws — when the spec cannot say', () => {
+it('answers empty, never throws, when the spec cannot say', () => {
   // Each of these is a fallback case for the generator, not a scaffold failure.
   expect(readSchemaColumns(join(root, 'schema/missing.yaml'), '/api/thing/')).toEqual([])
   expect(readSchemaColumns(write('\t:\n  - [unbalanced'), '/api/thing/')).toEqual([])

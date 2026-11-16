@@ -4,7 +4,7 @@ export { STYLE_NAMES } from './style-names'
 export { themeInitSnippet } from './theme-init-snippet'
 export { tokens }
 
-/** The design styles the token layer ships — the shape axis, orthogonal to light/dark. */
+/** The design styles the token layer ships, the shape axis, orthogonal to light/dark. */
 export type StyleName = (typeof import('./style-names'))['STYLE_NAMES'][number]
 
 export type ThemeMode = keyof typeof tokens
@@ -39,6 +39,6 @@ export const noticeColor = (
 ): string =>
   token((slot === 'ink' ? `notice-${severity}` : `notice-${severity}-${slot}`) as TokenName, mode)
 
-/** Okabe–Ito categorical ramp, in order — never use it to encode status. */
+/** Okabe-Ito categorical ramp, in order, never use it to encode status. */
 export const chartPalette = (mode: ThemeMode = 'light'): string[] =>
   Array.from({ length: 10 }, (_, index) => token(`cat-${index + 1}` as TokenName, mode))

@@ -86,7 +86,7 @@ export function applyScaffoldTransforms(root: string, options: ScaffoldOptions):
     notes.push(`wired ${slug} client`)
 
     // An ordinary page, generated: delete the file + its three wiring lines to remove it.
-    // The user service gets none — the template's access pages are its UI.
+    // The user service gets none, the template's access pages are its UI.
     const service = options.manifest.services[key]
     if (service && key !== 'user') {
       // `init` pulls schemas before this runs, so the page's columns come from the
@@ -96,7 +96,7 @@ export function applyScaffoldTransforms(root: string, options: ScaffoldOptions):
       notes.push(
         columns.length
           ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)`
-          : `added ${key} page (no spec yet — columns inferred from the first row)`,
+          : `added ${key} page (no spec yet, columns inferred from the first row)`,
       )
     }
   }
@@ -111,11 +111,11 @@ export function applyScaffoldTransforms(root: string, options: ScaffoldOptions):
 }
 
 /**
- * Wires services into an app that already exists — the `netix service add`
+ * Wires services into an app that already exists, the `netix service add`
  * write path, sharing the per-service inserts with the scaffold above.
  * Idempotent and additive: files the app already owns are kept (never
- * overwritten), entries already present are left alone, so running it again —
- * or on a service `init` wired — only fills in whatever is missing.
+ * overwritten), entries already present are left alone, so running it again -
+ * or on a service `init` wired, only fills in whatever is missing.
  * Throws when a required file or its insert anchor is gone.
  */
 export function applyServiceWiring(
@@ -136,7 +136,7 @@ export function applyServiceWiring(
   }
   const edit = (path: string, transform: (content: string) => string) => {
     const file = join(root, path)
-    if (!existsSync(file)) throw new Error(`${path} not found — run this from the app root`)
+    if (!existsSync(file)) throw new Error(`${path} not found, run this from the app root`)
     const content = readFileSync(file, 'utf8')
     const next = transform(content)
     if (next !== content) writeFileSync(file, next)
@@ -156,7 +156,7 @@ export function applyServiceWiring(
       buildServiceClientTest(key),
       `wrote ${slug} client test`,
     )
-    // The user service has no page — the template's access pages are its UI.
+    // The user service has no page, the template's access pages are its UI.
     if (key !== 'user') {
       const columns = readSchemaColumns(specPathFor(root, slug), service.listEndpoint)
       writeIfMissing(
@@ -164,7 +164,7 @@ export function applyServiceWiring(
         buildServicePage(key, service, columns),
         columns.length
           ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)`
-          : `added ${key} page (no spec yet — columns inferred from the first row)`,
+          : `added ${key} page (no spec yet, columns inferred from the first row)`,
       )
     }
     edit('orval.config.ts', (c) => insertOrvalBlock(c, key))

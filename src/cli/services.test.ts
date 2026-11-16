@@ -31,7 +31,7 @@ it('loads and validates the committed manifest', () => {
     expect(service.specPath).toMatch(/^openapi\/[\w-]+\.yaml$/)
     expect(service.envVar).toMatch(/^VITE_[A-Z_]+_BASE_URL$/)
     expect(service.localPort).toBeGreaterThan(0)
-    // Curated per service from its own OpenAPI spec — a collection, not a detail route.
+    // Curated per service from its own OpenAPI spec, a collection, not a detail route.
     expect(service.listEndpoint).toMatch(/^\/[\w/-]+\/$/)
   }
 })

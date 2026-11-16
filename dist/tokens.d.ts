@@ -328,9 +328,9 @@ declare const tokens: {
     };
 };
 
-declare const themeInitSnippet = "// Applies the stored theme and style before first paint; keep in sync with ThemeProvider.\n;(function () {\n  try {\n    var root = document.documentElement\n    var key = root.dataset.themeKey || 'netix-theme'\n    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'\n    var dark =\n      stored === 'dark' ||\n      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)\n    var resolved = dark ? 'dark' : 'light'\n    root.classList.add(resolved)\n    root.style.colorScheme = resolved\n  } catch {\n    // localStorage/matchMedia unavailable \u2014 fall back to the light default\n  }\n  try {\n    var element = document.documentElement\n    var styleKey = element.dataset.styleKey || 'netix-style'\n    // An unknown value simply matches no [data-style] block, so :root keeps the default style.\n    element.setAttribute(\n      'data-style',\n      localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',\n    )\n  } catch {\n    // storage blocked \u2014 the default style applies\n  }\n})()\n";
+declare const themeInitSnippet = "// Applies the stored theme and style before first paint; keep in sync with ThemeProvider.\n;(function () {\n  try {\n    var root = document.documentElement\n    var key = root.dataset.themeKey || 'netix-theme'\n    var stored = localStorage.getItem(key) || root.dataset.defaultTheme || 'system'\n    var dark =\n      stored === 'dark' ||\n      (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)\n    var resolved = dark ? 'dark' : 'light'\n    root.classList.add(resolved)\n    root.style.colorScheme = resolved\n  } catch {\n    // localStorage/matchMedia unavailable, fall back to the light default\n  }\n  try {\n    var element = document.documentElement\n    var styleKey = element.dataset.styleKey || 'netix-style'\n    // An unknown value simply matches no [data-style] block, so :root keeps the default style.\n    element.setAttribute(\n      'data-style',\n      localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',\n    )\n  } catch {\n    // storage blocked, the default style applies\n  }\n})()\n";
 
-/** The design styles the token layer ships — the shape axis, orthogonal to light/dark. */
+/** The design styles the token layer ships, the shape axis, orthogonal to light/dark. */
 type StyleName = (typeof __style_names)['STYLE_NAMES'][number];
 type ThemeMode = keyof typeof tokens;
 type TokenName = keyof (typeof tokens)['light'];
@@ -346,7 +346,7 @@ declare const token: (name: TokenName, mode?: ThemeMode) => string;
 declare const cssVar: (name: TokenName) => string;
 declare const statusColor: (status: StatusName, mode?: ThemeMode, slot?: StatusSlot) => string;
 declare const noticeColor: (severity: NoticeSeverity, mode?: ThemeMode, slot?: "ink" | "surface" | "border") => string;
-/** Okabe–Ito categorical ramp, in order — never use it to encode status. */
+/** Okabe-Ito categorical ramp, in order, never use it to encode status. */
 declare const chartPalette: (mode?: ThemeMode) => string[];
 
 export { NOTICE_SEVERITIES, STATUS_NAMES, STYLE_NAMES, chartPalette, cssVar, noticeColor, statusColor, themeInitSnippet, token, tokens };

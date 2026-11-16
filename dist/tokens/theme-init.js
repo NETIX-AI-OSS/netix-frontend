@@ -11,7 +11,7 @@
     root.classList.add(resolved)
     root.style.colorScheme = resolved
   } catch {
-    // localStorage/matchMedia unavailable — fall back to the light default
+    // localStorage/matchMedia unavailable, fall back to the light default
   }
   try {
     var element = document.documentElement
@@ -22,6 +22,6 @@
       localStorage.getItem(styleKey) || element.dataset.defaultStyle || 'nova',
     )
   } catch {
-    // storage blocked — the default style applies
+    // storage blocked, the default style applies
   }
 })()

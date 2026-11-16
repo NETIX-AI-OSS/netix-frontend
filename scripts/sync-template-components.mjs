@@ -60,7 +60,7 @@ if (!existsSync(join(template, 'components.json'))) {
 const registry = JSON.parse(readFileSync(join(HERE, 'registry.json'), 'utf8'))
 const items = new Map(registry.items.map((item) => [item.name, item]))
 
-/** Depth-first over registryDependencies, @netix only — the rest the template already owns. */
+/** Depth-first over registryDependencies, @netix only, the rest the template already owns. */
 const closure = new Map()
 const walk = (name) => {
   if (closure.has(name)) return

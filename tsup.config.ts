@@ -47,7 +47,7 @@ export default defineConfig([
     target: 'node22',
     // `yaml` resolves to a CJS build under the `node` condition, and esbuild's
     // interop shim throws "Dynamic require ... is not supported" in an ESM bundle
-    // unless a real `require` is in scope. Give it one — the bundle must stay a
+    // unless a real `require` is in scope. Give it one, the bundle must stay a
     // single self-contained file with zero runtime dependencies.
     banner: {
       js: [

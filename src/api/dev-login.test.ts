@@ -66,7 +66,7 @@ it('falls back to a full page reload when no onSuccess is given', async () => {
 })
 
 it('reports any non-true result inline and keeps the form open to retry', async () => {
-  // envoy-ts-auth resolves `undefined` (not false) on a 401 — non-true means failure.
+  // envoy-ts-auth resolves `undefined` (not false) on a 401, non-true means failure.
   const login = vi.fn().mockResolvedValueOnce(undefined).mockResolvedValueOnce(true)
   const onSuccess = vi.fn()
 

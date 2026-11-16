@@ -1,6 +1,6 @@
 /**
  * `repeat` (?a=1&a=2) is what most backends' DRF filters expect; `comma` (?a=1,2) is what
- * django-filter's BaseInFilter needs — axios's default bracketed keys are silently dropped by both.
+ * django-filter's BaseInFilter needs, axios's default bracketed keys are silently dropped by both.
  */
 export type ParamsSerializerStrategy = 'repeat' | 'comma' | 'default'
 

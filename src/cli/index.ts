@@ -10,7 +10,7 @@ import { schemaPull } from './commands/schema-pull'
 import { serviceAdd } from './commands/service-add'
 import { loadManifest } from './services'
 
-const HELP = `${pc.bold('netix')} — scaffold and maintain NETIX frontend apps
+const HELP = `${pc.bold('netix')}, scaffold and maintain NETIX frontend apps
 
 Usage:
   netix init [dir] [options]       Create a new app from frontend-template
@@ -18,7 +18,7 @@ Usage:
   netix service add [service...]   Wire backend services into this app (client + env + module), then pull + generate
   netix schema pull [service...]   Refresh OpenAPI specs (all wired services when none named) and regenerate clients
 
-Service names are comma- or space-separated (data,cafm or data cafm — see services.json).
+Service names are comma- or space-separated (data,cafm or data cafm, see services.json).
 
 init options:
   --name <kebab>        App + deploy identity (default: directory name)
@@ -26,7 +26,7 @@ init options:
   --base-domain <host>  Deploy domain (default: netixai.dev)
   --port <number>       Dev server port (default: 5174)
   --services <a,b>      Extra services to wire (see services.json), e.g. data,cafm
-                        The user service is always wired — every app authenticates.
+                        The user service is always wired, every app authenticates.
   --template-path <p>   Scaffold from a local template checkout instead of GitHub
   --template-ref <ref>  Template git ref to download (default: its newest vX.Y.Z tag)
   --no-git | --no-install | --no-schemas | --no-generate
@@ -162,7 +162,7 @@ export async function main(argv: string[]): Promise<number> {
 /**
  * True when this module is the process entry point. `process.argv[1]` is the path
  * as invoked, which for an installed package is the `node_modules/.bin/netix`
- * symlink — so resolve it before comparing, or the bin silently does nothing.
+ * symlink, so resolve it before comparing, or the bin silently does nothing.
  */
 export function isEntryPoint(entry: string | undefined, moduleUrl: string): boolean {
   if (!entry) return false

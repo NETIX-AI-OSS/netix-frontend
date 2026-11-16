@@ -92,7 +92,7 @@ declare function timeDifference(date1: string | Date, date2: string | Date): num
 declare function getHourDifference(time1: string, time2: string): number;
 declare function getFormattedShiftTime(shift: string): Date;
 declare function isScheduleDayValid(date: string | Date, required?: boolean): boolean;
-/** @deprecated Typo alias — use isScheduleDayValid instead. */
+/** @deprecated Typo alias, use isScheduleDayValid instead. */
 declare const isScheduleDayVaild: typeof isScheduleDayValid;
 declare function milliSecondsToDuration(milliSeconds: number): Duration;
 declare function getTimeEstimate(milliseconds: number, remainingText?: string, delayedText?: string): string;
