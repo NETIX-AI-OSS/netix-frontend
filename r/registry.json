@@ -7,7 +7,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "NETIX base-nova badge (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova badge (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/badge.tsx",
@@ -19,7 +19,7 @@
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
-      "description": "NETIX base-nova button (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova button (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/button.tsx",
@@ -31,7 +31,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "NETIX base-nova dialog (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova dialog (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/dialog.tsx",
@@ -43,7 +43,7 @@
       "name": "field",
       "type": "registry:ui",
       "title": "Field",
-      "description": "NETIX base-nova field (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova field (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/field.tsx",
@@ -55,7 +55,7 @@
       "name": "input",
       "type": "registry:ui",
       "title": "Input",
-      "description": "NETIX base-nova input (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova input (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/input.tsx",
@@ -67,7 +67,7 @@
       "name": "label",
       "type": "registry:ui",
       "title": "Label",
-      "description": "NETIX base-nova label (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova label (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/label.tsx",
@@ -79,7 +79,7 @@
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "NETIX base-nova popover (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova popover (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/popover.tsx",
@@ -91,7 +91,7 @@
       "name": "select",
       "type": "registry:ui",
       "title": "Select",
-      "description": "NETIX base-nova select (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova select (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/select.tsx",
@@ -103,7 +103,7 @@
       "name": "separator",
       "type": "registry:ui",
       "title": "Separator",
-      "description": "NETIX base-nova separator (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova separator (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/separator.tsx",
@@ -115,7 +115,7 @@
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
-      "description": "NETIX base-nova skeleton (Base UI), the canon primitive \u2014 mirrors the frontend-template source.",
+      "description": "NETIX base-nova skeleton (Base UI), the canon primitive, mirrors the frontend-template source.",
       "files": [
         {
           "path": "registry/netix/ui/skeleton.tsx",

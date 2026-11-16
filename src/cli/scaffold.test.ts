@@ -63,7 +63,7 @@ it('applies the full pipeline for data + cafm', () => {
     'https://example.com/r/{name}.json',
   )
   expect(notes).toContain('wired cafm-service client')
-  expect(notes).toContain('added cafm page (no spec yet — columns inferred from the first row)')
+  expect(notes).toContain('added cafm page (no spec yet, columns inferred from the first row)')
   expect(read('app/pages/cafm.tsx')).toContain('export default function CafmPage()')
   expect(read('app/pages/lazy.ts')).toContain(
     "export const DataPage = lazy(() => import('@/pages/data'))",
@@ -179,7 +179,7 @@ describe('applyServiceWiring (netix service add)', () => {
     expect(read('app/main.tsx')).toContain('<Pages.CafmPage />')
     expect(read('app/lib/navigation.ts')).toContain("label: 'CAFM',")
     expect(notes).toContain('wired cafm-service client')
-    expect(notes).toContain('added cafm page (no spec yet — columns inferred from the first row)')
+    expect(notes).toContain('added cafm page (no spec yet, columns inferred from the first row)')
   })
 
   it('keeps every app-owned file and entry on a re-run', () => {

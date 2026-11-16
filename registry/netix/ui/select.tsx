@@ -7,7 +7,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Base UI renders the *value* in a closed trigger, not the chosen item's label — it has no way
+ * Base UI renders the *value* in a closed trigger, not the chosen item's label, it has no way
  * to know the label while `SelectContent` is unmounted. Its answer is an explicit `items` map,
  * which would mean touching every call site; Radix read the label straight off the selected
  * `SelectItem`, so without this every closed Select shows a raw enum ("active", "__all__")

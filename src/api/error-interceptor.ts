@@ -24,7 +24,7 @@ export type ErrorInterceptorConfig = {
 }
 
 /**
- * Unified response error handler. Every branch throws an ApiError — never returns — so the
+ * Unified response error handler. Every branch throws an ApiError, never returns, so the
  * react-query / SWR retry predicates still run, and a 403 never logs out.
  */
 export function createErrorInterceptor(config: ErrorInterceptorConfig = {}) {

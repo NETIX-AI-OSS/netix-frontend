@@ -1,5 +1,5 @@
 {
-  "$comment": "Canonical NETIX service manifest: which backend repo publishes each OpenAPI spec, where it lives, and the app-side wiring conventions. Consumed by the netix CLI (init, service add, schema pull) and exported as netix-frontend/services.json. The user service is platform plumbing — init always wires it and it never gets a module page. Entries cover every NETIX-AI backend with a public *.api host; apiSubdomain comes from each repo's deploy manifests, localPort from its native container port, listEndpoint is the collection a scaffolded module page opens on — one real, paginated route per service, taken from that service's own spec.",
+  "$comment": "Canonical NETIX service manifest: which backend repo publishes each OpenAPI spec, where it lives, and the app-side wiring conventions. Consumed by the netix CLI (init, service add, schema pull) and exported as netix-frontend/services.json. The user service is platform plumbing, init always wires it and it never gets a module page. Entries cover every NETIX-AI backend with a public *.api host; apiSubdomain comes from each repo's deploy manifests, localPort from its native container port, listEndpoint is the collection a scaffolded module page opens on, one real, paginated route per service, taken from that service's own spec.",
   "services": {
     "user": {
       "title": "User Management",

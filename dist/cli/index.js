@@ -8749,7 +8749,7 @@ var TEMPLATE_DEV_PORT = 5174;
 function rewritePackageJson(content, options) {
   const pkg = JSON.parse(content);
   pkg.name = options.name;
-  pkg.description = `${options.title} \u2014 a NETIX frontend`;
+  pkg.description = `${options.title}, a NETIX frontend`;
   for (const field of ["dependencies", "devDependencies"]) {
     const deps = pkg[field];
     if (deps?.["netix-frontend"]) deps["netix-frontend"] = `github:${LIB_REPO}#${options.libRef}`;
@@ -8998,8 +8998,8 @@ function buildServicePage(key, service, columns = []) {
   const { component } = pageNames(key);
   const title = service.title;
   const fromSchema = columns.length > 0;
-  const columnSource = fromSchema ? `// Columns come from the API contract \u2014 schema/${slug}.yaml, the response schema of
-// ${service.listEndpoint} \u2014 not from the rows. That is what keeps the header row, the
+  const columnSource = fromSchema ? `// Columns come from the API contract, schema/${slug}.yaml, the response schema of
+// ${service.listEndpoint}, not from the rows. That is what keeps the header row, the
 // column widths and the per-type formatting in place while the first page loads and when
 // the collection comes back empty. This is ordinary source: reorder it, drop fields, add
 // a \`meta.filter\` (see @netix/data-table), or regenerate with \`netix schema pull\`.
@@ -9040,7 +9040,7 @@ import { formatLabel } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 // The service's headline collection, from services.json. Swap it for the route this
-// service page is really about \u2014 schema/${slug}.yaml lists them, and the typed hooks for
+// service page is really about, schema/${slug}.yaml lists them, and the typed hooks for
 // every one live in app/client/gen/${slug}.
 const LIST_ENDPOINT = '${service.listEndpoint}'
 
@@ -9057,7 +9057,7 @@ const formatCell = (
   translate: (key: string) => string,
   locale: string,
 ): string => {
-  if (value === null || value === undefined || value === '') return '\u2014'
+  if (value === null || value === undefined || value === '') return '-'
   if (kind === 'boolean') return translate(value ? 'yes' : 'no')
   if (kind === 'number')
     return typeof value === 'number' ? value.toLocaleString(locale) : String(value)
@@ -9138,7 +9138,7 @@ export default function ${component}() {
           >
             <StatTile
               label="Total records"
-              value={data ? data.count.toLocaleString(locale) : '\u2014'}
+              value={data ? data.count.toLocaleString(locale) : '-'}
               detail="Across this service"
               icon={Database}
             />
@@ -9267,7 +9267,7 @@ function applyScaffoldTransforms(root, options) {
       const columns = readSchemaColumns(specPathFor(root, slug), service.listEndpoint);
       writeFileSync(join(root, pageNames(key).file), buildServicePage(key, service, columns));
       notes.push(
-        columns.length ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)` : `added ${key} page (no spec yet \u2014 columns inferred from the first row)`
+        columns.length ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)` : `added ${key} page (no spec yet, columns inferred from the first row)`
       );
     }
   }
@@ -9292,7 +9292,7 @@ function applyServiceWiring(root, services, manifest) {
   };
   const edit = (path, transform) => {
     const file = join(root, path);
-    if (!existsSync(file)) throw new Error(`${path} not found \u2014 run this from the app root`);
+    if (!existsSync(file)) throw new Error(`${path} not found, run this from the app root`);
     const content = readFileSync(file, "utf8");
     const next = transform(content);
     if (next !== content) writeFileSync(file, next);
@@ -9316,7 +9316,7 @@ function applyServiceWiring(root, services, manifest) {
       writeIfMissing(
         pageNames(key).file,
         buildServicePage(key, service, columns),
-        columns.length ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)` : `added ${key} page (no spec yet \u2014 columns inferred from the first row)`
+        columns.length ? `added ${key} page (${columns.length} columns from schema/${slug}.yaml)` : `added ${key} page (no spec yet, columns inferred from the first row)`
       );
     }
     edit("orval.config.ts", (c) => insertOrvalBlock(c, key));
@@ -9353,7 +9353,7 @@ async function requireGh(runner) {
     return `the GitHub CLI (gh) is required to download ${TEMPLATE_REPO} (a private repo).
 Install it and run \`gh auth login\`, or pass --template-path <local checkout>.`;
   if ((await runner("gh", ["auth", "status"])).code !== 0)
-    return "gh is installed but not authenticated \u2014 run `gh auth login` first.";
+    return "gh is installed but not authenticated, run `gh auth login` first.";
   return void 0;
 }
 async function acquireTemplate({ dest, ref, templatePath, runner = run }) {
@@ -9403,7 +9403,7 @@ async function resolveTemplate({
   if (ref) {
     const commit = await runner("gh", ["api", `repos/${TEMPLATE_REPO}/commits/${ref}`, "--silent"]);
     return commit.code === 0 ? { ref } : {
-      error: `${TEMPLATE_REPO}@${ref} is not reachable \u2014 the ref may not exist yet, or you may not have access.
+      error: `${TEMPLATE_REPO}@${ref} is not reachable, the ref may not exist yet, or you may not have access.
 Pass --template-ref <existing ref> or --template-path <local checkout>.`
     };
   }
@@ -9416,7 +9416,7 @@ Pass --template-ref <existing ref> or --template-path <local checkout>.`
   ]);
   if (tags.code !== 0)
     return {
-      error: `listing ${TEMPLATE_REPO} tags failed \u2014 you may not have access.
+      error: `listing ${TEMPLATE_REPO} tags failed, you may not have access.
 ${tags.stderr}`.trimEnd() + "\nPass --template-ref <ref> or --template-path <local checkout>."
     };
   const newest = newestReleaseTag(tags.stdout.split("\n"));
@@ -9497,7 +9497,7 @@ async function schemaPull({
       const ageDays = Math.floor((now() - date) / DAY_MS);
       if (ageDays > STALE_AFTER_DAYS)
         result.warnings.push(
-          `${key}: spec last touched ${ageDays} days ago \u2014 the backend snapshot may be stale`
+          `${key}: spec last touched ${ageDays} days ago, the backend snapshot may be stale`
         );
     }
   }
@@ -9505,7 +9505,7 @@ async function schemaPull({
     log2("pnpm generate:client");
     const gen = await runner("pnpm", ["generate:client"], { cwd });
     if (gen.code === 0) result.generated = true;
-    else result.failures.push("pnpm generate:client failed \u2014 rerun it once the cause is fixed");
+    else result.failures.push("pnpm generate:client failed, rerun it once the cause is fixed");
   }
   return result;
 }
@@ -9697,7 +9697,7 @@ async function serviceAdd(flags, runner = run) {
   const cwd = flags.cwd ?? process.cwd();
   intro(import_picocolors2.default.inverse(" netix service add "));
   if (!existsSync(join(cwd, "package.json")) || !existsSync(join(cwd, "orval.config.ts")))
-    return fail("no package.json + orval.config.ts here \u2014 run this from a netix app root");
+    return fail("no package.json + orval.config.ts here, run this from a netix app root");
   const wired = detectServices(cwd, manifest);
   let services = flags.services;
   if (!services.length) {
@@ -9708,7 +9708,7 @@ async function serviceAdd(flags, runner = run) {
         options: serviceKeys.map((key) => ({
           value: key,
           label: manifest.services[key]?.title ?? key,
-          hint: wired.includes(key) ? "already wired \u2014 refreshes its schema" : manifest.services[key]?.backendRepo
+          hint: wired.includes(key) ? "already wired, refreshes its schema" : manifest.services[key]?.backendRepo
         })),
         required: true
       })
@@ -9753,7 +9753,7 @@ async function serviceAdd(flags, runner = run) {
       "Review the diff, then commit.",
       // The user service gets no page, so there is no endpoint to name.
       ...services.filter((key) => key !== "user").map(
-        (key) => `${pageNames(key).file} \u2014 lists ${manifest.services[key]?.listEndpoint}; repoint LIST_ENDPOINT for another route`
+        (key) => `${pageNames(key).file}, lists ${manifest.services[key]?.listEndpoint}; repoint LIST_ENDPOINT for another route`
       )
     ].join("\n"),
     "Next steps"
@@ -9768,7 +9768,7 @@ async function serviceAdd(flags, runner = run) {
 }
 
 // src/cli/index.ts
-var HELP = `${import_picocolors3.default.bold("netix")} \u2014 scaffold and maintain NETIX frontend apps
+var HELP = `${import_picocolors3.default.bold("netix")}, scaffold and maintain NETIX frontend apps
 
 Usage:
   netix init [dir] [options]       Create a new app from frontend-template
@@ -9776,7 +9776,7 @@ Usage:
   netix service add [service...]   Wire backend services into this app (client + env + module), then pull + generate
   netix schema pull [service...]   Refresh OpenAPI specs (all wired services when none named) and regenerate clients
 
-Service names are comma- or space-separated (data,cafm or data cafm \u2014 see services.json).
+Service names are comma- or space-separated (data,cafm or data cafm, see services.json).
 
 init options:
   --name <kebab>        App + deploy identity (default: directory name)
@@ -9784,7 +9784,7 @@ init options:
   --base-domain <host>  Deploy domain (default: netixai.dev)
   --port <number>       Dev server port (default: 5174)
   --services <a,b>      Extra services to wire (see services.json), e.g. data,cafm
-                        The user service is always wired \u2014 every app authenticates.
+                        The user service is always wired, every app authenticates.
   --template-path <p>   Scaffold from a local template checkout instead of GitHub
   --template-ref <ref>  Template git ref to download (default: its newest vX.Y.Z tag)
   --no-git | --no-install | --no-schemas | --no-generate

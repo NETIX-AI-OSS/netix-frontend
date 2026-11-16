@@ -25,7 +25,7 @@ function buildAuthConfig({
     COOKIE_REFRESH_TTL,
     COOKIE_SECURE: dev ? false : COOKIE_SECURE,
     // Deployed: the bare domain covers every subdomain (RFC 6265), which is what shares the
-    // session. Dev: no Domain attribute at all — a host-only cookie, valid on an IP literal
+    // session. Dev: no Domain attribute at all, a host-only cookie, valid on an IP literal
     // too, where a browser would drop `Domain=localhost`.
     COOKIE_DOMAIN: dev ? "" : baseDomain,
     LOGIN_PAGE_URL: `https://${baseDomain}/`,

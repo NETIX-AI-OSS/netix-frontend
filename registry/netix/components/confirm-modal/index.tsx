@@ -59,7 +59,7 @@ export function ConfirmModal({
       } catch {
         // The onConfirm callback owns error surfacing (it toasts the typed ApiError.messages);
         // keep the dialog open so the user can retry. Swallow only to stop an unhandled
-        // rejection — the finally below always clears the submitting state.
+        // rejection, the finally below always clears the submitting state.
       } finally {
         setIsSubmitting(false)
       }

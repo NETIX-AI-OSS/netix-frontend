@@ -10,7 +10,7 @@ export const LIB_REF = 'v2.2.1'
 /** Git ref serving the @netix shadcn registry (raw.githubusercontent). */
 export const REGISTRY_REF = 'v2.1.0'
 
-/** shadcn CLI version `netix add` delegates to — the version frontend-template pins. */
+/** shadcn CLI version `netix add` delegates to, the version frontend-template pins. */
 export const SHADCN_VERSION = '4.21.0'
 
 // The 4T5Labs org was renamed; GitHub redirects the old name, but pins stay canonical.

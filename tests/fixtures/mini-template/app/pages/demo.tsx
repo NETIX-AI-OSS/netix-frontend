@@ -65,7 +65,7 @@ const COLUMNS: DataTableColumn<DemoRecord>[] = [
 ]
 
 /**
- * Local-only module page for previewing the template's list composition — the same shape
+ * Local-only module page for previewing the template's list composition, the same shape
  * `netix init` generates per service, without a backend. Delete this file, its `lazy.ts`
  * export, its route in main.tsx and its NAVIGATION entry when starting a real application.
  */

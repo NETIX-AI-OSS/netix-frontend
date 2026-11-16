@@ -23,7 +23,7 @@ type ThemeProviderState = {
     /** The theme actually applied right now ("system" resolved against the OS). */
     resolvedTheme: ResolvedTheme;
     setTheme: (theme: Theme) => void;
-    /** The applied design style — component shape, independent of light/dark. */
+    /** The applied design style, component shape, independent of light/dark. */
     style: Style;
     setStyle: (style: Style) => void;
 };

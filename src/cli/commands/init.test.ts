@@ -67,7 +67,7 @@ it('scaffolds end to end with --yes and runs every post-step', async () => {
   expect(JSON.parse(readFileSync(join(dest, 'package.json'), 'utf8')).name).toBe('ops-console-ui')
   expect(existsSync(join(dest, 'app/client/http-cafm-service-client.ts'))).toBe(true)
   expect(readFileSync(join(dest, 'schema/cafm-service.yaml'), 'utf8')).toContain('openapi')
-  // The user service rides along unasked — wired as a client, but never a module.
+  // The user service rides along unasked, wired as a client, but never a module.
   expect(existsSync(join(dest, 'app/client/http-user-service-client.ts'))).toBe(true)
   expect(existsSync(join(dest, 'schema/user-service.yaml'))).toBe(true)
   expect(existsSync(join(dest, 'app/pages/user.tsx'))).toBe(false)
@@ -81,7 +81,7 @@ it('scaffolds end to end with --yes and runs every post-step', async () => {
   expect(calls.some((line) => line.startsWith('pnpm generate:client'))).toBe(true)
 
   // git runs LAST so the scaffold commit captures the pulled schemas and the
-  // lockfile — a fresh app must start with a clean tree, not untracked files.
+  // lockfile, a fresh app must start with a clean tree, not untracked files.
   const gitAt = calls.findIndex((line) => line.startsWith('git init'))
   expect(gitAt).toBeGreaterThan(calls.findIndex((line) => line.includes('/contents/')))
   expect(gitAt).toBeGreaterThan(calls.findIndex((line) => line.startsWith('pnpm install')))
@@ -109,7 +109,7 @@ it('lists every unfinished step in Next steps, in the order to run them', async 
 })
 
 it('names pnpm generate:client on its own when only that step is left', async () => {
-  // `netix schema pull` ends with generate:client, so it stands in for both — but a
+  // `netix schema pull` ends with generate:client, so it stands in for both, but a
   // failed generate after a good pull is the one case that needs naming.
   const dest = join(parent, 'ungenerated-ui')
   const { runner } = makeRunner(['pnpm generate:client'])

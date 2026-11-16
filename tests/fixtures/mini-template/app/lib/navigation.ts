@@ -3,7 +3,7 @@ import { Boxes, Home, LayoutGrid, type LucideIcon, Palette, ShieldCheck } from '
 /**
  * The single source of truth for this app's information architecture. The product rail,
  * the workspace sidebar, the breadcrumb trail and the ⌘K page search all derive from this
- * list — add a page here plus its lazy export in app/pages/lazy.ts and its route in
+ * list, add a page here plus its lazy export in app/pages/lazy.ts and its route in
  * app/main.tsx, and every surface picks it up. Generated service pages are ordinary
  * entries: `netix init` and `netix service add` write them at the anchor below, and
  * removing one means deleting its page file and its three lines.
@@ -12,7 +12,7 @@ import { Boxes, Home, LayoutGrid, type LucideIcon, Palette, ShieldCheck } from '
 export type NavPage = {
   /** i18n key, translated at render time so a language switch re-renders it. */
   labelKey?: string
-  /** A literal label for pages named after a service — proper nouns are not translated. */
+  /** A literal label for pages named after a service, proper nouns are not translated. */
   label?: string
   /** A literal blurb for the home cards; pages with a `labelKey` read theirs from translations. */
   description?: string

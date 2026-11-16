@@ -4,13 +4,13 @@ import { AxiosResponse, AxiosError, AxiosInstance, AxiosRequestConfig, InternalA
 /**
  * Local-development sign-in. When envoy-ts-auth reports a missing or expired session
  * (ON_LOGOUT), it asks for staging credentials and stores real tokens, so `vite dev` talks to
- * the real staging APIs as a real user — no login page, no credentials in `.env`.
+ * the real staging APIs as a real user, no login page, no credentials in `.env`.
  *
  * It mounts a real `<form>` rather than calling `window.prompt`, because a native dialog is
  * invisible to password managers: nothing to autofill, nothing to offer to save, and the
  * typing is in cleartext. What every manager does recognise is a form carrying
  * `autocomplete="username"` / `"current-password"` fields and a submit button, followed by a
- * navigation — so this asks once, gets saved, and autofills from then on. Chromium is also
+ * navigation, so this asks once, gets saved, and autofills from then on. Chromium is also
  * asked outright via `navigator.credentials.store`. `http://localhost` is a secure context,
  * so saving works there.
  *
@@ -82,7 +82,7 @@ type ErrorInterceptorConfig = {
     networkErrorMessage?: string;
 };
 /**
- * Unified response error handler. Every branch throws an ApiError — never returns — so the
+ * Unified response error handler. Every branch throws an ApiError, never returns, so the
  * react-query / SWR retry predicates still run, and a 403 never logs out.
  */
 declare function createErrorInterceptor(config?: ErrorInterceptorConfig): {
@@ -92,7 +92,7 @@ declare function createErrorInterceptor(config?: ErrorInterceptorConfig): {
 
 /**
  * `repeat` (?a=1&a=2) is what most backends' DRF filters expect; `comma` (?a=1,2) is what
- * django-filter's BaseInFilter needs — axios's default bracketed keys are silently dropped by both.
+ * django-filter's BaseInFilter needs, axios's default bracketed keys are silently dropped by both.
  */
 type ParamsSerializerStrategy = 'repeat' | 'comma' | 'default';
 declare function serializeParamsRepeat(params: Record<string, unknown>): string;

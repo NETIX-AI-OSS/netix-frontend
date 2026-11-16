@@ -90,7 +90,7 @@ describe('computeBackoffDelayMs', () => {
 })
 
 describe('attachRetryInterceptor', () => {
-  it('never retries a 5xx by default — no donor family did', async () => {
+  it('never retries a 5xx by default, no donor family did', async () => {
     const { instance, calls } = clientFor([{ status: 500 }], immediate)
 
     await expect(instance.get('/things')).rejects.toThrow('status code 500')

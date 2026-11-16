@@ -1,7 +1,7 @@
 import Axios, { type AxiosInstance } from 'axios'
 
 export type DevTokenConfig = {
-  /** Injected, never read from import.meta — the RN-safe entries must stay bundler-agnostic. */
+  /** Injected, never read from import.meta, the RN-safe entries must stay bundler-agnostic. */
   devMode: boolean
   username?: string
   password?: string
