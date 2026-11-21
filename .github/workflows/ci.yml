@@ -7,7 +7,7 @@ on:
 
 jobs:
   checks:
-    runs-on: [build-only, Linux, X64]
+    runs-on: build-only
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
