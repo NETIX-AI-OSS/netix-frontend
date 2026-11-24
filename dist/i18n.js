@@ -222,21 +222,62 @@ var common_nl_default = {
   yes: "Ja"
 };
 
+// src/i18n/locales/common.ru.json
+var common_ru_default = {
+  active: "\u0410\u043A\u0442\u0438\u0432\u043D\u043E",
+  add: "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C",
+  asset: "\u0410\u043A\u0442\u0438\u0432",
+  back: "\u041D\u0430\u0437\u0430\u0434",
+  cancel: "\u041E\u0442\u043C\u0435\u043D\u0430",
+  close: "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
+  confirm: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C",
+  created_on: "\u0414\u0430\u0442\u0430 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F",
+  dark: "\u0422\u0451\u043C\u043D\u0430\u044F",
+  delete: "\u0423\u0434\u0430\u043B\u0438\u0442\u044C",
+  edit: "\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C",
+  email: "\u042D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u0430\u044F \u043F\u043E\u0447\u0442\u0430",
+  home: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F",
+  light: "\u0421\u0432\u0435\u0442\u043B\u0430\u044F",
+  loading: "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026",
+  logout: "\u0412\u044B\u0439\u0442\u0438",
+  na: "\u041D/\u0414",
+  name: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+  next: "\u0414\u0430\u043B\u0435\u0435",
+  no: "\u041D\u0435\u0442",
+  no_data: "\u0417\u0434\u0435\u0441\u044C \u043F\u043E\u043A\u0430 \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435\u0442",
+  open: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C",
+  profile: "\u041F\u0440\u043E\u0444\u0438\u043B\u044C",
+  save: "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C",
+  search: "\u041F\u043E\u0438\u0441\u043A",
+  settings: "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438",
+  status: "\u0421\u0442\u0430\u0442\u0443\u0441",
+  submit: "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C",
+  support: "\u041F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430",
+  switch_organization: "\u0421\u043C\u0435\u043D\u0438\u0442\u044C \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u0430\u0446\u0438\u044E",
+  system: "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u0430\u044F",
+  version: "\u0412\u0435\u0440\u0441\u0438\u044F",
+  yes: "\u0414\u0430"
+};
+
 // src/i18n/common-resources.ts
 var COMMON_NAMESPACE = "common";
-var commonTranslations = { ar: common_ar_default, en: common_en_default, es: common_es_default, fr: common_fr_default, nl: common_nl_default, de: common_de_default };
+var commonTranslations = { ar: common_ar_default, en: common_en_default, es: common_es_default, fr: common_fr_default, nl: common_nl_default, de: common_de_default, ru: common_ru_default };
 var commonResources = {
   ar: { [COMMON_NAMESPACE]: common_ar_default },
   en: { [COMMON_NAMESPACE]: common_en_default },
   es: { [COMMON_NAMESPACE]: common_es_default },
   fr: { [COMMON_NAMESPACE]: common_fr_default },
   nl: { [COMMON_NAMESPACE]: common_nl_default },
-  de: { [COMMON_NAMESPACE]: common_de_default }
+  de: { [COMMON_NAMESPACE]: common_de_default },
+  ru: { [COMMON_NAMESPACE]: common_ru_default }
 };
 
 // src/i18n/normalize-language.ts
+function baseLanguageTag(value) {
+  return value?.trim().toLowerCase().split(/[-_]/)[0];
+}
 function normalizeLanguage(value, supported, fallback) {
-  const base = value?.trim().toLowerCase().split("-")[0];
+  const base = baseLanguageTag(value);
   return supported.includes(base) ? base : fallback;
 }
 
@@ -288,6 +329,7 @@ function createI18n(options) {
   void instance.init({
     resources,
     lng,
+    supportedLngs: options.supportedLngs && [...options.supportedLngs],
     fallbackLng,
     debug,
     interpolation: { escapeValue: false },
@@ -297,7 +339,9 @@ function createI18n(options) {
   });
   const onLanguageChanged = (language) => {
     if (persistOnChange && storage) writeStored(storage, storageKey, normalize(language));
-    applyDirection(language, instance.dir(language));
+    const resolved = instance.resolvedLanguage ?? language;
+    const displayed = baseLanguageTag(resolved) === baseLanguageTag(language) ? language : resolved;
+    applyDirection(displayed, instance.dir(displayed));
   };
   instance.on("languageChanged", onLanguageChanged);
   onLanguageChanged(instance.resolvedLanguage ?? instance.language ?? fallbackLng);
@@ -382,6 +426,14 @@ function createOrganizationLocale(config) {
   }
   async function applyEffectiveLocale(locale) {
     const language = locale.resolved_language;
+    const requested = baseLanguageTag(locale.requested_language);
+    if (requested && requested !== baseLanguageTag(language)) {
+      const requestedCatalog = bundled.get(requested) ?? i18n.getResourceBundle(requested, namespace);
+      if (requestedCatalog && Object.keys(requestedCatalog).length > 0) {
+        await renderLanguage(requested, false);
+        return;
+      }
+    }
     const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {};
     bundled.set(language, floor);
     i18n.removeResourceBundle(language, namespace);
@@ -456,4 +508,16 @@ function createOrganizationLocale(config) {
   };
 }
 
-export { COMMON_NAMESPACE, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };
+// src/i18n/platform-languages.ts
+var PLATFORM_LANGUAGES = ["en", "ar", "fr", "es", "nl", "de", "ru"];
+var PLATFORM_LANGUAGE_INFO = {
+  en: { nativeName: "English", direction: "ltr" },
+  ar: { nativeName: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629", direction: "rtl" },
+  fr: { nativeName: "Fran\xE7ais", direction: "ltr" },
+  es: { nativeName: "Espa\xF1ol", direction: "ltr" },
+  nl: { nativeName: "Nederlands", direction: "ltr" },
+  de: { nativeName: "Deutsch", direction: "ltr" },
+  ru: { nativeName: "\u0420\u0443\u0441\u0441\u043A\u0438\u0439", direction: "ltr" }
+};
+
+export { COMMON_NAMESPACE, PLATFORM_LANGUAGES, PLATFORM_LANGUAGE_INFO, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };

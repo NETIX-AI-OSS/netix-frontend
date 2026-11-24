@@ -1,13 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  COMMON_NAMESPACE,
-  type CommonLanguage,
-  commonResources,
-  commonTranslations,
-} from './common-resources'
+import { COMMON_NAMESPACE, commonResources, commonTranslations } from './common-resources'
+import { PLATFORM_LANGUAGE_INFO, PLATFORM_LANGUAGES } from './platform-languages'
 
-const languages: CommonLanguage[] = ['en', 'ar', 'fr', 'es', 'nl', 'de']
+const languages = PLATFORM_LANGUAGES
 
 describe('common resources', () => {
   it('ships the 32 fleet-common keys plus na in every language', () => {
@@ -31,10 +27,27 @@ describe('common resources', () => {
     expect(COMMON_NAMESPACE).toBe('common')
     expect(commonResources.ar[COMMON_NAMESPACE]).toBe(commonTranslations.ar)
     expect(commonResources.es[COMMON_NAMESPACE].yes).toBe('Sí')
+    expect(commonResources.ru[COMMON_NAMESPACE].save).toBe('Сохранить')
     expect(commonResources.en[COMMON_NAMESPACE].na).toBe('NA')
     for (const language of languages) {
       expect(commonResources[language][COMMON_NAMESPACE]).toBe(commonTranslations[language])
     }
     expect(Object.keys(commonResources).sort()).toEqual([...languages].sort())
+  })
+
+  it('provides the native language names and identifies Arabic as right-to-left', () => {
+    expect(languages).toEqual(['en', 'ar', 'fr', 'es', 'nl', 'de', 'ru'])
+    expect(
+      languages.filter((language) => PLATFORM_LANGUAGE_INFO[language].direction === 'rtl'),
+    ).toEqual(['ar'])
+    expect(Object.values(PLATFORM_LANGUAGE_INFO).map(({ nativeName }) => nativeName)).toEqual([
+      'English',
+      'العربية',
+      'Français',
+      'Español',
+      'Nederlands',
+      'Deutsch',
+      'Русский',
+    ])
   })
 })

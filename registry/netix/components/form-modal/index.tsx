@@ -23,6 +23,7 @@ export type FormModalProps = {
   actionButtonText?: string
   triggerButtonText?: string | React.ReactNode
   cancelButtonText?: string
+  closeLabel?: string
   className?: string
   permission?: string
   hasPermission?: (permission: string) => boolean
@@ -39,6 +40,7 @@ export function FormModal({
   actionButtonText = 'Save',
   triggerButtonText,
   cancelButtonText = 'Cancel',
+  closeLabel,
   className,
   children,
   permission,
@@ -94,7 +96,10 @@ export function FormModal({
           </Button>
         )
       )}
-      <DialogContent className={cn('w-11/12 max-w-3xl bg-card px-0 py-4 text-start', className)}>
+      <DialogContent
+        closeLabel={closeLabel}
+        className={cn('w-11/12 max-w-3xl bg-card px-0 py-4 text-start', className)}
+      >
         <DialogHeader>
           <DialogTitle className={cn('px-6 text-2xl', header && 'pb-3')}>{header}</DialogTitle>
           <div className="max-h-[80vh] overflow-y-auto px-6 pb-1">{children}</div>

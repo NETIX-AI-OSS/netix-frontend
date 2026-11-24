@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils'
 
 export type PaginationControlsLabels = {
+  navigation?: string
   showingResults: string
   noResults: string
   rowsPerPage: string
@@ -25,6 +26,7 @@ export type PaginationControlsLabels = {
 }
 
 const defaultLabels: PaginationControlsLabels = {
+  navigation: 'Pagination',
   showingResults: 'Showing {start}-{end} of {total}',
   noResults: 'No results',
   rowsPerPage: 'Rows per page',
@@ -55,15 +57,15 @@ export type PaginationControlsProps = {
   siblingCount?: number
   showFirstLast?: boolean
   labels?: Partial<PaginationControlsLabels>
+  /** Formats visible page numbers and counts for the active UI language. */
+  locale?: string
   className?: string
-  /** Optional content aligned with the result summary on the left side of the footer. */
+  /** Optional content aligned with the result summary at the start of the footer. */
   leadingContent?: ReactNode
 }
 
-const interpolate = (template: string, values: Record<string, number>) =>
-  template.replace(/\{(start|end|total)\}/g, (_, key: 'start' | 'end' | 'total') =>
-    String(values[key]),
-  )
+const interpolate = (template: string, values: Record<'start' | 'end' | 'total', string>) =>
+  template.replace(/\{(start|end|total)\}/g, (_, key: 'start' | 'end' | 'total') => values[key])
 
 type PageItem = number | 'start-ellipsis' | 'end-ellipsis'
 
@@ -97,10 +99,12 @@ export function PaginationControls({
   siblingCount = 1,
   showFirstLast = true,
   labels,
+  locale,
   className,
   leadingContent,
 }: PaginationControlsProps) {
   const copy = { ...defaultLabels, ...labels }
+  const formatNumber = locale ? new Intl.NumberFormat(locale).format : String
   const inferredPageCount = total === undefined ? undefined : Math.ceil(total / pageSize)
   const knownPageCount = pageCount === -1 ? undefined : (pageCount ?? inferredPageCount)
   const safePageCount = knownPageCount === undefined ? undefined : Math.max(knownPageCount, 1)
@@ -131,7 +135,11 @@ export function PaginationControls({
                   ? copy.page(safeCurrentPage)
                   : copy.pageOf(safeCurrentPage, safePageCount)
                 : total > 0
-                  ? interpolate(copy.showingResults, { start, end, total })
+                  ? interpolate(copy.showingResults, {
+                      start: formatNumber(start),
+                      end: formatNumber(end),
+                      total: formatNumber(total),
+                    })
                   : copy.noResults}
             </span>
           )}
@@ -155,13 +163,13 @@ export function PaginationControls({
             <SelectContent>
               {pageSizeOptions.map((size) => (
                 <SelectItem key={size} value={String(size)}>
-                  {size}
+                  {formatNumber(size)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <nav aria-label="Pagination" className="flex items-center gap-0.5">
+        <nav aria-label={copy.navigation} className="flex items-center gap-0.5">
           {showFirstLast && (
             <Button
               variant="ghost"
@@ -192,7 +200,7 @@ export function PaginationControls({
                 aria-label={copy.page(item)}
                 aria-current={item === safeCurrentPage ? 'page' : undefined}
               >
-                {item}
+                {formatNumber(item)}
               </Button>
             ) : (
               <span
@@ -206,7 +214,7 @@ export function PaginationControls({
           )}
           {safePageCount === undefined && (
             <span className="px-1 text-sm tabular-nums text-muted-foreground">
-              {safeCurrentPage}
+              {formatNumber(safeCurrentPage)}
             </span>
           )}
           <Button

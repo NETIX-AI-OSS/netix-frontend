@@ -11,6 +11,19 @@ import {
 } from './dialog'
 
 describe('Dialog', () => {
+  it('uses a localized name for each close control', () => {
+    render(
+      <Dialog open>
+        <DialogContent closeLabel="إغلاق النافذة">
+          <DialogTitle>الأصول</DialogTitle>
+          <DialogFooter showCloseButton closeLabel="إغلاق" />
+        </DialogContent>
+      </Dialog>,
+    )
+    expect(screen.getByRole('button', { name: 'إغلاق النافذة' })).toHaveClass('end-2')
+    expect(screen.getByRole('button', { name: 'إغلاق' })).toBeVisible()
+  })
+
   it('scrolls only the body, keeping the header and footer fixed', () => {
     render(
       <Dialog open>

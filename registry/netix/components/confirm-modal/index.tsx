@@ -24,6 +24,7 @@ export type ConfirmModalProps = {
   trigger?: React.ReactNode
   confirmText?: string
   cancelText?: string
+  closeLabel?: string
   permission?: string
   hasPermission?: (permission: string) => boolean
   showCancelButton?: boolean
@@ -41,6 +42,7 @@ export function ConfirmModal({
   trigger,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
+  closeLabel,
   permission,
   hasPermission,
   showCancelButton,
@@ -96,7 +98,10 @@ export function ConfirmModal({
           {triggerText || confirmText}
         </Button>
       )}
-      <DialogContent className="w-11/12 max-w-96 bg-card px-0 py-4 text-start">
+      <DialogContent
+        closeLabel={closeLabel}
+        className="w-11/12 max-w-96 bg-card px-0 py-4 text-start"
+      >
         <DialogTitle className="font-normal">
           <div className="max-h-[80vh] overflow-auto px-6">{children}</div>
         </DialogTitle>

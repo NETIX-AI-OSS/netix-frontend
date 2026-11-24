@@ -1,5 +1,7 @@
 import type { i18n as I18nInstance } from 'i18next'
 
+import { baseLanguageTag } from './normalize-language'
+
 export type LocaleTranslations = { [key: string]: string | LocaleTranslations }
 
 export type EffectiveLocale = {
@@ -170,6 +172,17 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
 
   async function applyEffectiveLocale(locale: EffectiveLocale): Promise<void> {
     const language = locale.resolved_language
+    const requested = baseLanguageTag(locale.requested_language)
+    if (requested && requested !== baseLanguageTag(language)) {
+      const requestedCatalog =
+        bundled.get(requested) ?? i18n.getResourceBundle(requested, namespace)
+      // A release can ship a language before the locale API carries its terminology overrides.
+      // Keep the bundled choice when the API returns an unrelated language as its fallback.
+      if (requestedCatalog && Object.keys(requestedCatalog).length > 0) {
+        await renderLanguage(requested, false)
+        return
+      }
+    }
     const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {}
     bundled.set(language, floor)
     // Reset to the bundled floor, then merge: server values win per key, keys the server does not

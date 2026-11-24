@@ -174,6 +174,7 @@ describe('applyEffectiveLocale', () => {
     const resources = (): Resource => ({
       en: { translation: { hello: 'Hello', copilot: { title: 'Copilot' } } },
       ar: { translation: { hello: 'مرحبا', copilot: { title: 'مساعد' } } },
+      ru: { translation: { hello: 'Здравствуйте', copilot: { title: 'Помощник' } } },
     })
     const served = (language: string, translations: LocaleTranslations): EffectiveLocale => ({
       ...effective(language),
@@ -235,6 +236,44 @@ describe('applyEffectiveLocale', () => {
       expect(i18n.t('hello')).toBe('Fresh')
       expect(i18n.t('copilot.title')).toBe('Copilot')
       expect(i18n.exists('stale')).toBe(false)
+    })
+
+    it('keeps a bundled language when cached and live server catalogs resolve a different language', async () => {
+      const fallback = {
+        ...served('en', { hello: 'English override' }),
+        requested_language: 'RU_ru',
+      }
+      const { i18n, locale } = real(
+        makeRuntime({
+          hydrate: vi.fn(async () => ({ locale: fallback })),
+          refreshEffective: vi.fn(async () => ({ locale: fallback })),
+        }),
+      )
+      await locale.refreshOrganizationLocale(user, 'ru')
+      expect(i18n.resolvedLanguage).toBe('ru')
+      expect(i18n.t('hello')).toBe('Здравствуйте')
+      expect(i18n.getResource('en', 'translation', 'hello')).toBe('Hello')
+    })
+
+    it('still honors the server fallback if the requested language was never bundled', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale(served('fr', { hello: 'Bonjour' }))
+      await locale.applyEffectiveLocale({
+        ...served('en', { hello: 'English override' }),
+        requested_language: 'fr',
+      })
+      expect(i18n.resolvedLanguage).toBe('en')
+      expect(i18n.t('hello')).toBe('English override')
+    })
+
+    it('applies a server catalog resolved to the requested region’s base language', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale({
+        ...served('ru', { hello: 'Привет' }),
+        requested_language: 'ru-RU',
+      })
+      expect(i18n.resolvedLanguage).toBe('ru')
+      expect(i18n.t('hello')).toBe('Привет')
     })
   })
 })

@@ -7,6 +7,7 @@ const supported = ['en', 'ar', 'es'] as const
 describe('normalizeLanguage', () => {
   it('reduces a region tag to its supported base tag', () => {
     expect(normalizeLanguage(' AR-eg ', supported, 'en')).toBe('ar')
+    expect(normalizeLanguage(' ES_MX ', supported, 'en')).toBe('es')
   })
 
   it('keeps an already-normalized tag', () => {
