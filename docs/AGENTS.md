@@ -27,7 +27,9 @@ This is the only agent guide in the repository. The root `AGENTS.md` and `CLAUDE
 
 ## Releases (humans decide, agents never tag/push)
 
-Tag order, library first: `pnpm sync:template ../frontend-template` (a scaffold must ship the components it renders), then update the `src/cli/refs.ts` pins, `LIB_REF`/`REGISTRY_REF` name this release, then bump the version + `CHANGELOG.md` in one commit and tag this repo `vX.Y.Z` (CI creates the GitHub release). Only then bump frontend-template's `netix-frontend` pin to the new tag, regenerate its lockfile, and tag it `vX.Y.Z`. The library must be tagged first because the template installs it. The template is not pinned here: `netix init` resolves frontend-template's newest `vX.Y.Z` tag at run time (`--template-ref` overrides), so a template release needs no library release, and the library is never "briefly broken" between the two tags.
+Tag order, library first: `pnpm sync:template ../frontend-template` (a scaffold must ship the components it renders), then point `LIB_REF` in `src/cli/refs.ts` to this release and advance `REGISTRY_REF` when the generated registry changes. Bump the version and `CHANGELOG.md` in one commit and tag this repo `vX.Y.Z` (CI creates the GitHub release). Only then bump frontend-template's `netix-frontend` pin to the new tag, regenerate its lockfile, and tag it `vX.Y.Z`. The library must be tagged first because the template installs it. `netix init` resolves frontend-template's newest `vX.Y.Z` tag at run time (`--template-ref` overrides), so a template release can ship independently.
+
+The release workflow rebuilds the committed outputs and runs `node scripts/check-release-scaffold.mjs vX.Y.Z`. The built CLI must generate an app using the release's library tag. The registry can retain an older tag when its generated items match that tag exactly.
 
 ## Documentation
 
