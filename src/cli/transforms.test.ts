@@ -250,7 +250,17 @@ describe('page wiring', () => {
     expect(out).toContain("label: 'CAFM',")
     expect(out).toContain("path: '/workspace/cafm',")
     expect(out).toContain('description: ')
+    expect(out).not.toContain('descriptionKey:')
     expect(out.indexOf("path: '/workspace/cafm',")).toBeLessThan(out.indexOf('// netix-nav:insert'))
+  })
+
+  it('sets the generated service description key when the app navigation supports it', () => {
+    const navigation = 'type NavPage = { descriptionKey?: string }\n      // netix-nav:insert\n'
+    const cafm = options().manifest.services.cafm!
+    const out = insertNavEntry(navigation, 'cafm', cafm)
+    expect(out).toContain("descriptionKey: 'serviceCollection.description'")
+    expect(out).toContain("description: 'Browse and manage cafm records.'")
+    expect(insertNavEntry(out, 'cafm', cafm)).toBe(out)
   })
 
   it('is a no-op with no services and throws without the anchor', () => {

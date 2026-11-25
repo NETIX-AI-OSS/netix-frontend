@@ -1,5 +1,13 @@
 // @vitest-environment node
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -100,13 +108,44 @@ it('lists every unfinished step in Next steps, in the order to run them', async 
   ).resolves.toBe(0)
 
   const [note] = clack.note.mock.calls.at(-1) as [string, string]
-  expect(note.split('\n').slice(0, 4)).toEqual([
+  expect(note.split('\n').slice(0, 5)).toEqual([
     'cd ' + dest,
     'pnpm install',
+    'pnpm sync:theme-init',
     'npx netix schema pull',
     'pnpm dev',
   ])
 })
+
+it.each([true, false])(
+  'keeps the selected library theme init in sync (install=%s)',
+  async (install) => {
+    const source = join(parent, 'template')
+    cpSync(FIXTURE, source, { recursive: true })
+    const file = join(source, 'package.json')
+    const config = JSON.parse(readFileSync(file, 'utf8')) as { scripts: Record<string, string> }
+    config.scripts['sync:theme-init'] = 'node scripts/sync-theme-init.mjs'
+    writeFileSync(file, JSON.stringify(config))
+
+    const dest = join(parent, 'theme-probe')
+    const { calls, runner } = makeRunner()
+    await expect(init(flagsFor(dest, { templatePath: source, install }), runner)).resolves.toBe(0)
+
+    if (install) {
+      const syncAt = calls.indexOf('pnpm sync:theme-init')
+      expect(syncAt).toBeGreaterThan(calls.indexOf('pnpm install'))
+      expect(syncAt).toBeLessThan(calls.indexOf('pnpm generate:client'))
+    } else {
+      expect(calls).not.toContain('pnpm sync:theme-init')
+      const [note] = clack.note.mock.calls.at(-1) as [string, string]
+      expect(note.split('\n').slice(0, 3)).toEqual([
+        'cd ' + dest,
+        'pnpm install',
+        'pnpm sync:theme-init',
+      ])
+    }
+  },
+)
 
 it('names pnpm generate:client on its own when only that step is left', async () => {
   // `netix schema pull` ends with generate:client, so it stands in for both, but a
