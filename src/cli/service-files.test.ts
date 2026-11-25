@@ -46,6 +46,8 @@ it('generates an orval block pointing at the generated client and schema', () =>
   expect(out).toContain("client: 'react-query'")
   expect(out).toContain("'cafm-service': {")
   expect(out).toContain("input: './schema/cafm-service.yaml'")
+  expect(out).toContain("target: './app/client/gen/cafm-service/index.ts'")
+  expect(out).toContain("schemas: './app/client/gen/cafm-service/models'")
   expect(out).toContain("path: './app/client/http-cafm-service-client.ts'")
   expect(out).toContain("name: 'httpCafmServiceClient'")
 })

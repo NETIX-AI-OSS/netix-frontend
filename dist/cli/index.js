@@ -8977,7 +8977,7 @@ function buildOrvalBlock(key) {
     input: './schema/${slug}.yaml',
     output: {
       target: './app/client/gen/${slug}/index.ts',
-      schemas: './app/client/gen/${slug}',
+      schemas: './app/client/gen/${slug}/models',
       client: 'react-query',
       httpClient: 'axios',
       mode: 'tags-split',

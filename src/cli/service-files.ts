@@ -111,11 +111,13 @@ describe('${slug} client', () => {
 /** One `orval.config.ts` entry, indented to sit inside `defineConfig({ … })`. */
 export function buildOrvalBlock(key: string): string {
   const { slug, pascal } = serviceNames(key)
+  // Orval writes an index.ts for each output group. Keep the API barrel at the
+  // service root and write the model barrel in a separate directory.
   return `  '${slug}': {
     input: './schema/${slug}.yaml',
     output: {
       target: './app/client/gen/${slug}/index.ts',
-      schemas: './app/client/gen/${slug}',
+      schemas: './app/client/gen/${slug}/models',
       client: 'react-query',
       httpClient: 'axios',
       mode: 'tags-split',
