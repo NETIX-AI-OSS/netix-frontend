@@ -79,7 +79,7 @@ for (const item of closure.values()) {
   if (!dir) continue
   for (const file of item.files) {
     const source = readFileSync(join(HERE, file.path), 'utf8')
-    const relativeTarget = file.target?.replace(/^@\/components(?=\/|$)/, 'app/components')
+    const relativeTarget = file.target?.replace(/^@components\//, 'app/components/')
     const relativeDest = relativeTarget ?? join(dir, basename(file.path))
     const dest = join(template, relativeDest)
     const current = existsSync(dest) ? readFileSync(dest, 'utf8') : null

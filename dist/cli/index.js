@@ -7438,7 +7438,7 @@ var import_picocolors3 = __toESM(require_picocolors());
 // src/cli/refs.ts
 var LIB_REF = "v2.2.1";
 var REGISTRY_REF = "v2.1.0";
-var SHADCN_VERSION = "4.21.0";
+var SHADCN_VERSION = "4.23.0";
 var TEMPLATE_REPO = "NETIX-AI/frontend-template";
 var LIB_REPO = "NETIX-AI-OSS/netix-frontend";
 var REGISTRY_URL = `https://raw.githubusercontent.com/${LIB_REPO}/${REGISTRY_REF}/r/{name}.json`;
