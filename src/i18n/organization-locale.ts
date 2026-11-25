@@ -119,10 +119,9 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     storageWrites.set(key, next)
     return next
   }
-  // The shipped catalog per language, captured before the first server merge touches it, so every
-  // apply resets to that floor and layers the server over it (server wins per key, bundled fills
-  // gaps, a key dropped server-side reverts on the next apply instead of lingering).
-  const bundled = new Map<string, LocaleTranslations>()
+  // Server wording belongs to the current locale. Keep other languages on their bundled floor so
+  // i18next cannot satisfy a missing key with a previous server overlay via fallbackLng.
+  let appliedCatalog: { language: string; floor: LocaleTranslations } | null = null
 
   const pendingLanguageKey = (identity: LocaleIdentity) =>
     `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`
@@ -137,18 +136,22 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     return runtime
   }
 
-  /** Logout or organization switch: in-flight locale results for the old identity are dropped. */
-  function restoreBundledCatalogs(): void {
-    for (const [language, floor] of bundled) {
-      i18n.removeResourceBundle(language, namespace)
-      i18n.addResourceBundle(language, namespace, floor, true, true)
-    }
+  function replaceCatalog(language: string, floor: LocaleTranslations): void {
+    i18n.removeResourceBundle(language, namespace)
+    i18n.addResourceBundle(language, namespace, floor, true, true)
+  }
+
+  function restoreBundledCatalog(): void {
+    if (!appliedCatalog) return
+    const { language, floor } = appliedCatalog
+    appliedCatalog = null
+    replaceCatalog(language, floor)
   }
 
   function clearActiveIdentity(): void {
     generation += 1
     activeIdentity = null
-    restoreBundledCatalogs()
+    restoreBundledCatalog()
     getLocaleRuntime()?.setActiveIdentity(null)
   }
 
@@ -156,6 +159,9 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     const request = generation
     if (persistPreference) await writeStorage(languageKey, language)
     if (request !== generation) return
+    if (appliedCatalog && baseLanguageTag(appliedCatalog.language) !== baseLanguageTag(language)) {
+      restoreBundledCatalog()
+    }
     await i18n.changeLanguage(language)
   }
 
@@ -175,20 +181,23 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     const requested = baseLanguageTag(locale.requested_language)
     if (requested && requested !== baseLanguageTag(language)) {
       const requestedCatalog =
-        bundled.get(requested) ?? i18n.getResourceBundle(requested, namespace)
+        appliedCatalog?.language === requested
+          ? appliedCatalog.floor
+          : i18n.getResourceBundle(requested, namespace)
       // A release can ship a language before the locale API carries its terminology overrides.
       // Keep the bundled choice when the API returns an unrelated language as its fallback.
       if (requestedCatalog && Object.keys(requestedCatalog).length > 0) {
+        restoreBundledCatalog()
         await renderLanguage(requested, false)
         return
       }
     }
-    const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {}
-    bundled.set(language, floor)
+    if (appliedCatalog?.language !== language) restoreBundledCatalog()
+    const floor = appliedCatalog?.floor ?? i18n.getResourceBundle(language, namespace) ?? {}
+    appliedCatalog = { language, floor }
     // Reset to the bundled floor, then merge: server values win per key, keys the server does not
     // carry keep their bundled text, and keys dropped server-side do not linger.
-    i18n.removeResourceBundle(language, namespace)
-    i18n.addResourceBundle(language, namespace, floor, true, true)
+    replaceCatalog(language, floor)
     i18n.addResourceBundle(language, namespace, locale.translations, true, true)
     await renderLanguage(language, false)
   }
@@ -221,7 +230,7 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     if (!identity || !locales) return null
     // Claims and invalidation are synchronous, including two requests for the same identity.
     const request = ++generation
-    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalogs()
+    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalog()
     activeIdentity = identity
     locales.setActiveIdentity(identity)
     const current = () => request === generation && sameIdentity(activeIdentity, identity)
@@ -229,11 +238,11 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     if (!current()) return null
     // Preference remains authoritative even while the locale service is unhealthy.
     await renderLanguage(language, false)
-    if (!current() || !(await isHealthy(locales)) || !current()) return null
+    if (!current()) return null
     const cached = await locales.hydrate(identity, language)
     if (!current()) return null
     if (cached) await applyEffectiveLocale(cached.locale)
-    if (!current()) return null
+    if (!current() || !(await isHealthy(locales)) || !current()) return null
     const result = await locales.refreshEffective(identity, language)
     if (!current()) return null
     await applyEffectiveLocale(result.locale)
@@ -254,6 +263,10 @@ export function createOrganizationLocale(config: OrganizationLocaleConfig): Orga
     if (!current()) return
     const locales = getLocaleRuntime()
     if (!locales || !identity) return
+    const cached = await locales.hydrate(identity, language)
+    if (!current()) return
+    if (cached) await applyEffectiveLocale(cached.locale)
+    if (!current()) return
     const synchronized = await locales.setPreferredLanguage(identity, language)
     if (!current()) return
     if (synchronized) await writeStorage(pendingLanguageKey(identity), null)

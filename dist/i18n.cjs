@@ -392,7 +392,7 @@ function createOrganizationLocale(config) {
     storageWrites.set(key, next);
     return next;
   }
-  const bundled = /* @__PURE__ */ new Map();
+  let appliedCatalog = null;
   const pendingLanguageKey = (identity) => `${pendingKeyPrefix}:${encodeURIComponent(String(identity.userId))}:${encodeURIComponent(String(identity.organizationId))}`;
   function getLocaleRuntime() {
     const apiBaseUrl = getApiBaseUrl()?.replace(/\/+$/, "");
@@ -403,22 +403,29 @@ function createOrganizationLocale(config) {
     }
     return runtime;
   }
-  function restoreBundledCatalogs() {
-    for (const [language, floor] of bundled) {
-      i18n.removeResourceBundle(language, namespace);
-      i18n.addResourceBundle(language, namespace, floor, true, true);
-    }
+  function replaceCatalog(language, floor) {
+    i18n.removeResourceBundle(language, namespace);
+    i18n.addResourceBundle(language, namespace, floor, true, true);
+  }
+  function restoreBundledCatalog() {
+    if (!appliedCatalog) return;
+    const { language, floor } = appliedCatalog;
+    appliedCatalog = null;
+    replaceCatalog(language, floor);
   }
   function clearActiveIdentity() {
     generation += 1;
     activeIdentity = null;
-    restoreBundledCatalogs();
+    restoreBundledCatalog();
     getLocaleRuntime()?.setActiveIdentity(null);
   }
   async function renderLanguage(language, persistPreference) {
     const request = generation;
     if (persistPreference) await writeStorage(languageKey, language);
     if (request !== generation) return;
+    if (appliedCatalog && baseLanguageTag(appliedCatalog.language) !== baseLanguageTag(language)) {
+      restoreBundledCatalog();
+    }
     await i18n.changeLanguage(language);
   }
   async function applyLanguage(language) {
@@ -434,16 +441,17 @@ function createOrganizationLocale(config) {
     const language = locale.resolved_language;
     const requested = baseLanguageTag(locale.requested_language);
     if (requested && requested !== baseLanguageTag(language)) {
-      const requestedCatalog = bundled.get(requested) ?? i18n.getResourceBundle(requested, namespace);
+      const requestedCatalog = appliedCatalog?.language === requested ? appliedCatalog.floor : i18n.getResourceBundle(requested, namespace);
       if (requestedCatalog && Object.keys(requestedCatalog).length > 0) {
+        restoreBundledCatalog();
         await renderLanguage(requested, false);
         return;
       }
     }
-    const floor = bundled.get(language) ?? i18n.getResourceBundle(language, namespace) ?? {};
-    bundled.set(language, floor);
-    i18n.removeResourceBundle(language, namespace);
-    i18n.addResourceBundle(language, namespace, floor, true, true);
+    if (appliedCatalog?.language !== language) restoreBundledCatalog();
+    const floor = appliedCatalog?.floor ?? i18n.getResourceBundle(language, namespace) ?? {};
+    appliedCatalog = { language, floor };
+    replaceCatalog(language, floor);
     i18n.addResourceBundle(language, namespace, locale.translations, true, true);
     await renderLanguage(language, false);
   }
@@ -463,18 +471,18 @@ function createOrganizationLocale(config) {
     const locales = getLocaleRuntime();
     if (!identity || !locales) return null;
     const request = ++generation;
-    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalogs();
+    if (!sameIdentity(activeIdentity, identity)) restoreBundledCatalog();
     activeIdentity = identity;
     locales.setActiveIdentity(identity);
     const current = () => request === generation && sameIdentity(activeIdentity, identity);
     const language = requestedLanguage || await initialLanguage(identity, user);
     if (!current()) return null;
     await renderLanguage(language, false);
-    if (!current() || !await isHealthy(locales) || !current()) return null;
+    if (!current()) return null;
     const cached = await locales.hydrate(identity, language);
     if (!current()) return null;
     if (cached) await applyEffectiveLocale(cached.locale);
-    if (!current()) return null;
+    if (!current() || !await isHealthy(locales) || !current()) return null;
     const result = await locales.refreshEffective(identity, language);
     if (!current()) return null;
     await applyEffectiveLocale(result.locale);
@@ -493,6 +501,10 @@ function createOrganizationLocale(config) {
     if (!current()) return;
     const locales = getLocaleRuntime();
     if (!locales || !identity) return;
+    const cached = await locales.hydrate(identity, language);
+    if (!current()) return;
+    if (cached) await applyEffectiveLocale(cached.locale);
+    if (!current()) return;
     const synchronized = await locales.setPreferredLanguage(identity, language);
     if (!current()) return;
     if (synchronized) await writeStorage(pendingLanguageKey(identity), null);
