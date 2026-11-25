@@ -169,7 +169,10 @@ export function PaginationControls({
             </SelectContent>
           </Select>
         </div>
-        <nav aria-label={copy.navigation} className="flex items-center gap-0.5">
+        <nav
+          aria-label={copy.navigation}
+          className="flex max-w-full flex-wrap items-center gap-0.5"
+        >
           {showFirstLast && (
             <Button
               variant="ghost"
