@@ -25,3 +25,8 @@ export {
   type OrganizationLocale,
   type OrganizationLocaleConfig,
 } from './organization-locale'
+export {
+  PLATFORM_LANGUAGE_INFO,
+  PLATFORM_LANGUAGES,
+  type PlatformLanguage,
+} from './platform-languages'

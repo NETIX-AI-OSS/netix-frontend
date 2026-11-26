@@ -1,6 +1,6 @@
 import i18next, { type i18n as I18nInstance, type InitOptions, type Resource } from 'i18next'
 
-import { normalizeLanguage } from './normalize-language'
+import { baseLanguageTag, normalizeLanguage } from './normalize-language'
 
 export type Direction = 'ltr' | 'rtl'
 
@@ -92,6 +92,7 @@ export function createI18n(options: CreateI18nOptions): I18nInstance {
   void instance.init({
     resources,
     lng,
+    supportedLngs: options.supportedLngs && [...options.supportedLngs],
     fallbackLng,
     debug,
     interpolation: { escapeValue: false },
@@ -102,7 +103,9 @@ export function createI18n(options: CreateI18nOptions): I18nInstance {
 
   const onLanguageChanged = (language: string) => {
     if (persistOnChange && storage) writeStored(storage, storageKey, normalize(language))
-    applyDirection(language, instance.dir(language))
+    const resolved = instance.resolvedLanguage ?? language
+    const displayed = baseLanguageTag(resolved) === baseLanguageTag(language) ? language : resolved
+    applyDirection(displayed, instance.dir(displayed))
   }
   instance.on('languageChanged', onLanguageChanged)
   onLanguageChanged(instance.resolvedLanguage ?? instance.language ?? fallbackLng)

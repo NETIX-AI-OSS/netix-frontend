@@ -66,6 +66,25 @@ describe('PaginationControls', () => {
     expect(onPageSizeChange).toHaveBeenCalledWith(25)
   })
 
+  it('localizes visible numbers and accepts a translated navigation label', () => {
+    const format = new Intl.NumberFormat('ar-AE-u-nu-arab').format
+    render(
+      <PaginationControls
+        {...props}
+        total={1250}
+        locale="ar-AE-u-nu-arab"
+        labels={{
+          navigation: 'التنقل بين الصفحات',
+          page: (page) => `الصفحة ${format(page)}`,
+          showingResults: '{start}–{end} من {total}',
+        }}
+      />,
+    )
+    expect(screen.getByRole('navigation', { name: 'التنقل بين الصفحات' })).toBeVisible()
+    expect(screen.getByText(`${format(11)}–${format(20)} من ${format(1250)}`)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'الصفحة ٢' })).toHaveTextContent('٢')
+  })
+
   it('hides the page-size picker when a single option is offered', () => {
     const { rerender } = render(<PaginationControls {...props} pageSizeOptions={[10]} />)
     expect(screen.getByText('Rows per page').parentElement).not.toBeVisible()

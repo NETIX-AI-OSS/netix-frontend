@@ -111,11 +111,13 @@ describe('${slug} client', () => {
 /** One `orval.config.ts` entry, indented to sit inside `defineConfig({ … })`. */
 export function buildOrvalBlock(key: string): string {
   const { slug, pascal } = serviceNames(key)
+  // Orval writes an index.ts for each output group. Keep the API barrel at the
+  // service root and write the model barrel in a separate directory.
   return `  '${slug}': {
     input: './schema/${slug}.yaml',
     output: {
       target: './app/client/gen/${slug}/index.ts',
-      schemas: './app/client/gen/${slug}',
+      schemas: './app/client/gen/${slug}/models',
       client: 'react-query',
       httpClient: 'axios',
       mode: 'tags-split',
@@ -202,6 +204,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatLabel } from '@/lib/utils'
 
 const PAGE_SIZE = 10
+const SERVICE_TITLE = '${title}'
 // The service's headline collection, from services.json. Swap it for the route this
 // service page is really about, schema/${slug}.yaml lists them, and the typed hooks for
 // every one live in app/client/gen/${slug}.
@@ -261,14 +264,40 @@ export default function ${component}() {
     placeholderData: keepPreviousData,
   })
 
-  const locale = i18n.language
+  const locale = i18n.resolvedLanguage ?? i18n.language
+  const number = new Intl.NumberFormat(locale).format
+  const paginationOptions = {
+    locale,
+    pageSizeOptions: [10, 25, 50, 100],
+    labels: {
+      navigation: t('tablePagination.navigation', { defaultValue: 'Pagination' }),
+      showingResults: t('tablePagination.showingResults', {
+        defaultValue: 'Showing {start}–{end} of {total}',
+      }),
+      noResults: t('tablePagination.noResults', { defaultValue: 'No results' }),
+      rowsPerPage: t('tablePagination.rowsPerPage', { defaultValue: 'Rows per page' }),
+      firstPage: t('tablePagination.firstPage', { defaultValue: 'Go to first page' }),
+      previousPage: t('tablePagination.previousPage', { defaultValue: 'Go to previous page' }),
+      nextPage: t('tablePagination.nextPage', { defaultValue: 'Go to next page' }),
+      lastPage: t('tablePagination.lastPage', { defaultValue: 'Go to last page' }),
+      page: (page: number) =>
+        t('tablePagination.page', { page: number(page), defaultValue: 'Go to page {{page}}' }),
+      pageOf: (page: number, total: number) =>
+        t('tablePagination.pageOf', {
+          page: number(page),
+          total: number(total),
+          defaultValue: 'Page {{page}} of {{total}}',
+        }),
+      morePages: t('tablePagination.morePages', { defaultValue: 'More pages' }),
+    },
+  }
   const rows = useMemo(() => data?.results ?? [], [data])
   const columns = useMemo<DataTableColumn<Row>[]>(
     () =>
       ${columnsExpr}.map(({ field, kind }, index) => ({
         id: field,
         accessorFn: (row: Row) => row[field],
-        header: formatLabel(field),
+        header: t('serviceFields.' + field, { defaultValue: formatLabel(field) }),
         // DataTable lays the table out from getTotalSize(), so unsized columns collapse.
         size: index === 0 ? 280 : 170,
         // Django-filter exposes ID lookups as comma-separated field__in values.
@@ -295,26 +324,42 @@ export default function ${component}() {
         <>
           <OverviewBanner
             icon={Boxes}
-            title="${title}"
-            badge={<Badge variant="secondary">{isFetching ? 'Updating' : 'Live collection'}</Badge>}
-            description="Browse and manage ${title.toLowerCase()} records."
+            title={SERVICE_TITLE}
+            badge={
+              <Badge variant="secondary">
+                {isFetching
+                  ? t('serviceCollection.updating', { defaultValue: 'Updating' })
+                  : t('serviceCollection.live', { defaultValue: 'Live collection' })}
+              </Badge>
+            }
+            description={t('serviceCollection.description', {
+              service: SERVICE_TITLE,
+              defaultValue: 'Browse and manage records for {{service}}.',
+            })}
           >
             <StatTile
-              label="Total records"
-              value={data ? data.count.toLocaleString(locale) : '-'}
-              detail="Across this service"
+              label={t('serviceCollection.totalRecords', { defaultValue: 'Total records' })}
+              value={data ? number(data.count) : '-'}
+              detail={t('serviceCollection.acrossService', { defaultValue: 'Across this service' })}
               icon={Database}
             />
             <StatTile
-              label="On this page"
-              value={rows.length.toLocaleString(locale)}
-              detail={isFetching ? 'Refreshing' : 'Loaded'}
+              label={t('serviceCollection.onThisPage', { defaultValue: 'On this page' })}
+              value={number(rows.length)}
+              detail={
+                isFetching
+                  ? t('serviceCollection.refreshing', { defaultValue: 'Refreshing' })
+                  : t('serviceCollection.loaded', { defaultValue: 'Loaded' })
+              }
               icon={Rows3}
             />
             <StatTile
-              label="Current page"
-              value={(pagination.pageIndex + 1).toLocaleString(locale)}
-              detail={pagination.pageSize + ' rows per page'}
+              label={t('serviceCollection.currentPage', { defaultValue: 'Current page' })}
+              value={number(pagination.pageIndex + 1)}
+              detail={t('serviceCollection.pageSize', {
+                size: number(pagination.pageSize),
+                defaultValue: '{{size}} rows per page',
+              })}
               icon={Hash}
             />
           </OverviewBanner>
@@ -329,6 +374,11 @@ export default function ${component}() {
             onPaginationChange={setPagination}
             filtering={{
               filters,
+              labels: {
+                search: t('search', { defaultValue: 'Search' }),
+                reset: t('serviceCollection.resetFilter', { defaultValue: 'Reset' }),
+                noDataFound: t('noMatches', { defaultValue: 'No matches.' }),
+              },
               updateFilters: (updater) => {
                 setPagination((current) => ({ ...current, pageIndex: 0 }))
                 setFilters(updater)
@@ -338,7 +388,11 @@ export default function ${component}() {
             // The query already fetches one page at a time; DataTable must not slice again.
             manualPagination
             heightAuto
-            pagination={{ pageSizeOptions: [10, 25, 50, 100] }}
+            pagination={paginationOptions}
+            clearFiltersLabel={t('serviceCollection.clearFilters', {
+              defaultValue: 'Clear filters',
+            })}
+            loadingLabel={t('loading', { defaultValue: 'Loading' })}
             loading={isFetching}
             // Skeleton rows on the first load (there is nothing to keep), a dimming
             // overlay once there is a page on screen worth keeping.
@@ -373,12 +427,19 @@ export function buildRouteEntry(key: string): string {
 }
 
 /** One `NAVIGATION` entry for `app/lib/navigation.ts`, under the workspace area. */
-export function buildNavEntry(key: string, service: ServiceConfig): string {
+export function buildNavEntry(
+  key: string,
+  service: ServiceConfig,
+  supportsDescriptionKey = false,
+): string {
   const { path } = pageNames(key)
+  const descriptionKey = supportsDescriptionKey
+    ? "        descriptionKey: 'serviceCollection.description',\n"
+    : ''
   return `      {
         label: '${service.title}',
         description: 'Browse and manage ${service.title.toLowerCase()} records.',
-        path: '${path}',
+${descriptionKey}        path: '${path}',
         icon: Boxes,
       },\n`
 }

@@ -174,6 +174,7 @@ describe('applyEffectiveLocale', () => {
     const resources = (): Resource => ({
       en: { translation: { hello: 'Hello', copilot: { title: 'Copilot' } } },
       ar: { translation: { hello: 'مرحبا', copilot: { title: 'مساعد' } } },
+      ru: { translation: { hello: 'Здравствуйте', copilot: { title: 'Помощник' } } },
     })
     const served = (language: string, translations: LocaleTranslations): EffectiveLocale => ({
       ...effective(language),
@@ -207,12 +208,12 @@ describe('applyEffectiveLocale', () => {
       expect(i18n.exists('extra')).toBe(false)
     })
 
-    it('does not bleed one language into another', async () => {
+    it('restores bundled text for the previous language when applying another', async () => {
       const { i18n, locale } = real()
       await locale.applyEffectiveLocale(served('ar', { hello: 'أهلا' }))
       await locale.applyEffectiveLocale(served('en', { hello: 'Hi' }))
       expect(i18n.getResourceBundle('ar', 'translation')).toEqual({
-        hello: 'أهلا',
+        hello: 'مرحبا',
         copilot: { title: 'مساعد' },
       })
       expect(i18n.getResourceBundle('en', 'translation')).toEqual({
@@ -235,6 +236,76 @@ describe('applyEffectiveLocale', () => {
       expect(i18n.t('hello')).toBe('Fresh')
       expect(i18n.t('copilot.title')).toBe('Copilot')
       expect(i18n.exists('stale')).toBe(false)
+    })
+
+    it('uses the exact locale cache when a new preference cannot sync', async () => {
+      const runtime = makeRuntime({
+        hydrate: vi.fn(async (_identity, language) =>
+          language === 'ru' ? { locale: served('ru', { hello: 'Cached Russian' }) } : null,
+        ),
+        setPreferredLanguage: vi.fn(async () => false),
+      })
+      const { i18n, locale } = real(runtime)
+      await locale.refreshOrganizationLocale(user, 'en')
+      await locale.changeOrganizationLanguage('ru')
+
+      expect(i18n.language).toBe('ru')
+      expect(i18n.t('hello')).toBe('Cached Russian')
+      expect(runtime.refreshEffective).not.toHaveBeenCalledWith(expect.anything(), 'ru')
+    })
+
+    it('falls back to the bundled catalog after an earlier server overlay is retired', async () => {
+      const { i18n, locale } = real(makeRuntime())
+      await locale.applyEffectiveLocale(
+        served('en', { hello: 'English override', stale: 'old terminology' }),
+      )
+      await locale.applyEffectiveLocale(
+        served('ru', { hello: 'Russian override', stale: 'old translation' }),
+      )
+      await locale.applyEffectiveLocale(served('ru', { hello: 'New Russian override' }))
+
+      expect(i18n.t('hello')).toBe('New Russian override')
+      expect(i18n.exists('stale')).toBe(false)
+      expect(i18n.getResource('en', 'translation', 'hello')).toBe('Hello')
+    })
+
+    it('keeps a bundled language when cached and live server catalogs resolve a different language', async () => {
+      const fallback = {
+        ...served('en', { hello: 'English override' }),
+        requested_language: 'RU_ru',
+      }
+      const { i18n, locale } = real(
+        makeRuntime({
+          hydrate: vi.fn(async () => ({ locale: fallback })),
+          refreshEffective: vi.fn(async () => ({ locale: fallback })),
+        }),
+      )
+      await locale.applyEffectiveLocale(served('ru', { hello: 'Old Russian override' }))
+      await locale.refreshOrganizationLocale(user, 'ru')
+      expect(i18n.resolvedLanguage).toBe('ru')
+      expect(i18n.t('hello')).toBe('Здравствуйте')
+      expect(i18n.getResource('en', 'translation', 'hello')).toBe('Hello')
+    })
+
+    it('still honors the server fallback if the requested language was never bundled', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale(served('fr', { hello: 'Bonjour' }))
+      await locale.applyEffectiveLocale({
+        ...served('en', { hello: 'English override' }),
+        requested_language: 'fr',
+      })
+      expect(i18n.resolvedLanguage).toBe('en')
+      expect(i18n.t('hello')).toBe('English override')
+    })
+
+    it('applies a server catalog resolved to the requested region’s base language', async () => {
+      const { i18n, locale } = real()
+      await locale.applyEffectiveLocale({
+        ...served('ru', { hello: 'Привет' }),
+        requested_language: 'ru-RU',
+      })
+      expect(i18n.resolvedLanguage).toBe('ru')
+      expect(i18n.t('hello')).toBe('Привет')
     })
   })
 })
@@ -470,7 +541,7 @@ describe('healthGate', () => {
     const { locale } = setup({ runtime, healthGate: true })
 
     expect(await locale.refreshOrganizationLocale(user)).toBeNull()
-    expect(runtime.hydrate).not.toHaveBeenCalled()
+    expect(runtime.hydrate).toHaveBeenCalledTimes(1)
     expect(runtime.refreshEffective).not.toHaveBeenCalled()
   })
 
@@ -605,6 +676,20 @@ describe('request generations and offline tenant isolation', () => {
     expect(i18n.t('hello')).toBe('Bonjour')
     expect(runtime.refreshEffective).not.toHaveBeenCalled()
   })
+
+  it('hydrates terminology for the authoritative preference before checking health', async () => {
+    const cached = { ...effective('fr'), translations: { hello: 'Server-cached French' } }
+    const runtime = makeRuntime({
+      checkHealth: vi.fn(async () => false),
+      hydrate: vi.fn(async () => ({ locale: cached })),
+    })
+    const { i18n, locale } = await real(runtime, true)
+
+    expect(await locale.refreshOrganizationLocale({ ...user, preferred_language: 'fr' })).toBeNull()
+    expect(i18n.language).toBe('fr')
+    expect(i18n.t('hello')).toBe('Server-cached French')
+    expect(runtime.refreshEffective).not.toHaveBeenCalled()
+  })
 })
 
 describe('logout during asynchronous locale work', () => {
@@ -615,6 +700,8 @@ describe('logout during asynchronous locale work', () => {
     'remote-render',
     'reconcile',
     'change-render',
+    'change-cache',
+    'change-cached-render',
     'preference',
     'pending-remove',
   ])('does not resume stale work after logout at %s', async (phase) => {
@@ -643,8 +730,9 @@ describe('logout during asynchronous locale work', () => {
     })
     const runtime = makeRuntime({
       hydrate: vi.fn(async (_id, language) => {
-        if (enabled && phase === 'hydrate') await suspend()
-        return enabled && ['hydrate', 'cached-render'].includes(phase)
+        if (enabled && ['hydrate', 'change-cache'].includes(phase)) await suspend()
+        return enabled &&
+          ['hydrate', 'cached-render', 'change-cache', 'change-cached-render'].includes(phase)
           ? { locale: served(language) }
           : null
       }),
@@ -674,7 +762,13 @@ describe('logout during asynchronous locale work', () => {
       createRuntime: () => runtime,
       getApiBaseUrl: () => 'https://um',
     })
-    const isChoice = ['change-render', 'preference', 'pending-remove'].includes(phase)
+    const isChoice = [
+      'change-render',
+      'change-cache',
+      'change-cached-render',
+      'preference',
+      'pending-remove',
+    ].includes(phase)
     if (isChoice) await locale.refreshOrganizationLocale(user, 'en')
     let renders = 0
     const changeLanguage = i18n.changeLanguage.bind(i18n)
@@ -684,7 +778,8 @@ describe('logout during asynchronous locale work', () => {
       if (
         enabled &&
         ((phase === 'change-render' && renders === 1) ||
-          (['cached-render', 'remote-render'].includes(phase) && renders === 2))
+          (['cached-render', 'remote-render', 'change-cached-render'].includes(phase) &&
+            renders === 2))
       )
         await suspend()
       return result

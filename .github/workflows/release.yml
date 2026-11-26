@@ -12,9 +12,22 @@ jobs:
     runs-on: [build-only, Linux, X64]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+      - name: Verify tagged build and scaffold pins
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+          pnpm registry:build
+          git diff --exit-code -- dist r src/tokens/tokens.ts src/tokens/theme-init-snippet.ts src/tokens/style-names.ts
+          test -z "$(git ls-files --others --exclude-standard -- dist r src/tokens)"
+          node scripts/check-release-scaffold.mjs "$GITHUB_REF_NAME"
       - name: Install checksum-pinned GitHub CLI
         run: |
           CLI_DIR=$(mktemp -d "$RUNNER_TEMP/netix-gh.XXXXXX")
@@ -30,11 +43,6 @@ jobs:
           echo "${GH_SHA}  $CLI_DIR/gh.tar.gz" | sha256sum --check --strict
           tar -xzf "$CLI_DIR/gh.tar.gz" -C "$CLI_DIR"
           echo "$CLI_DIR/gh_2.100.0_linux_${GH_ARCH}/bin" >> "$GITHUB_PATH"
-      # The tag must match package.json's version so pins and code never diverge.
-      - run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG="$(node -p "require('./package.json').version")"
-          test "$TAG" = "$PKG" || { echo "tag v$TAG != package version $PKG"; exit 1; }
       - run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

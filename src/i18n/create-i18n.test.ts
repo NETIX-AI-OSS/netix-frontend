@@ -68,6 +68,9 @@ describe('createI18n', () => {
     expect(i18n.resolvedLanguage).toBe('ar')
     await i18n.changeLanguage('es')
     expect(storage.getItem('app:lang')).toBe('ar')
+    expect(i18n.resolvedLanguage).toBe('ar')
+    expect(html().lang).toBe('ar')
+    expect(html().dir).toBe('rtl')
   })
 
   it('lets an explicit lng win over the persisted value', () => {

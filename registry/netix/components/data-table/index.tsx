@@ -279,14 +279,14 @@ function TableHead<TData extends RowData>({ table, filtering, translateHeader }:
                   </div>
                   <div
                     className={cn(
-                      'absolute bottom-0 left-0 right-0 h-[1px] bg-border/60',
+                      'absolute inset-x-0 bottom-0 h-[1px] bg-border/60',
                       !parent && 'hidden',
                       (columnIndex === totalLeafColumns - 1 ||
                         isLastLeftPinnedColumn ||
                         isLastUnpinnedColumn) &&
-                        'right-2',
+                        'end-2',
                       (columnIndex === 0 || isFirstRightPinnedColumn || isFirstUnpinnedColumn) &&
-                        'left-2',
+                        'start-2',
                     )}
                   ></div>
                 </div>
@@ -350,7 +350,7 @@ function TableBody<TData extends RowData>({
                 !rowClassName && 'bg-card',
                 cellClassName,
                 index === pageSize - 1 && isLastLeftPinnedColumn && 'rounded-ee-panel',
-                index === pageSize - 1 && isFirstRightPinnedColumn && 'rounded-bl-panel',
+                index === pageSize - 1 && isFirstRightPinnedColumn && 'rounded-es-panel',
               )}
             >
               <div className="w-full p-3 py-2.5">
@@ -358,15 +358,15 @@ function TableBody<TData extends RowData>({
               </div>
               <div
                 className={cn(
-                  'absolute bottom-0 left-0 right-0 bg-background',
+                  'absolute inset-x-0 bottom-0 bg-background',
                   !row.getIsExpanded() && 'h-[1px]',
                   index === pageSize - 1 && 'hidden',
                   (columnIndex === totalColumns - 1 ||
                     isLastLeftPinnedColumn ||
                     isLastUnpinnedColumn) &&
-                    'right-2',
+                    'end-2',
                   (columnIndex === 0 || isFirstRightPinnedColumn || isFirstUnpinnedColumn) &&
-                    'left-2',
+                    'start-2',
                 )}
               ></div>
             </TableCell>
@@ -421,7 +421,7 @@ function TableLoadingBody<TData extends RowData>({
                 className={cn(
                   'relative min-h-20 bg-card p-0',
                   rowIndex === rowCount - 1 && isLastLeftPinnedColumn && 'rounded-ee-panel',
-                  rowIndex === rowCount - 1 && isFirstRightPinnedColumn && 'rounded-bl-panel',
+                  rowIndex === rowCount - 1 && isFirstRightPinnedColumn && 'rounded-es-panel',
                 )}
               >
                 <div className="w-full p-3 py-2.5">
@@ -429,14 +429,14 @@ function TableLoadingBody<TData extends RowData>({
                 </div>
                 <div
                   className={cn(
-                    'absolute bottom-0 left-0 right-0 h-[1px] bg-background',
+                    'absolute inset-x-0 bottom-0 h-[1px] bg-background',
                     rowIndex === rowCount - 1 && 'hidden',
                     (columnIndex === columns.length - 1 ||
                       isLastLeftPinnedColumn ||
                       isLastUnpinnedColumn) &&
-                      'right-2',
+                      'end-2',
                     (columnIndex === 0 || isFirstRightPinnedColumn || isFirstUnpinnedColumn) &&
-                      'left-2',
+                      'start-2',
                   )}
                 ></div>
               </TableCell>
@@ -491,6 +491,7 @@ export type DataTableProps<TData extends RowData> = DataTableOptions<TData> & {
     /** Use with `pageCount: -1` to stop a cursor-based list at its final response. */
     hasNextPage?: boolean
     labels?: Partial<PaginationControlsLabels>
+    locale?: string
     className?: string
   }
 }
@@ -610,6 +611,7 @@ export function DataTable<TData extends RowData>({
           siblingCount={pagination.siblingCount}
           showFirstLast={pagination.showFirstLast}
           labels={pagination.labels}
+          locale={pagination.locale}
           className={pagination.className}
           leadingContent={clearFiltersButton}
         />

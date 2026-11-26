@@ -208,7 +208,13 @@ export function insertRouteEntry(content: string, key: string): string {
 export function insertNavEntry(content: string, key: string, service: ServiceConfig): string {
   const { path } = pageNames(key)
   if (key === 'user' || content.includes(`path: '${path}',`)) return content
-  return insertAt(content, 'app/lib/navigation.ts', NAV_ANCHOR, buildNavEntry(key, service))
+  const supportsDescriptionKey = content.includes('descriptionKey?: string')
+  return insertAt(
+    content,
+    'app/lib/navigation.ts',
+    NAV_ANCHOR,
+    buildNavEntry(key, service, supportsDescriptionKey),
+  )
 }
 
 const EMPTY_ORVAL = 'export default defineConfig({})'

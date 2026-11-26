@@ -69,7 +69,42 @@ declare const export_default: {
   yes: typeof yes;
 };
 
+declare const PLATFORM_LANGUAGES: readonly ["en", "ar", "fr", "es", "nl", "de", "ru"];
+type PlatformLanguage = (typeof PLATFORM_LANGUAGES)[number];
+declare const PLATFORM_LANGUAGE_INFO: {
+    readonly en: {
+        readonly nativeName: "English";
+        readonly direction: "ltr";
+    };
+    readonly ar: {
+        readonly nativeName: "العربية";
+        readonly direction: "rtl";
+    };
+    readonly fr: {
+        readonly nativeName: "Français";
+        readonly direction: "ltr";
+    };
+    readonly es: {
+        readonly nativeName: "Español";
+        readonly direction: "ltr";
+    };
+    readonly nl: {
+        readonly nativeName: "Nederlands";
+        readonly direction: "ltr";
+    };
+    readonly de: {
+        readonly nativeName: "Deutsch";
+        readonly direction: "ltr";
+    };
+    readonly ru: {
+        readonly nativeName: "Русский";
+        readonly direction: "ltr";
+    };
+};
+
 declare const COMMON_NAMESPACE = "common";
+type CommonLanguage = PlatformLanguage;
+type CommonKey = keyof typeof export_default;
 declare const commonTranslations: {
     ar: {
         active: string;
@@ -281,9 +316,42 @@ declare const commonTranslations: {
         version: string;
         yes: string;
     };
+    ru: {
+        active: string;
+        add: string;
+        asset: string;
+        back: string;
+        cancel: string;
+        close: string;
+        confirm: string;
+        created_on: string;
+        dark: string;
+        delete: string;
+        edit: string;
+        email: string;
+        home: string;
+        light: string;
+        loading: string;
+        logout: string;
+        na: string;
+        name: string;
+        next: string;
+        no: string;
+        no_data: string;
+        open: string;
+        profile: string;
+        save: string;
+        search: string;
+        settings: string;
+        status: string;
+        submit: string;
+        support: string;
+        switch_organization: string;
+        system: string;
+        version: string;
+        yes: string;
+    };
 };
-type CommonLanguage = keyof typeof commonTranslations;
-type CommonKey = keyof typeof export_default;
 /** Mergeable i18next resource bundle; apps deep-merge it under the `common` namespace. */
 declare const commonResources: {
     ar: {
@@ -508,6 +576,43 @@ declare const commonResources: {
             yes: string;
         };
     };
+    ru: {
+        common: {
+            active: string;
+            add: string;
+            asset: string;
+            back: string;
+            cancel: string;
+            close: string;
+            confirm: string;
+            created_on: string;
+            dark: string;
+            delete: string;
+            edit: string;
+            email: string;
+            home: string;
+            light: string;
+            loading: string;
+            logout: string;
+            na: string;
+            name: string;
+            next: string;
+            no: string;
+            no_data: string;
+            open: string;
+            profile: string;
+            save: string;
+            search: string;
+            settings: string;
+            status: string;
+            submit: string;
+            support: string;
+            switch_organization: string;
+            system: string;
+            version: string;
+            yes: string;
+        };
+    };
 };
 
 type Direction = 'ltr' | 'rtl';
@@ -543,7 +648,7 @@ type CreateI18nOptions = {
 /** Boots an i18next instance and keeps document direction and the stored language in sync. */
 declare function createI18n(options: CreateI18nOptions): i18n;
 
-/** Reduces a BCP-47 tag to a supported base tag, falling back when unrecognised. */
+/** Reduces a locale tag to a supported base tag, falling back when unrecognised. */
 declare function normalizeLanguage<T extends string>(value: string | null | undefined, supported: readonly T[], fallback: T): T;
 
 type LocaleTranslations = {
@@ -614,5 +719,5 @@ declare function localeIdentity(user: LocaleUser | null | undefined): LocaleIden
 /** Identity-scoped organization locale coordinator; one instance per app. */
 declare function createOrganizationLocale(config: OrganizationLocaleConfig): OrganizationLocale;
 
-export { COMMON_NAMESPACE, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };
-export type { CommonKey, CommonLanguage, CreateI18nOptions, Direction, EffectiveLocale, I18nPlugin, I18nSyncStorage, LocaleAsyncStorage, LocaleIdentity, LocaleRuntimeLike, LocaleTranslations, LocaleUser, OrganizationLocale, OrganizationLocaleConfig };
+export { COMMON_NAMESPACE, PLATFORM_LANGUAGES, PLATFORM_LANGUAGE_INFO, commonResources, commonTranslations, createI18n, createOrganizationLocale, localeIdentity, normalizeLanguage };
+export type { CommonKey, CommonLanguage, CreateI18nOptions, Direction, EffectiveLocale, I18nPlugin, I18nSyncStorage, LocaleAsyncStorage, LocaleIdentity, LocaleRuntimeLike, LocaleTranslations, LocaleUser, OrganizationLocale, OrganizationLocaleConfig, PlatformLanguage };

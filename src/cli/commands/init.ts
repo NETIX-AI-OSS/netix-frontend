@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 import * as p from '@clack/prompts'
@@ -214,15 +214,28 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   const notes = applyScaffoldTransforms(dest, options)
   for (const note of notes) p.log.info(note)
 
+  const packageFile = resolve(dest, 'package.json')
+  const packageScripts = existsSync(packageFile)
+    ? (JSON.parse(readFileSync(packageFile, 'utf8')) as { scripts?: Record<string, string> })
+        .scripts
+    : undefined
+  let installed = false
+  await runStep('pnpm install', flags.install !== false, async () => {
+    installed = (await runner('pnpm', ['install'], { cwd: dest })).code === 0
+    return installed
+  })
+  if (packageScripts?.['sync:theme-init']) {
+    await runStep(
+      'pnpm sync:theme-init',
+      installed,
+      async () => (await runner('pnpm', ['sync:theme-init'], { cwd: dest })).code === 0,
+    )
+  }
+
   // The commit comes LAST so it captures everything init produced, the pulled
   // schemas and pnpm-lock.yaml included, and a fresh app starts with a clean
   // tree instead of untracked leftovers on top of the scaffold commit.
   const steps: Array<[label: string, enabled: boolean, action: () => Promise<boolean>]> = [
-    [
-      'pnpm install',
-      flags.install !== false,
-      async () => (await runner('pnpm', ['install'], { cwd: dest })).code === 0,
-    ],
     [
       'pnpm generate:client',
       flags.generate !== false && flags.install !== false && services.length > 0,
@@ -255,6 +268,7 @@ export async function init(flags: InitFlags, runner: Runner = run) {
   const pending = (label: string) => skipped.includes(label) || failed.includes(label)
   const resume = [
     ...(pending('pnpm install') ? ['pnpm install'] : []),
+    ...(pending('pnpm sync:theme-init') ? ['pnpm sync:theme-init'] : []),
     ...(services.length > 0 && pending('schema pull') ? ['npx netix schema pull'] : []),
     // `netix schema pull` ends with generate:client, so name it only on its own.
     ...(services.length > 0 && !pending('schema pull') && pending('pnpm generate:client')

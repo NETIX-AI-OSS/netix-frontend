@@ -46,6 +46,8 @@ it('generates an orval block pointing at the generated client and schema', () =>
   expect(out).toContain("client: 'react-query'")
   expect(out).toContain("'cafm-service': {")
   expect(out).toContain("input: './schema/cafm-service.yaml'")
+  expect(out).toContain("target: './app/client/gen/cafm-service/index.ts'")
+  expect(out).toContain("schemas: './app/client/gen/cafm-service/models'")
   expect(out).toContain("path: './app/client/http-cafm-service-client.ts'")
   expect(out).toContain("name: 'httpCafmServiceClient'")
 })
@@ -70,7 +72,7 @@ it('generates a self-contained service page with a TanStack Query paginated tabl
   )
   expect(out).toContain('<OverviewBanner')
   expect(out).toContain('<StatTile')
-  expect(out).toContain('Browse and manage cafm records.')
+  expect(out).toContain("defaultValue: 'Browse and manage records for {{service}}.'")
   expect(out).not.toContain('Search records')
   expect(out).toContain('const PAGE_SIZE = 10')
   // The table sits directly under the banner: no wrapper card, no spacing or border overrides.
@@ -100,13 +102,24 @@ it('renders the module table with @netix/data-table, not a bare <table>', () => 
   expect(out).not.toContain('useLegacyTable')
   expect(out).toContain('<DataTable')
   expect(out).toContain('EmptyComponent={NoRows}')
-  expect(out).toContain('pagination={{ pageSizeOptions: [10, 25, 50, 100] }}')
+  expect(out).toContain('pagination={paginationOptions}')
   // heightAuto: without it DataTable fills an absolutely-positioned parent and the
   // page, which just flows, would render a zero-height table.
   expect(out).toContain('heightAuto')
   expect(out).toContain('columnPinning: { start: columns[0]?.id ? [columns[0].id] : [], end: [] }')
   expect(out).not.toContain("from '@/components/ui/table'")
   expect(out).not.toContain('<TableHeader>')
+})
+
+it('uses the active language for generated service and table copy with fallbacks for older templates', () => {
+  const out = buildServicePage('cafm', cafm)
+  expect(out).toContain('i18n.resolvedLanguage ?? i18n.language')
+  expect(out).toContain('const number = new Intl.NumberFormat(locale).format')
+  expect(out).toContain("t('tablePagination.navigation', { defaultValue: 'Pagination' })")
+  expect(out).toContain("defaultValue: 'Showing {start}–{end} of {total}'")
+  expect(out).toContain("defaultValue: 'Page {{page}} of {{total}}'")
+  expect(out).toContain("t('serviceCollection.resetFilter', { defaultValue: 'Reset' })")
+  expect(out).toContain("t('serviceFields.' + field, { defaultValue: formatLabel(field) })")
 })
 
 it('builds columns from the schema, independent of the rows', () => {
