@@ -1,10 +1,24 @@
 packages: []
 minimumReleaseAge: 1440
+autoInstallPeers: false
+peerDependencyRules:
+  # Native consumers install their own React Native runtime; this web build does not use it.
+  ignoreMissing:
+    - react-native
 allowBuilds:
   esbuild: true
   '@parcel/watcher': true
   msw: true
 overrides:
+  brace-expansion: 5.0.12
+  fast-uri: 3.1.9
+  follow-redirects: 1.16.2
+  ip-address: 10.7.4
+  minimatch: 11.0.1
+  source-map-js: 1.2.2
+  systeminformation: 5.33.16
+  'undici@^7.0.0': 7.30.1
+  zod: 4.6.6
   # Migrate the audited shadcn configuration callers to Fastify.
   'shadcn>deepmerge': 'file:./tooling/shadcn-merge'
   '@shadcn/registry>deepmerge': 'file:./tooling/shadcn-merge'
