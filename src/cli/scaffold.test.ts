@@ -48,6 +48,8 @@ it('applies the full pipeline for data + cafm', () => {
   expect(read('index.html')).toContain('<title>Ops Console</title>')
   expect(existsSync(join(root, 'ops-console-ui-deployment.yaml'))).toBe(true)
   expect(existsSync(join(root, 'app-ui-deployment.yaml'))).toBe(false)
+  expect(read('ops-console-ui-ingress-httproute.yaml')).toContain('    - ops-console-ui.acme.dev\n')
+  expect(existsSync(join(root, 'app-ui-ingress-httproute.yaml'))).toBe(false)
   expect(read('.env')).toContain('VITE_BASE_DOMAIN=acme.dev')
   expect(read('.env')).not.toContain('_SERVICE_BASE_URL')
   expect(read('app/client/http-cafm-service-client.ts')).toContain('httpCafmServiceClient')

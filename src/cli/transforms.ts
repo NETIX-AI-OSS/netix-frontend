@@ -116,6 +116,7 @@ export function deployRenames(options: ScaffoldOptions): Record<string, string> 
   return {
     'app-ui-deployment.yaml': `${options.name}-deployment.yaml`,
     'app-ui-ingress.yaml': `${options.name}-ingress.yaml`,
+    'app-ui-ingress-httproute.yaml': `${options.name}-ingress-httproute.yaml`,
   }
 }
 

@@ -35,6 +35,7 @@ const DEPLOY_FILES = [
   'docker-compose.yaml',
   'app-ui-deployment.yaml',
   'app-ui-ingress.yaml',
+  'app-ui-ingress-httproute.yaml',
   '.github/workflows/docker-image-push.yaml',
 ]
 
