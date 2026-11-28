@@ -8772,7 +8772,8 @@ function rewriteDevPort(content, options) {
 function deployRenames(options) {
   return {
     "app-ui-deployment.yaml": `${options.name}-deployment.yaml`,
-    "app-ui-ingress.yaml": `${options.name}-ingress.yaml`
+    "app-ui-ingress.yaml": `${options.name}-ingress.yaml`,
+    "app-ui-ingress-httproute.yaml": `${options.name}-ingress-httproute.yaml`
   };
 }
 function rewriteEnv(content, options) {
@@ -9290,6 +9291,7 @@ var DEPLOY_FILES = [
   "docker-compose.yaml",
   "app-ui-deployment.yaml",
   "app-ui-ingress.yaml",
+  "app-ui-ingress-httproute.yaml",
   ".github/workflows/docker-image-push.yaml"
 ];
 var DEV_PORT_FILES = ["docker-compose.yaml", "Dockerfile"];

@@ -83,7 +83,12 @@ it('sets the locale application identifier', () => {
 })
 
 it('rewrites the deploy identity and host in every manifest', () => {
-  for (const path of ['docker-compose.yaml', 'app-ui-deployment.yaml', 'app-ui-ingress.yaml']) {
+  for (const path of [
+    'docker-compose.yaml',
+    'app-ui-deployment.yaml',
+    'app-ui-ingress.yaml',
+    'app-ui-ingress-httproute.yaml',
+  ]) {
     const out = rewriteDeployFile(fixture(path), options())
     expect(out).not.toContain('app-ui')
     expect(out).not.toContain('app.netixai.dev')
@@ -94,6 +99,7 @@ it('rewrites the deploy identity and host in every manifest', () => {
   expect(deployRenames(options())).toEqual({
     'app-ui-deployment.yaml': 'asset-console-ui-deployment.yaml',
     'app-ui-ingress.yaml': 'asset-console-ui-ingress.yaml',
+    'app-ui-ingress-httproute.yaml': 'asset-console-ui-ingress-httproute.yaml',
   })
 })
 
